@@ -89,6 +89,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RuleAPI", "RuleAPI\RuleAPI.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRIS.AktivitasAbsensi", "HRIS.AktivitasAbsensi\HRIS.AktivitasAbsensi.csproj", "{93822376-CBD4-425E-96E6-5C848EA084DF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{94D34D6C-8EA3-44CB-9B69-D2FD8D8D76DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -567,7 +567,7 @@ namespace HRIS.AktivitasAbsensi.Classes {
          foreach (LogMesinAbsen lma in cma.ListLogMesinAbsen) {
             string tgl = lma.Tgl.ToString("yyyy-MM-dd");
             var responseJadwal = await client.GetAsync($"{remoteServer}/JadwalKehadiran/GetByNIKAndDate/{lma.NIK}/{tgl}");
-            await Task.Delay(250);
+            await Task.Delay(10);
 
             if (responseJadwal.IsSuccessStatusCode) {
                var strResultJadwal = await responseJadwal.Content.ReadAsStringAsync();
@@ -575,7 +575,7 @@ namespace HRIS.AktivitasAbsensi.Classes {
                if (jadwal != null && jadwal.LockedMasuk == true && jadwal.Up == true) {
                   string nik = jadwal.NIK;
                   var responseGaji = await client.GetAsync($"{remoteServer}/Gaji/NIK/{nik}");
-                  await Task.Delay(250);
+                  await Task.Delay(10);
                   if (responseGaji.IsSuccessStatusCode) {
                      var resultGaji = await responseGaji.Content.ReadAsStringAsync();
                      var gajiDanTunjangan = JsonConvert.DeserializeObject<GajiDanTunjangan>(resultGaji);
@@ -605,7 +605,7 @@ namespace HRIS.AktivitasAbsensi.Classes {
 
          var strContentPayroll = new StringContent(JsonConvert.SerializeObject(listPayrolls), Encoding.UTF8, "application/json");
          await client.PostAsync($"{remoteServer}/Payroll/PostPayrollRange", strContentPayroll);
-         await Task.Delay(250);
+         await Task.Delay(10);
          return true;
       }
 

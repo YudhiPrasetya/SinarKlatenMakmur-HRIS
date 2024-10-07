@@ -25,7 +25,7 @@ namespace MesinAbsenAPI.Controllers {
 
       [HttpPost("AddAbsenRealTimeForPayroll")]
       public async Task<ActionResult<PayrollDTO>> AbsenRealTimeForPayroll([FromBody] PayrollDTO payrollDTO) {
-         await Task.Delay(50);
+         await Task.Delay(10);
          this.rabbitMQProducer.SendRealtimeMessageToPayroll(payrollDTO);
          return Ok(payrollDTO);
       }

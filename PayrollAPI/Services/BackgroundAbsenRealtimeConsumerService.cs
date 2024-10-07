@@ -26,18 +26,7 @@ namespace PayrollAPI.Services {
                var body = args.Body.ToArray();
                var json = Encoding.UTF8.GetString(body);
                var dataPayrol = JsonConvert.DeserializeObject<PayrollDTO>(json);
-               Console.WriteLine($"dataPayroll.Id: {dataPayrol.Id}");
-               Console.WriteLine($"dataPayroll.NIK: {dataPayrol.NIK}");
-               Console.WriteLine($"dataPayroll.Upah: {dataPayrol.Upah}");
-               Console.WriteLine($"dataPayroll.Tgl: {dataPayrol.Tgl}");
-               Console.WriteLine($"dataPayroll.GroupName: {dataPayrol.GroupName}");
-               Console.WriteLine($"dataPayroll.Bulan: {dataPayrol.Bulan}");
-               Console.WriteLine($"dataPayroll.Tahun: {dataPayrol.Tahun}");
-               Console.WriteLine($"dataPayroll.Gaji: {dataPayrol.Gaji}");
-               Console.WriteLine($"dataPayroll.EmployeeName: {dataPayrol.EmployeeName}");
-               Console.WriteLine($"dataPayroll.DepartmentName: {dataPayrol.DepartmentName}");
-               Console.WriteLine($"dataPayroll.TotalMasuk: {dataPayrol.TotalMasuk}");
-               Console.WriteLine($"dataPayroll.TotalLembur: {dataPayrol.TotalLembur}");
+
                var payroll = await dbContextPayroll!.Payrolls.Where(p => p.NIK == dataPayrol!.NIK && p.Bulan == dataPayrol.Bulan && p.Tahun == dataPayrol.Tahun).FirstOrDefaultAsync();
 
                if (payroll == null) {
