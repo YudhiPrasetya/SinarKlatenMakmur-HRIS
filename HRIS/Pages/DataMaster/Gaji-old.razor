@@ -1,0 +1,140 @@
+﻿@page "/gaji1"
+
+@using HRIS.Contracts
+@using HRIS.Services
+@using SKM.Shared.Dtos
+@using HRIS.Components
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+
+<MudCard Class="mt-5" Elevation="1">
+	@if (!dataLoaded) {
+		<MudCardHeader>
+			<CardHeaderContent>
+				<MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="40px" Width="40px" />
+				<MudSkeleton SkeletonType="SkeletonType.Text" Animation="Animation.Wave" Height="32px" Width="200px" />
+			</CardHeaderContent>
+			<CardHeaderActions>
+				<MudSkeleton Animation="Animation.Wave" Width="190px" Height="37px" />
+			</CardHeaderActions>
+		</MudCardHeader>
+		<MudCardContent>
+			<MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Width="1038px" Height="257px"/>
+		</MudCardContent>
+		<MudOverlay Visible="overlayVisible" DarkBackground="false" Absolute="true">
+			<MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+		</MudOverlay>
+
+	}
+	else {
+		<MudCardHeader>
+			<CardHeaderContent>
+				<MudAvatar Color="Color.Secondary">G</MudAvatar>
+				<MudText Typo="Typo.h6">Gaji dan Tunjangan</MudText>
+			</CardHeaderContent>
+			<CardHeaderActions>
+				<MudButtonGroup Variant="Variant.Filled" Color="Color.Primary">
+					<MudButton>Tambah Data</MudButton>
+					<MudMenu Icon="@Icons.Material.Filled.ArrowDropDown">
+						<MudMenuItem OnClick="() => tambahDataSatu = true">Satu Persatu</MudMenuItem>
+						<MudMenuItem OnClick="() => tambahDataSekaligus = true">Banyak Sekaligus</MudMenuItem>
+					</MudMenu>
+				</MudButtonGroup>
+			</CardHeaderActions>
+		</MudCardHeader>
+		<MudCardContent>
+			@if (tambahDataSatu == true) {
+				<FormGajiDanTunjangan newGajiDTO="gajiDTO" editGajiDTO="@editGajiDTO" gajiDTO="@editGajiDTO" OnGajiAdded="@AddNewGaji" OnGajiUpdate="@UpdateGaji" empDTOs="empDTOs" ptkpDTOs="ptkpDTOs" umpDTOs="umpDTOs" />
+			}
+			@if (tambahDataSekaligus == true) {
+				<FormGajiDanTunjanganSekaligus />
+			}
+
+			<DaftarGajiDanTunjangan @ref="daftarGaji" gajiDTOs="@gajiDTOs" GetGaji="OnGetGaji" DeleteGaji="@OnDeleteGaji" />
+		</MudCardContent>
+	}
+
+</MudCard>
+
+@code {
+	[Inject]IGajiDanTunjanganService gajiService { get; set; }
+	[Inject]IUMPService umpService { get; set; }
+	[Inject]IPTKPService ptkpService { get; set; }
+	[Inject]IEmployeeService empService { get; set; }
+
+	private bool tambahDataSatu = false;
+	private bool tambahDataSekaligus = false;
+	private IEnumerable<GajiDanTunjanganDTO> gajiDTOs;
+	private IEnumerable<UpahMinimumProvinsiDTO> umpDTOs;
+	private IEnumerable<PenghasilanTidakKenaPajakDTO> ptkpDTOs;
+	private IEnumerable<EmployeeDTO> empDTOs;
+	private FormGajiDanTunjangan formGajiSatu { get; set; } = new();
+	private DaftarGajiDanTunjangan daftarGaji { get; set; }
+	private GajiDanTunjanganDTO gajiDTO { get; set; }
+	private GajiDanTunjanganDTO editGajiDTO { get; set; }
+	private bool dataLoaded;
+	private bool overlayVisible;
+	private string Mode = "Add";
+
+	protected override async Task OnInitializedAsync() {
+		// return base.OnInitializedAsync();
+		dataLoaded = false;
+		overlayVisible = true;
+		await Task.Delay(50);
+		// await LoadGajiDTOS();
+		gajiDTOs = await gajiService.GetGajiListAsync();
+		// await daftarGaji.gajiTable.ReloadServerData();
+		empDTOs = await empService.GetListEmployeesAsync();
+		umpDTOs = await umpService.GetUMP();
+		ptkpDTOs = await ptkpService.GetPTKPAsync();
+		dataLoaded = true;
+		overlayVisible = false;
+		StateHasChanged();
+	}
+
+	// private async Task<IEnumerable<GajiDanTunjanganDTO>> LoadGajiDTOS() {
+	// 	gajiDTOs = await gajiService.GetGajiListAsync();
+	// 	return gajiDTOs;
+	// 	// return await gajiService.GetGajiListAsync();
+	// }
+
+	private async Task AddNewGaji(GajiDanTunjanganDTO _gaji) {
+		gajiDTO = _gaji;
+		await gajiService.AddGajiAsync(gajiDTO);
+		// await LoadGajiDTOS();
+		daftarGaji.gajiDTOs = await gajiService.GetGajiListAsync();
+		await daftarGaji.gajiTable.ReloadServerData();
+		StateHasChanged();
+	}
+
+	private async Task UpdateGaji(GajiDanTunjanganDTO _g) {
+		gajiDTO = _g;
+		await gajiService.UpdateGajiAsync(gajiDTO);
+		daftarGaji.gajiDTOs = await gajiService.GetGajiListAsync();
+		await daftarGaji.gajiTable.ReloadServerData();
+		StateHasChanged();
+	}
+
+	private async Task OnDeleteGaji(int Id) {
+		var deleteConfirmation = await DialogService.ShowMessageBox("Konfirmasi Hapus Data", "Yakin akan menghapus?", "Ya", "Tidak");
+		if(deleteConfirmation == true) {
+			await gajiService.DeleteGajiAsync(Id);
+			daftarGaji.gajiDTOs = await gajiService.GetGajiListAsync();
+			await daftarGaji.gajiTable.ReloadServerData();
+			StateHasChanged();
+
+			Snackbar.Add("Data gaji berhasil dihapus", Severity.Info, config => {
+				config.HideTransitionDuration = 50;
+			});
+		}
+	}
+
+	private void OnGetGaji(GajiDanTunjanganDTO _gaji) {
+		tambahDataSatu = true;
+		Mode = "Edit";
+		editGajiDTO = _gaji;
+	}
+	
+}

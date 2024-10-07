@@ -1,0 +1,345 @@
+﻿@using SKM.Shared.Dtos
+@using HRIS.Contracts
+@using SKM.Shared.Helpers;
+@using HRIS.Components;
+
+@inject IDialogService ModalDialog
+@inject ISnackbar Snackbar
+@inject HttpClient httpClient
+
+<MudDialog>
+	<DialogContent>
+		@* <MudForm @ref="formJadwalKerjaKaryawan"> *@
+
+			<MudGrid Spacing="1">
+				<MudItem xs="12" sm="6" >
+					<MudAutocomplete @ref="shiftAutoComplete" T="JadwalShiftKaryawanDTO" Label="Shift Kerja" Variant="Variant.Outlined" @bind-Value="jadwalShiftKaryawanDTO" SearchFunc="@SearchJadwal" ToStringFunc="@(j => j==null ? null : $"{j.Deskripsi} {j.JadwalMasuk} {j.JadwalPulang}")" Margin="Margin.Dense" Class="mb-2" OnBlur="OnShiftChanged" ShowProgressIndicator="true" />
+
+					<MudDateRangePicker Variant="Variant.Outlined" DisableToolbar="true" @ref="tglPeriode" PlaceholderStart="Dari" PlaceholderEnd="Sampai" @bind-DateRange="_dateRange" Margin="Margin.Dense" Class="mb-2" />
+
+					<MudField InnerPadding="false" Variant="Variant.Outlined" Margin="Margin.Dense" Label="Data Karyawan">
+						<MudSwitch @bind-Checked="pilihKaryawan" T="bool" Label="Pilih Karyawan" Color="Color.Success" LabelPosition="LabelPosition.Start" Class="mb-2" />
+
+						@if (pilihKaryawan) {
+							<MudButton StartIcon="@Icons.Material.Filled.Check" Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled" IconSize="Size.Small" OnClick="AddSelectedEmp" FullWidth="true" Disabled="@(_selectedItems.Count <=0 ? true : false)" EndIcon="@Icons.Material.Filled.ArrowCircleRight">OK</MudButton>
+
+							<MudTable @ref="tableEmployee" Items="employeeDTOs" Dense="true" MultiSelection="true" Hover="true" Striped="true" @bind-SelectedItems="_selectedItems" Filter="new Func<EmployeeDTO,bool>(FilterFunc1)" OnRowClick="OnRowClicked" T="EmployeeDTO" RowClass="cursor-pointer" Class="mb-2" @bind-SelectOnRowClick="_selectOnRowClick">
+								<ToolBarContent>
+									<MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Placeholder="Search" @bind-Value="searchString"></MudTextField>
+								</ToolBarContent>
+								<HeaderContent>
+									<MudTh><MudTableSortLabel T="EmployeeDTO" SortLabel="grup_field">Grup Kerja</MudTableSortLabel></MudTh>
+									<MudTh><MudTableSortLabel T="EmployeeDTO" SortLabel="nik_field">NIK</MudTableSortLabel></MudTh>
+									<MudTh><MudTableSortLabel T="EmployeeDTO" SortLabel="nama_field">Nama</MudTableSortLabel></MudTh>
+									<MudTh><MudTableSortLabel T="EmployeeDTO" SortLabel="nama_field">Gender</MudTableSortLabel></MudTh>
+								</HeaderContent>
+								<RowTemplate>
+									<MudTd DataLabel="Grup Kerja">@context.GroupName</MudTd>
+									<MudTd DataLabel="NIK">@context.NIK</MudTd>
+									<MudTd DataLabel="Nama">@context.Name</MudTd>
+									<MudTd DataLabel="Gender">@(context.Gender == true ? "Laki-laki" : "Wanita")</MudTd>
+								</RowTemplate>
+								<NoRecordsContent>No record(s) found</NoRecordsContent>
+								<LoadingContent>...Loading</LoadingContent>
+								<PagerContent>
+									<MudTablePager PageSizeOptions="new int[] {5, 10, 25, 50, 75, 100, int.MaxValue}" />
+								</PagerContent>
+							</MudTable>
+						}
+					</MudField>
+				</MudItem>
+
+				<MudItem xs="12" sm="6">
+					<MudGrid Spacing="1">
+						<MudItem xs="16" sm="6">
+							<MudTimePicker PickerVariant="PickerVariant.Dialog" AutoClose="true" Label="Jam Masuk" @ref="JamMasuk" @bind-Time="jamMasuk" Margin="Margin.Dense" Disabled="datePickerDisabled" Class="mb-2" Variant="Variant.Outlined"></MudTimePicker>
+						</MudItem>
+
+						<MudItem xs="6" sm="6">
+							<MudTimePicker PickerVariant="PickerVariant.Dialog" AutoClose="true" Label="Jam Pulang" @ref="JamPulang" @bind-Time="jamPulang" Margin="Margin.Dense" Disabled="datePickerDisabled" Variant="Variant.Outlined" Class="mb-2"></MudTimePicker>
+						</MudItem>
+					</MudGrid>
+
+					<MudTextField Variant="Variant.Outlined" Class="mb-2" @ref="Keterangan" @bind-Value="jadwalKerjaKaryawanDTO.Keterangan" Label="Keterangan" Margin="Margin.Dense" />
+
+					<MudField Class="mt-2" InnerPadding="false" Variant="Variant.Outlined" Margin="Margin.Dense" Label="Data Karyawan Terpilih">
+						<MudDataGrid Items="@selectedEmpTempDTOs" Dense="true" Striped="true" Hover="true" RowClass="cursor-pointer" Class="ma-2">
+							<Columns>
+								<PropertyColumn Property="x => x.Group" Title="Grup Kerja" />
+								<PropertyColumn Property="x => x.NIK" Title="NIK" />
+								<PropertyColumn Property="x => x.Nama" Title="Nama" />
+								<PropertyColumn Property="x => x.Gender" Title="Gender" />
+									<TemplateColumn CellClass="d-flex justify-end">
+										<CellTemplate>
+											<MudIconButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Error" Icon="@Icons.Material.Filled.Delete" OnClick="() => DelSelectedEmp(context.Item.NIK)" />
+										</CellTemplate>
+									</TemplateColumn>
+							</Columns>
+							<PagerContent>
+								<MudDataGridPager T="SelectedEmpTempDTO" />
+							</PagerContent>
+						</MudDataGrid>
+					</MudField>
+
+				</MudItem>
+			</MudGrid>
+		@* </MudForm> *@
+	</DialogContent>
+
+	<DialogActions>
+		<MudButton Color="Color.Warning" StartIcon="@Icons.Material.Filled.Save" Variant="Variant.Filled" Size="Size.Small" OnClick="OnJadwalSave" Disabled="disableButtonSave">
+			@if (saveProcessing) {
+				<MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+				<MudText Class="ms-2">Processing...</MudText>
+			}else{
+				<MudText>Save</MudText>
+			}
+		</MudButton>
+		<MudButton Color="Color.Transparent" StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Outlined" Size="Size.Small" OnClick="OnFormClose">
+			Close
+		</MudButton>
+	</DialogActions>
+</MudDialog>
+
+@code {
+	[CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+	[Parameter]public IEnumerable<EmployeeDTO> employeeDTOs { get; set; } = new List<EmployeeDTO>();
+	[Parameter]public string ModalLabel { get; set; }
+	[Parameter]public IEnumerable<GroupDTO> groupDTOs { get; set; } = new List<GroupDTO>();
+	//[Parameter]public List<JadwalShiftKaryawanDTO> jadwalShiftKaryawanDTOs { get; set; } = new ();
+	[Parameter]public string Mode { get; set; }
+	[Parameter]public JadwalKerjaKaryawanDTO jadwalKerjaKaryawanDTO { get; set; } = new();
+	[Parameter] public List<NamaHari> listNamaHari { get; set; } = new();
+	// [Inject]IJadwalKerjaKaryawanService jadwalKerjaKaryawanService { get; set; }
+	[Inject]IJadwalKehadiranService jadwalKehadiranService { get; set; }
+	[Inject]IEmployeeService employeeService { get; set; }
+	[Inject]IJadwalShiftKaryawanService jadwalShiftKaryawanService { get; set; }
+
+	private List<JadwalShiftKaryawanDTO> jadwalShiftKaryawanDTOs { get; set; } = new();
+
+	private MudForm formJadwalKerjaKaryawan;
+	private MudTextField<int> Id;
+	private MudTextField<string?> Keterangan;
+	private MudDateRangePicker tglPeriode;
+	private DateRange _dateRange;
+	private MudTimePicker JamMasuk;
+	private MudTimePicker JamPulang;
+	private MudSelect<string> groupSelect;
+	private JadwalShiftDepartemenDTO jadwalShiftDepartemenDTO;
+	private MudAutocomplete<JadwalShiftKaryawanDTO> shiftAutoComplete;
+	private MudSelect<NamaHari> selectHari;
+
+	private bool showEmployees = false;
+	private MudTable<EmployeeDTO> tableEmployee;
+	private HashSet<EmployeeDTO> _selectedItems = new HashSet<EmployeeDTO>();
+	private string searchEmployeeString;
+	private GroupDTO selectedGroup;
+	private JadwalShiftKaryawanDTO jadwalShiftKaryawanDTO { get; set; } = new();
+	private IEnumerable<EmployeeDTO> pagedData;
+	private int totalItems;
+	private bool datePickerDisabled = true;
+	private IEnumerable<string> selectedDays { get; set; } = new HashSet<string>();
+	private string selectedDay { get; set; }
+	private bool saveProcessing = false;
+
+	private bool pilihKaryawan { get; set; } = false;
+	private string searchString = "";
+	private string _selectedItemText = "Now row clicked";
+	private bool disabledOKButton = true;
+	private bool _selectOnRowClick = true;
+
+	private List<SelectedEmpTempDTO> selectedEmpTempDTOs { get; set; } = new();
+	private bool disableButtonSave = true;
+	private TimeSpan? jamMasuk;
+	private TimeSpan? jamPulang;
+
+	protected override async Task OnInitializedAsync() {
+		jadwalShiftKaryawanDTOs = await jadwalShiftKaryawanService.GetJadwalShiftKaryawan();
+	}
+
+	private bool FilterFunc1(EmployeeDTO element) {
+		if (string.IsNullOrWhiteSpace(searchString))
+			return true;
+		if (element.GroupName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if ($"{element.GroupName} {element.NIK} {element.Name}".Contains(searchString))
+			return true;
+		return false;
+	}
+
+	private void OnShowEmployees() {
+		showEmployees = true;
+	}
+
+	private void OnFormClose() {
+		MudDialog?.Close(DialogResult.Ok(true));
+	}
+
+	private async Task OnJadwalSave() {
+		saveProcessing = true;
+		disableButtonSave = true;
+		await Task.Delay(50);
+		// List<JadwalKerjaKaryawanDTO> jadwalDTOs = new();
+		List<JadwalKehadiranDTO> jadwalDTOs = new();
+
+		string[] days = jadwalShiftKaryawanDTO.Days!.Split(", ");
+		foreach(var emp in selectedEmpTempDTOs){
+			foreach(DateTime dt in DtRange.EachDay(_dateRange.Start.Value.Date, _dateRange.End.Value.Date)) {
+				foreach(var d in days) {
+					if(int.Parse(d.ToString()) == (int)dt.DayOfWeek) {
+						string strYear = dt.Date.Year.ToString();
+						string strMonth = dt.Date.Month < 10 ? $"0{dt.Date.Month}" : $"{dt.Date.Month}";
+						string strDay = dt.Date.Day < 10 ? $"0{dt.Date.Day}" : $"{dt.Date.Day}";
+						string strDate = $"{strYear}-{strMonth}-{strDay}";
+
+						DateTime jadwalMasuk = DateTime.Parse(strDate + " " + jamMasuk!.Value.ToString(@"hh\:mm\:ss"));
+						DateTime jadwalPulang = DateTime.Parse(strDate + " " + jamPulang!.Value.ToString(@"hh\:mm\:ss"));
+						jadwalDTOs.Add(new JadwalKehadiranDTO
+						{
+							Id = 0,
+							GrupKerja = emp.Group,
+							Nama = emp.Nama,
+							NIK = emp.NIK,
+							Gender = emp.Gender!.Value,
+							JadwalMasuk = jadwalMasuk,
+							JadwalPulang = jadwalPulang,
+							JamMasuk = null,
+							JamPulang = null,
+							Terlambat = null,
+							Keterangan = null
+						});
+					}
+				}
+			}
+		}
+
+		// await jadwalKerjaKaryawanService.AddJadwalKerjaKaryawanRange(jadwalDTOs);
+		await jadwalKehadiranService.AddJadwalKehadiranRange(jadwalDTOs);
+		Snackbar.Add("Data jadwal kerja karyawan berhasil disimpan didatabase", Severity.Success, config =>
+		{
+			config.HideTransitionDuration = 50;
+		});
+
+		//await formJadwalKerjaKaryawan.ResetAsync();
+
+		selectedEmpTempDTOs.Clear();
+		saveProcessing = false;
+		disableButtonSave = true;
+	}
+
+	void OnShiftSelectedChange(string text) {
+		if(text != "Lainnya"){
+			JadwalShiftKaryawanDTO? jskDTO = jadwalShiftKaryawanDTOs.First(j => j.Deskripsi == text);
+			jadwalShiftKaryawanDTO.JadwalMasuk = jskDTO?.JadwalMasuk;
+			jadwalShiftKaryawanDTO.JadwalPulang = jskDTO?.JadwalPulang;
+
+			datePickerDisabled = true;
+		}
+		else {
+			datePickerDisabled = false;
+		}
+
+	}
+
+	private async Task<TableData<EmployeeDTO>> ServerEmployeeReload(TableState state) {
+		// IEnumerable<EmployeeDTO> data = await httpClient.GetFromJsonAsync<List<EmployeeDTO>>($"{BaseUrl.ServerBaseUrl}/Employees");
+		IEnumerable<EmployeeDTO> data = await employeeService.GetListEmployeesAsync();
+		await Task.Delay(300);
+		data = data.Where(element => {
+			if (string.IsNullOrWhiteSpace(searchEmployeeString))
+				return true;
+			if (element.EmployeeId.ToString().Contains(searchEmployeeString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.NIK.Contains(searchEmployeeString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.Name.Contains(searchEmployeeString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.GroupName.Contains(searchEmployeeString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if ($"{element.EmployeeId.ToString()} {element.NIK} {element.Name} {element.GroupName}".Contains(searchEmployeeString))
+				return true;
+			return false;
+		}).ToArray();
+		totalItems = data.Count();
+		switch (state.SortLabel) {
+			case "nik_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+			break;
+			case "nama_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.Name);
+			break;
+			case "grup_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.GroupName);
+			break;
+		}
+
+		pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+		return new TableData<EmployeeDTO>() { TotalItems = totalItems, Items = pagedData };
+	}
+
+	private void OnSearch(string text) {
+		searchEmployeeString = text;
+		tableEmployee.ReloadServerData();
+		StateHasChanged();
+	}
+
+	private async Task<IEnumerable<JadwalShiftKaryawanDTO>> SearchJadwal(string val) {
+		await Task.Delay(5);
+		if (string.IsNullOrEmpty(val)) return jadwalShiftKaryawanDTOs;
+
+		return jadwalShiftKaryawanDTOs.Where(j => j.Deskripsi.Contains(val, StringComparison.InvariantCultureIgnoreCase) || j.Deskripsi.Contains(val, StringComparison.InvariantCultureIgnoreCase) || j.JadwalMasuk.ToString().Contains(val, StringComparison.InvariantCultureIgnoreCase) || j.JadwalPulang.ToString().Contains(val, StringComparison.InvariantCultureIgnoreCase));
+
+	}
+
+	private void OnShiftChanged() {
+		// Console.WriteLine(shiftAutoComplete.Value);
+		if(shiftAutoComplete.Value != null){
+			jamMasuk = shiftAutoComplete.Value.JadwalMasuk;
+			jamPulang = shiftAutoComplete.Value.JadwalPulang;
+			
+			jadwalShiftKaryawanDTO.JadwalMasuk = shiftAutoComplete.Value.JadwalMasuk;
+			jadwalShiftKaryawanDTO.JadwalPulang = shiftAutoComplete.Value.JadwalPulang;
+			Console.WriteLine($"jadwalShiftKaryawanDTO.Days: {jadwalShiftKaryawanDTO.Days}");
+		}
+
+	}
+
+	void OnRowClicked(TableRowClickEventArgs<EmployeeDTO> args) {
+		if(_selectedItems.Count <= 0) {
+			disabledOKButton = true;
+		}else{
+			disabledOKButton = false;
+		}
+	}
+
+	void AddSelectedEmp() {
+		foreach(var i in _selectedItems) {
+			// SelectedEmpTempDTO selectedEmp = new() { Group = i.GroupName, Nama = i.Name, NIK = i.NIK };
+			// selectedEmpTempDTOs.Add(selectedEmp);
+			SelectedEmpTempDTO selectedEmpTempDTO = new() {
+				Group = i.GroupName,
+				Nama = i.Name,
+				NIK = i.NIK,
+				Gender = i.Gender
+				
+			};
+			selectedEmpTempDTOs.Add(selectedEmpTempDTO);
+		}
+		_selectedItems.Clear();
+		disabledOKButton = true;
+		disableButtonSave = false;
+	}
+
+	bool DelSelectedEmp(string nik) {
+		SelectedEmpTempDTO? selectedEmp = selectedEmpTempDTOs.Where(e => e.NIK == nik).SingleOrDefault();
+		var del = selectedEmpTempDTOs.Remove(selectedEmp!);
+		return del ;
+	}
+
+}
+
+

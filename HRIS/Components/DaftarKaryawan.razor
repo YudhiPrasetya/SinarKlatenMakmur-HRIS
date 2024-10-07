@@ -1,0 +1,133 @@
+﻿@using HRIS.Contracts;
+@using HRIS.Pages.SharedModal;
+@using HRIS.Services;
+@using SKM.Shared.Dtos;
+@inject IDialogService DialogService;
+@inject ISnackbar Snackbar;
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<EmployeeDTO>>>(ServerReload))"
+          Dense="true" Hover="true" @ref="employeeTable" Elevation="4" FixedHeader="true" FixedFooter="true" Striped="true" Bordered="false" MultiSelection="true" @bind-SelectedItems="selectedEmployees">
+   <ToolBarContent>
+      <MudText Typo="Typo.h6">Daftar Karyawan</MudText>
+      <MudSpacer />
+      <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+   </ToolBarContent>
+   <HeaderContent>
+      <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="id_field" T="EmployeeDTO">ID</MudTableSortLabel></MudTh>
+      <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="nik_field" T="EmployeeDTO">NIK</MudTableSortLabel></MudTh>
+      <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="name_field" T="EmployeeDTO">Nama</MudTableSortLabel></MudTh>
+      <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="gender_field" T="EmployeeDTO">Jns Kelamin</MudTableSortLabel></MudTh>
+      <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="address_field" T="EmployeeDTO">Alamat</MudTableSortLabel></MudTh>
+      <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="department_field" T="EmployeeDTO">Departemen</MudTableSortLabel></MudTh>
+      <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="position_field" T="EmployeeDTO">Jabatan</MudTableSortLabel></MudTh>
+      <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="group_field" T="EmployeeDTO">Group Kerja</MudTableSortLabel></MudTh>
+   </HeaderContent>
+   <RowTemplate>
+      <MudTd Class="pa-2" DataLabel="ID">@context.EmployeeId</MudTd>
+      <MudTd Class="pa-1" DataLabel="NIK">@context.NIK</MudTd>
+      <MudTd Class="pa-1" DataLabel="Nama">@context.Name</MudTd>
+      <MudTd Class="pa-1" DataLabel="Jns Kelamin">@(context.Gender == true ? "Laki-laki" : "Perempuan")</MudTd>
+         <MudTd Class="pa-1" DataLabel="Alamat">
+            @(context.Address.Length > 15 ? context.Address.Substring(0, 15) + "..." : context.Address)
+      </MudTd>
+      <MudTd Class="pa-1" DataLabel="Departemen">@context.DepartmentName</MudTd>
+      <MudTd Class="pa-1" DataLabel="Jabatan">@context.PositionName</MudTd>
+      <MudTd Class="pa-1" DataLabel="Grup Kerja">@context.GroupName</MudTd>
+
+   </RowTemplate>
+   <NoRecordsContent>
+      <MudText>No matching records found</MudText>
+   </NoRecordsContent>
+   <LoadingContent>
+      <MudText>Loading...</MudText>
+   </LoadingContent>
+   <PagerContent>
+      <MudTablePager />
+   </PagerContent>
+</MudTable>
+
+@code {
+   private IEnumerable<EmployeeDTO> Employees = new List<EmployeeDTO>();
+   private HashSet<EmployeeDTO> selectedEmployees = new HashSet<EmployeeDTO>();   
+   private IEnumerable<EmployeeDTO> pagedData;
+   private MudTable<EmployeeDTO> employeeTable;
+
+   private EmployeeDTO employeeDTO { get; set; } = new EmployeeDTO();
+
+   private int totalItems;
+   private string searchString = null;
+
+   [Inject] IEmployeeService employeeService { get; set; }
+   
+
+   private async Task<TableData<EmployeeDTO>> ServerReload(TableState state) {
+      IEnumerable<EmployeeDTO> data = await employeeService.GetListEmployeesAsync();
+      await Task.Delay(300);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.Address.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.DepartmentName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.PositionName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.GroupName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if ($"{element.NIK} {element.Name} {element.Address} {element.DepartmentName} {element.PositionName} {element.GroupName}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "id_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.EmployeeId);
+         break;
+         case "nik_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+         break;
+         case "name_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Name);
+         break;
+         case "gender_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Gender);
+         break;
+         case "address_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Address);
+         break;
+         case "department_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.DepartmentName);
+         break;
+         case "position_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.PositionName);
+         break;
+         case "group_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.GroupName);
+         break;
+
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<EmployeeDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+
+   protected async override Task OnInitializedAsync() {
+      // return base.OnInitializedAsync();
+      Employees = await employeeService.GetListEmployeesAsync();
+   }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      employeeTable.ReloadServerData();
+   }
+
+
+
+}

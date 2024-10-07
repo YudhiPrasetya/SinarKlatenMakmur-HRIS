@@ -1,0 +1,89 @@
+﻿@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+@using System.Globalization;
+@inject ISnackbar Snackbar;
+
+<MudDialog>
+   <DialogContent>
+      <MudForm @ref="frmJadwalKerjaKaryawan">
+         <MudTextField @bind-Value="jadwalKehadiranDTO.Id" T="int" Disabled="true" Label="Id"/>
+         <MudSpacer />
+         <MudTextField @bind-Value="jadwalKehadiranDTO.NIK" T="string" Disabled="true" Label="NIK" />
+         <MudSpacer />
+         <MudTextField @bind-Value="jadwalKehadiranDTO.Nama" T="string" Disabled="true" Label="Nama"/>
+         <MudSpacer />
+         <MudTextField @bind-Value="jadwalKehadiranDTO.GrupKerja" T="string" Disabled="true" Label="Grup Kerja"/>
+         <MudSpacer />
+
+         <MudAutocomplete @ref="selectShift" Label="Jadwal Shift" T="JadwalShiftKaryawanDTO" SearchFunc="SearchShiftKaryawan" ShowProgressIndicator="true" ProgressIndicatorColor="Color.Success" ToStringFunc="@(s => s == null ? null : $"{s.Deskripsi} - {s.Initial}")" CoerceText="true" ResetValueOnEmptyText="true" />
+
+         <MudSpacer />
+      </MudForm>
+   </DialogContent>
+   <DialogActions>
+      <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="Submit">Save</MudIconButton>
+      <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="Close">Close</MudIconButton>
+   </DialogActions>
+</MudDialog>
+
+@code {
+   [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+   [Parameter] public JadwalKehadiranDTO jadwalKehadiranDTO { get; set; } = new();
+
+   [Inject] IJadwalShiftKaryawanService? jadwalShiftKaryawanService { get; set; }
+   [Inject] IJadwalKehadiranService? jadwalKehadiranService { get; set; }
+
+   private List<JadwalShiftKaryawanDTO> jadwalShiftKaryawanDTOs { get; set; } = new();
+   private MudForm? frmJadwalKerjaKaryawan;
+   private MudAutocomplete<JadwalShiftKaryawanDTO>? selectShift;
+   private MudSelect<int>? selectTanggal;
+   // private MudSelect<string>? selectShift;
+
+   private IEnumerable<int>? listTglCompared = new List<int>();
+   private List<int>? listTgl { get; set; } = new List<int>();
+   private IEnumerable<int> options { get; set; } = new HashSet<int>();
+   private EmployeeDTO employeeDTO { get; set; } = new();
+
+   protected override async Task OnInitializedAsync() {
+      jadwalShiftKaryawanDTOs = await jadwalShiftKaryawanService!.GetJadwalShiftKaryawan();
+   }
+
+   async Task Submit() {
+      JadwalKehadiranDTO jadwalWillUpdate = new JadwalKehadiranDTO()
+      {
+         Id = jadwalKehadiranDTO.Id,
+         NIK = jadwalKehadiranDTO.NIK,
+         Nama = jadwalKehadiranDTO.Nama,
+         Gender = jadwalKehadiranDTO.Gender,
+         GrupKerja = jadwalKehadiranDTO.GrupKerja,
+         Shift = selectShift!.Value.Deskripsi,
+         Inisial_Shift = selectShift!.Value.Initial,
+         IdJadwalShiftKaryawan = selectShift!.Value.Id,
+         JadwalMasuk = jadwalKehadiranDTO.JadwalMasuk!.Value.Date.AddHours(selectShift!.Value.JadwalMasuk!.Value.Hours).AddMinutes(selectShift!.Value.JadwalMasuk!.Value.Minutes).AddSeconds(selectShift!.Value.JadwalMasuk!.Value.Seconds),
+         JadwalPulang = jadwalKehadiranDTO.JadwalPulang!.Value.Date.AddHours(selectShift!.Value.JadwalPulang!.Value.Hours).AddMinutes(selectShift!.Value.JadwalPulang!.Value.Minutes).AddSeconds(selectShift!.Value.JadwalPulang!.Value.Seconds),
+      };
+      var rst = await jadwalKehadiranService!.UpdateJadwal(jadwalWillUpdate);
+
+      await frmJadwalKerjaKaryawan!.ResetAsync();
+      Snackbar.Add("Jadwal shift karyawan berhasil di-update.", Severity.Success, config => {
+         config.HideTransitionDuration = 200;
+      });
+      MudDialog?.Close(DialogResult.Ok(true));
+   }
+
+   void Close() {
+      MudDialog?.Close(DialogResult.Ok(true));
+   }
+
+   private async Task<IEnumerable<JadwalShiftKaryawanDTO>> SearchShiftKaryawan(string value) {
+      if (string.IsNullOrEmpty(value))
+         return await jadwalShiftKaryawanService!.GetJadwalShiftKaryawan();
+      return await jadwalShiftKaryawanService!.GetByLikeDeskripsi(value);
+   }
+
+   private async Task<IEnumerable<JadwalShiftKaryawanDTO>?> SearchShift(string value) {
+      if (string.IsNullOrEmpty(value))
+         return await jadwalShiftKaryawanService!.GetJadwalShiftKaryawan();
+      return await jadwalShiftKaryawanService!.GetByLikeDeskripsi(value);
+   }
+}

@@ -1,0 +1,232 @@
+﻿@using HRIS.Pages.SharedModal;
+@using SKM.Shared.Dtos;
+@using HRIS.Contracts;
+@using SKM.Shared.Helpers;
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudDialog>
+	<DialogContent>
+      <MudForm @ref="lupaAbsenForm">
+         <MudGrid>
+            <MudItem sm="3">
+               <MudDatePicker @ref="Tanggal" Label="Tanggal" Margin="Margin.Dense" @bind-Date="lupaAbsenDTO.Tanggal" DateFormat="dd-MM-yyyy" />
+            </MudItem>
+            <MudItem sm="3">
+               <MudTextField @ref="NIK" @bind-Value="@lupaAbsenDTO.NIK" Class="pa-0" T="string" Label="NIK" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="CariKaryawan" Margin="Margin.Dense" />
+            </MudItem>
+            <MudItem sm=3>
+               <MudTextField @ref="@namaKaryawan" T="string" Label="Nama Karyawan" @bind-Value="lupaAbsenDTO.NamaKaryawan" Disabled="true"  Margin="Margin.Dense" />
+            </MudItem>
+            <MudItem sm=3>
+               <MudTextField @ref="@grupKerja" T="string" Label="Grup Kerja" @bind-Value="lupaAbsenDTO.GrupKerja" Disabled="true"  Margin="Margin.Dense" />
+            </MudItem>
+          </MudGrid>
+          <MudGrid>
+             <MudItem xs="6">
+                <MudTimePicker Label="Jam Masuk" @bind-Time="JamMasuk" Disabled="JamMasukDisabled" />
+             </MudItem>
+             <MudItem xs="6">
+               <MudTimePicker Label="Jam Pulang" @bind-Time="JamPulang" Disabled="true" />
+             </MudItem>
+          </MudGrid>
+
+      </MudForm>
+	</DialogContent>
+   <DialogActions>
+      <MudDivider DividerType="DividerType.Inset" />
+      <MudButton StartIcon="@Icons.Material.Filled.Save" Variant="Variant.Filled" Color="Color.Success" OnClick="SaveLupaAbsen" Size="Size.Small" Disabled="disabledSaveButton">@if(processing == true) {
+            <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Warning" /><MudText>...loading</MudText>
+         }
+         else {
+            <MudText>Save</MudText>
+         }
+      </MudButton>
+      <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" Color="Color.Error" OnClick="Close" Size="Size.Small">Close</MudButton>
+   </DialogActions>
+</MudDialog>
+
+@code {
+   [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+   [Parameter]public LupaAbsenDTO lupaAbsenDTO { get; set; } = new LupaAbsenDTO();
+   [Parameter]public string? ModalLabel { get; set; }
+   [Parameter] public string? Mode { get; set; }
+
+   [Parameter] public IEnumerable<EmployeeDTO> EmployeeDTOS { get; set; } = new List<EmployeeDTO>();
+
+   [Inject]IGajiDanTunjanganService? gajiService { get; set; }
+   [Inject]ILupaAbsenService? lupaAbsenService { get; set; }
+   [Inject]IKehadiranService? kehadiranService { get; set; }
+   [Inject]IJadwalKehadiranService? jadwalKehadiranService { get; set; }
+   [Inject]IJadwalKerjaKaryawanService? jadwalKerjaKaryawanService { get; set; }
+   [Inject]IPayrollService? payrollService { get; set; }
+
+   private MudForm? lupaAbsenForm;
+   private IEnumerable<GajiDanTunjanganDTO> Gajis = new List<GajiDanTunjanganDTO>();
+   private GajiDanTunjanganDTO? gajiDTO = new();
+   private JadwalKerjaKaryawanDTO jadwalKerjaKaryawanDTO = new();
+   private MudTextField<int>? Id;
+   private MudDatePicker? Tanggal;
+   private MudTextField<string>? NIK;
+   private MudTextField<string>? namaKaryawan;
+   private MudTextField<string>? grupKerja;
+   private MudRadioGroup<string>? radioAbsen;
+   private MudTimePicker? pickerJam;
+   private MudTextField<string>? Keterangan;
+   private TimeSpan? theTime = new TimeSpan(0, 0, 0);
+   private TimeSpan? JamMasuk = new TimeSpan(0,0,0);
+   private TimeSpan? JamPulang = new TimeSpan(0, 0, 0);
+   private AbsenMasukDTO absenMasukDTO = new();
+   private JadwalKehadiranDTO? jadwalKehadiranDTO;
+   bool disabledSaveButton = true;
+   bool JamMasukDisabled = false;
+   bool processing = false;
+
+   protected override async Task OnInitializedAsync() {
+      // return base.OnInitializedAsync();
+      Gajis = await gajiService!.GetGajiListAsync();
+   }
+
+   async Task CariKaryawan() {
+      var parameters = new DialogParameters<SearchGajiDanTunjanganModal>();
+      parameters.Add("ModalLabel", "Cari Data Karyawan");
+      parameters.Add("GajiDTOS", Gajis);
+      //parameters.Add("GroupDTOS", Groups);
+      var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+      var dialog = await DialogService.ShowAsync<SearchGajiDanTunjanganModal>("Data Karyawan", parameters, options);
+      var result = await dialog.Result;
+
+      if (!result.Canceled) {
+         gajiDTO = result.Data as GajiDanTunjanganDTO;
+         lupaAbsenDTO.NIK = gajiDTO!.NIK;
+         lupaAbsenDTO.NamaKaryawan = gajiDTO.NamaKaryawan;
+         lupaAbsenDTO.GrupKerja = gajiDTO.GrupKerja;
+
+         DateTime tgl = Tanggal!.Date!.Value;
+         string strTgl = DateConversions.DateToString(tgl);
+         jadwalKehadiranDTO = await jadwalKehadiranService!.GetByNIKAndDate(gajiDTO!.NIK, strTgl);
+         JamMasuk = jadwalKehadiranDTO?.JamMasuk?.TimeOfDay;
+         JamPulang = jadwalKehadiranDTO?.JamPulang?.TimeOfDay;
+
+         if (jadwalKehadiranDTO!.JamPulang == null || jadwalKehadiranDTO!.JamMasuk != null) {
+            disabledSaveButton = true;
+            JamMasukDisabled = true;
+            Snackbar.Add(
+               @<div>
+                  <h4>Tidak dapat dilakukan input lupa absen masuk karena:</h4>
+                  <ul>
+                     <li>Karyawan tidak melakukan absen pulang, atau</li>
+                     <li>Karyawan sudah melakukan absen masuk pada tanggal tersebut</li>
+                  </ul>
+      </div>
+   , Severity.Warning, options => { options.CloseAfterNavigation = true; }
+            );
+         }
+         else {
+            JamPulang = jadwalKehadiranDTO.JamPulang.Value.TimeOfDay;
+            JamMasukDisabled = false;
+            disabledSaveButton = false;
+         }
+      }
+   }
+
+   private async void SaveLupaAbsen() {
+      //Cek absen karyawan berdasar tanggal dan nik
+      processing = true;
+      disabledSaveButton = true;
+      DateTime Tgl = lupaAbsenDTO.Tanggal!.Value.Date;
+      string strDate = DateConversions.DateToString(lupaAbsenDTO.Tanggal.Value.Date);
+      string nik = gajiDTO!.NIK;
+      HttpClient httpClient = new();
+
+      if (Mode == "Add") {
+         LupaAbsenDTO lupaAbsen = new LupaAbsenDTO();
+         lupaAbsen.Tanggal = lupaAbsenDTO.Tanggal.Value;
+         lupaAbsen.NIK = lupaAbsenDTO.NIK;
+         lupaAbsen.GrupKerja = lupaAbsenDTO.GrupKerja;
+         lupaAbsen.NamaKaryawan = lupaAbsenDTO.NamaKaryawan;
+         lupaAbsen.Absen = "Masuk";
+         lupaAbsen.Jam = JamMasuk;
+         lupaAbsen.Keterangan = "Lupa Absen Masuk";
+         lupaAbsen.CreatedBy = 1;
+         lupaAbsen.CreatedAt = DateTime.Today;
+         lupaAbsen.UpdatedBy = 1;
+         lupaAbsen.UpdatedAt = DateTime.Today;
+         var lupa = await lupaAbsenService!.AddLupaAbsenAsync(lupaAbsen);
+         if(lupa != null) {
+            DateTime tanggal = lupaAbsen.Tanggal!.Value.Date;
+            string strTanggal = DateConversions.DateToString(tanggal);
+            jadwalKehadiranDTO!.JamMasuk = DateTime.Parse($"{strTanggal} {JamMasuk}");
+            jadwalKehadiranDTO.LockedMasuk = true;
+            jadwalKehadiranDTO.Up = true;
+            jadwalKehadiranDTO.Terlambat = JamMasuk > jadwalKehadiranDTO.JadwalMasuk?.TimeOfDay ? JamMasuk?.Subtract(jadwalKehadiranDTO.JadwalMasuk!.Value.TimeOfDay) : TimeSpan.Parse("00:00:00");
+            jadwalKehadiranDTO.Keterangan = JamMasuk > jadwalKehadiranDTO.JadwalMasuk?.TimeOfDay ? "Terlambat" : "Tepat Waktu";
+            var hadir = await jadwalKehadiranService!.UpdateJadwalKehadiran(jadwalKehadiranDTO);
+            if(hadir != null) {
+               AddPayroll(hadir);
+            }
+         }
+
+         processing = false;
+
+         Snackbar.Add("Tambah Data Lupa Absen berhasil disimpan di database", Severity.Success, config => {
+            config.HideTransitionDuration = 50;
+         });
+         await lupaAbsenForm!.ResetAsync();
+      }
+   }
+
+   private async void AddPayroll(JadwalKehadiranDTO hadirDTO) {
+      // if (kehadiranDTO.JamPulang.Value.Subtract(kehadiranDTO.JamMasuk.Value).TotalMinutes >= 480) {
+
+      // }
+
+      decimal upahHarian = Math.Round((decimal)gajiDTO!.Upah / 21, 2);
+      PayrollDTO payroll = new() {
+            NIK = hadirDTO!.NIK!,
+            IdEmployee = gajiDTO.EmployeeId!.Value,
+            EmployeeName = gajiDTO.NamaKaryawan,
+            GroupName = gajiDTO.GrupKerja,
+            DepartmentName = gajiDTO!.DepartmentName!,
+            Upah = gajiDTO.Upah,
+            TotalMasuk = 1,
+            Bulan = Tanggal?.Date?.Month,
+            Tahun = Tanggal?.Date?.Year,
+            Gaji = upahHarian,
+            CreatedBy = 1,
+            UpdatedBy = 1,
+            UpdatedAt = DateTime.Today,
+            CreatedAt = DateTime.Today,
+         };
+
+      // HttpClient client1 = new() {
+      //    BaseAddress = new Uri($"{BaseUrl.ServerBaseUrl}")
+      // };
+      var result = await payrollService!.AddPayroll(payroll);
+
+      // HttpResponseMessage response1 = await Task.Run(() => client1.PostAsJsonAsync<PayrollDTO>("/Payroll", payroll).Result);
+
+      //HttpClient httpClient = new HttpClient();
+      //string nik = kehadiranDTO.NIK;
+      //var response = await httpClient.GetAsync($"{BaseUrl.ServerBaseUrl}/Kehadiran/NIK/{nik}");
+      //if (response.IsSuccessStatusCode) {
+      //	if (response.StatusCode == System.Net.HttpStatusCode.OK) {
+      //		AbsenMasukDTO amDTO = await response.Content.ReadFromJsonAsync<AbsenMasukDTO>();
+
+      //	}
+      //}
+
+
+
+      //Invoke(new MethodInvoker(delegate () {
+      //	listBox1.Items.Add("Karyawan dengan NIK: " + enrollNumber + " berhasil absen pulang");
+      //}));
+   }
+
+   private void Close() {
+      MudDialog?.Close(DialogResult.Ok(true));
+   }
+
+}

@@ -1,0 +1,385 @@
+﻿@page "/spl"
+@using HRIS.Components;
+@using HRIS.Contracts;
+@using HRIS.Services;
+@using SKM.Shared.Dtos;
+@using System.Collections.ObjectModel;
+@using System.Globalization;
+@using SKM.Shared.Helpers;
+
+@inject ISnackbar Snackbar;
+@inject IDialogService DialogService;
+
+<style>
+   .selected {
+      background-color: #1E88E5 !important;
+   }
+
+   .selected > td {
+      color: white !important;
+   }
+
+   .selected > td .mud-input {
+      color: white !important;
+   }
+</style>
+
+<MudTable Class="mt-5 cursor-pointer" ServerData="@(new Func<TableState, Task<TableData<SuratPerintahLemburDTO>>>(ServerReload))"
+          Dense="true" Hover="true" @ref="splTable" Elevation="4" FixedHeader="true" FixedFooter="true" Striped="true" Bordered="false" GroupBy="@GroupDefinition">
+   <ToolBarContent>
+      <MudText Typo="Typo.h6">Daftar Surat Perintah Lembur</MudText>
+      <MudFab Class="ml-2" StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" Size="Size.Small" OnClick="TambahSPL"></MudFab>
+      <MudSpacer />
+      <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+   </ToolBarContent>
+
+   <ColGroup>
+      <col style="width: 60px;" />
+      <col />
+      <col />
+      <col />
+      <col />
+      <col />
+      <col />
+      <col />
+      <col />
+      <col />
+   </ColGroup>
+   <HeaderContent>
+      <MudTh><MudTableSortLabel SortLabel="id_field" T="SuratPerintahLemburDTO">Id</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="grup_field" T="SuratPerintahLemburDTO">Grup Kerja</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="name_field" T="SuratPerintahLemburDTO">Nama</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="nik_field" T="SuratPerintahLemburDTO">NIK</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="ot1_field" T="SuratPerintahLemburDTO">OT1</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="ot2_field" T="SuratPerintahLemburDTO">OT2</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="totalOT_field" T="SuratPerintahLemburDTO">Total OT</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="keterangan_field" T="SuratPerintahLemburDTO">Keterangan</MudTableSortLabel></MudTh>
+      <MudTh></MudTh>
+   </HeaderContent>
+   <GroupHeaderTemplate>
+      <MudTh colspan="9">
+         @($"{context.GroupName}: {context.Key}")
+      </MudTh>
+   </GroupHeaderTemplate>
+   <RowTemplate>
+      <MudTd DataLabel="Id">@context.Id</MudTd>
+      <MudTd DataLabel="Grup Kerja">@context.GroupName</MudTd>
+      <MudTd DataLabel="Nama Karyawan">@context.EmployeeName</MudTd>
+      <MudTd DataLabel="NIK">@context.NIK</MudTd>
+      <MudTd DataLabel="OT1">@context.OT1</MudTd>
+      <MudTd DataLabel="OT2">@context.OT2</MudTd>
+      <MudTd DataLabel="Total OT">@context.OTTotal</MudTd>
+      <MudTd DataLabel="Keterangan">@context.Description</MudTd>
+      <MudTd><MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning"></MudIconButton></MudTd>
+   </RowTemplate>
+   <NoRecordsContent>
+      <MudText>No matching records found</MudText>
+   </NoRecordsContent>
+   <LoadingContent>
+      <MudText>Loading...</MudText>
+   </LoadingContent>
+   <PagerContent>
+      <MudTablePager />
+   </PagerContent>
+</MudTable>
+
+
+
+@code {
+   [Inject] ISuratPerintahLemburService? splService { get; set; }
+   [Inject] IGajiDanTunjanganService? gajiService { get; set; }
+   [Inject] IGroupService? groupService { get; set; }
+   private IEnumerable<SuratPerintahLemburDTO>? splDTOs;
+   private IEnumerable<GajiDanTunjanganDTO> gajiDTOS = new List<GajiDanTunjanganDTO>();
+   // private static IEnumerable<DepartmentDTO> ListDepartment { get; set; }
+   private IEnumerable<SuratPerintahLemburDTO>? pagedData;
+   private SuratPerintahLemburDTO splDTO { get; set; } = new SuratPerintahLemburDTO();
+   private bool isOpen;
+   private bool success;
+   private bool isEdit = false;
+   private MudBlazor.Color TitlePanelColor = Color.Tertiary;
+   private MudForm? splForm;
+   private MudTable<SuratPerintahLemburDTO>? splTable;
+   private MudTable<GajiDanTunjanganDTO>? employeeTable;
+   private bool showGroupId = false;
+   private bool showDepartemntId = false;
+   private bool showEmployeeId = false;
+   private string formCaption = "Tambah Data SPL";
+   private string? TitlePanelCaption;
+   private string? searchString = null;
+   private string? searchEmployeeString = null;
+   private string[] errors = { };
+   private string Mode = "Tambah";
+   private int totalItems;
+   private MudSelect<GroupDTO>? groupSelect;
+   private GroupDTO? selectedGroup { get; set; }
+   private MudTextField<int>? Id;
+   private MudRadioGroup<string>? JnsSPL;
+   private MudTextField<string>? SPLDescription;
+   private MudDatePicker? SPLDate;
+   private MudNumericField<int>? OT1;
+   private MudNumericField<int>? OT2;
+   private MudNumericField<int>? OTTotal;
+   private MudNumericField<int>? OTBreak;
+   private MudTextField<string>? Style;
+   private MudSwitch<bool>? IsActive;
+   private int selectedRowNumber = -1;
+   private SuratPerintahLemburDTO? selectedItem = null;
+   private HashSet<GajiDanTunjanganDTO> selectedGajis = new HashSet<GajiDanTunjanganDTO>();
+   private GroupDTO groupDTO { get; set; } = new GroupDTO();
+   private List<GroupDTO> groupDTOs { get; set; } = new List<GroupDTO>();
+   private int IdMax;
+   private List<SuratPerintahLemburDTO> splDetail { get; set; } = new List<SuratPerintahLemburDTO>();
+   // private SuratPerintahLemburDTO sDTO { get; set; } = new SuratPerintahLemburDTO();
+
+   protected async override Task OnInitializedAsync() {
+      // return base.OnInitializedAsync();
+      groupDTOs = await groupService!.GetListGroupsAsync();
+      gajiDTOS = await gajiService!.GetGajiListAsync();
+   }
+
+   private TableGroupDefinition<SuratPerintahLemburDTO> GroupDefinition = new() {
+      GroupName = "Tanggal",
+      Indentation = false,
+      Expandable = true,
+      IsInitiallyExpanded = true,
+      Selector = (e) => e.OTDate!.Value.Date.ToString("dd-MM-yyyy")
+   };
+
+   private async Task<TableData<SuratPerintahLemburDTO>> ServerReload(TableState state) {
+      var data = await splService!.GetListSPLsAsync();
+      await Task.Delay(50);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+
+         if (element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.GroupName!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.EmployeeName!.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.NIK!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.OT1!.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.OT2!.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.OTTotal!.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.Description!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if ($"{element.Id.ToString()} {element.GroupName} {element.EmployeeName} {element.NIK} {element.OT1.ToString()} {element.OT2.ToString()} {element.OTTotal.ToString()} {element.Description}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "id_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Id);
+         break;
+         case "grup_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.GroupName);
+         break;
+         case "nama_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.EmployeeName);
+         break;
+         case "nik_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+         break;
+         case "ot1_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.OT1);
+         break;
+         case "ot2_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.OT2);
+         break;
+         case "totalOT_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.OTTotal);
+         break;
+         case "keterangan_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Description);
+         break;
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<SuratPerintahLemburDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   // protected override void OnInitialized() {
+   //    // base.OnInitialized();
+   //    GetDepartments().GetAwaiter().GetResult();
+   // }
+
+   // private List<DepartmentDTO> GetDepartments() {
+   //    // var task = departmentService.GetListDepartmentsAsync();
+   //    // task.Wait();
+
+
+   //    // return task.Result;
+   //    // await Task.Delay(100);
+   //    // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+
+   //    // return departmentDTOs;
+   //    departmentDTOs = departmentService.GetListDepartmentsAsync();
+   //    return departmentDTOs;
+
+   // }
+
+   // private async Task FillDepartments() {
+   //    IList<DepartmentDTO> departments = new List<DepartmentDTO>();
+   //    departments = await departmentService.GetListDepartmentsAsync();
+   //    ListDepartment = departments;
+   //    StateHasChanged();
+   //    await Task.Delay(200);
+   // }
+
+   // private async void GetDepartments() {
+   //    departmentDTOs = new List<DepartmentDTO>();
+   //    // departmentDTOs.Clear();
+   //    departmentDTOs = await departmentService.GetListDepartmentsAsync();
+   //    // await Task.Delay(200);
+   //    StateHasChanged();
+   //    // Task.Delay(100);
+
+   // }
+
+   // protected async override Task OnInitializedAsync() {
+   //    // return base.OnInitializedAsync();
+   //    employeeDTOS = await employeeService.GetListEmployeesAsync();
+   // }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      splTable!.ReloadServerData();
+   }
+
+   // private async void Cancel() {
+   //    Mode = "Add";
+   //    splForm.ResetAsync();
+   //    gajiDTOS = await gajiService.GetGajiByGroupIdAsync(0);
+   //    StateHasChanged();
+
+   //    isEdit = false;
+   //    TitlePanelColor = Color.Tertiary;
+   //    formCaption = "Tambah Data SPL";
+   // }
+
+   async Task TambahSPL() {
+      var parameters = new DialogParameters {
+         ["dataGaji"] = gajiDTOS,
+         ["dataGroup"] = groupDTOs,
+         ["Mode"] = "Tambah",
+      };
+
+      var options = new DialogOptions() { CloseButton = false, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+
+      var dialog = await DialogService.ShowAsync<FormSPLDialog>($"{Mode} Data SPL Karyawan", parameters, options);
+      var result = await dialog.Result;
+      if (!result.Canceled) {
+         await splTable!.ReloadServerData();
+      }
+   }
+
+   async Task EditSPL(SuratPerintahLemburDTO selectedSPL) {
+      Mode = "Edit";
+      TitlePanelColor = Color.Warning;
+      formCaption = "Edit Data SPL";
+      splDTO.Id = selectedSPL.Id;
+      splDTO.Description = selectedSPL.Description;
+      splDTO.OTDate = selectedSPL.OTDate;
+      splDTO.OTType = selectedSPL.OTType;
+      splDTO.OT1 = selectedSPL.OT1;
+      splDTO.OT2 = selectedSPL.OT2;
+      splDTO.OTBreak = selectedSPL.OTBreak;
+      splDTO.OTTotal = selectedSPL.OTTotal;
+      splDTO.Style = selectedSPL.Style;
+      List<SuratPerintahLemburDTO> spls = await splService!.GetSPLByGroupId_OTDateAsync(selectedSPL.GroupId!.Value, DateConversions.DateTimeToInt(selectedSPL.OTDate));
+      List<GajiDanTunjanganDTO> gajiDTOs = new List<GajiDanTunjanganDTO>();
+      foreach(var spl in spls) {
+         gajiDTOs.Add(new GajiDanTunjanganDTO {
+            GroupId = spl.GroupId,
+            GrupKerja = spl.GroupName!,
+            DepartmentId = spl.DepartmentId,
+            DepartmentName = spl.DepartmentName,
+            NIK = spl.NIK!,
+            NamaKaryawan = spl.EmployeeName!
+         });
+      }
+      gajiDTOS = gajiDTOs;
+      StateHasChanged();
+      // departmentDTO.DepartmentID = selectedDepartment.DepartmentID;
+      // departmentDTO.DepartmentName = selectedDepartment.DepartmentName;
+      // departmentDTO.DepartmentDescription = selectedDepartment.DepartmentDescription;
+      // departmentDTO.IsActive = selectedDepartment.IsActive;
+      // departmentDTO.Budget = selectedDepartment.Budget;
+      // departmentDTO.UpdatedAt = DateTime.Now;
+      // departmentDTO.UpdatedBy = 1;
+      isOpen = true;
+
+   }
+
+   // private void OnIsActiveChange(bool b) {
+   //    IsActive = b;
+   // }
+
+
+   async Task DeleteSPL(int Id) {
+      bool? deleteConfirmation = await DialogService.ShowMessageBox("Konfirmasi", "Yakin akan menghapus?", "Ya", "Tidak");
+      if (deleteConfirmation == true) {
+         var response = await splService!.DeleteSPLAsync(Id);
+         if (response != null) {
+            // await departmentTable.ReloadServerData();
+            // Snackbar.Add("Data departemen berhasil dihapus.", Severity.Info, config => {
+            //    config.HideTransitionDuration = 100;
+            // });
+         }
+
+      }
+   }
+
+   private string SelectedRowClassFunc(SuratPerintahLemburDTO splDTO, int rowNumber) {
+      if (selectedRowNumber == rowNumber) {
+         selectedRowNumber = -1;
+         return string.Empty;
+      }
+      else if (splTable!.SelectedItem != null && splTable.SelectedItem.Equals(splDTO)) {
+         selectedRowNumber = rowNumber;
+         return "selected";
+      }
+      else {
+         return string.Empty;
+      }
+   }
+
+   private void RowClickEvent(TableRowClickEventArgs<SuratPerintahLemburDTO>? args) {
+      selectedItem = args!.Item;
+      //Console.WriteLine(selectedItem.Name);
+      // splDTOs1 = await splService.GetSPLAsync(selectedItem.Id);
+   }
+
+   private async void OnGroupValueChanged(GroupDTO gDTO) {
+      selectedGroup = gDTO;
+      // Console.WriteLine(selectedGroup.GroupID);
+      // Console.WriteLine(selectedGroup.GroupDesc);
+      gajiDTOS = await gajiService!.GetGajiByGroupIdAsync(selectedGroup.GroupID);
+      StateHasChanged();
+   }
+
+   private async void ShowSPlDetail(int id, int groupId, DateTime? otDate) {
+      SuratPerintahLemburDTO spl = splDTOs!.First(s => s.Id == id);
+      spl.ShowDetails = !spl.ShowDetails;
+      int intOTDate = DateConversions.DateTimeToInt(otDate);
+      splDetail = await splService!.GetSPLByGroupId_OTDateAsync(groupId, intOTDate);
+      StateHasChanged();
+   }
+
+}

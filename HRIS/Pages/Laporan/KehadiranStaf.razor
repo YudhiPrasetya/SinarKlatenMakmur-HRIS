@@ -1,0 +1,296 @@
+﻿@page "/lapKehadiranStaf"
+
+@using ClosedXML.Excel;
+@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+@inject HttpClient httpClient
+@inject IDialogService DialogService
+
+<MudPaper Class="mb-4">
+   <MudGrid Class="d-flex justify-center">
+      <MudItem xs="3">
+         <MudDateRangePicker @ref="tglPeriode" @bind-DateRange="_dateRange" Margin="Margin.Dense" PlaceholderStart="Dari" PlaceholderEnd="Sampai" Variant="Variant.Outlined" DisableToolbar="true" Label="Periode"></MudDateRangePicker>
+      </MudItem>
+      <MudItem xs="3">
+         <MudSelect T="string" @ref="selectGroup" Variant="Variant.Outlined" Margin="Margin.Dense">
+            <MudSelectItem Value="@("All")">Semua</MudSelectItem>
+            @foreach (var g in groupDTOs) {
+               <MudSelectItem Value="@g.GroupDesc">@g.GroupDesc</MudSelectItem>
+            }
+         </MudSelect>
+      </MudItem>
+      <MudItem xs="4" Class="align-center d-flex justify-center">
+         <MudButtonGroup Variant="Variant.Filled" Color="Color.Success">
+            <MudButton Disabled="@_processing" StartIcon="@Icons.Material.Filled.Preview" OnClick="PrintPreview" Size="Size.Small">
+               @if (_processing) {
+                  <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                  <MudText Class="ms-2">...Processing</MudText>
+               }
+               else {
+                  <MudText>Proses</MudText>
+               }
+            </MudButton>
+
+            <MudButton StartIcon="@Icons.Material.Filled.Print" Size="Size.Small" OnClick="@(async() => await PrintReport())">
+               Print
+            </MudButton>
+
+            <MudButton StartIcon="@Icons.Material.Filled.ImportExport" Size="Size.Small" OnClick="@(async() => await ExportToExcel())">
+               To Excel
+            </MudButton>
+
+         </MudButtonGroup>
+      </MudItem>
+   </MudGrid>
+</MudPaper>
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<JadwalKehadiranDTO>>>(ServerReload))"
+            Dense="true" Hover="true" @ref="tableKehadiran">
+   <ToolBarContent>
+      <MudText Typo="Typo.h6">Laporan Kehadiran</MudText>
+      <MudSpacer />
+
+      <MudSpacer />
+      <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                     AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+   </ToolBarContent>
+   <HeaderContent>
+      <MudTh><MudTableSortLabel SortLabel="grupKerja_field" T="JadwalKehadiranDTO">Grup Kerja</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="tanggal_field" T="JadwalKehadiranDTO">Tanggal</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="nik_field" T="JadwalKehadiranDTO">NIK</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="nama_field" T="JadwalKehadiranDTO">Nama</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="jamMasuk_field" T="JadwalKehadiranDTO">Jam Masuk</MudTableSortLabel></MudTh>      
+      <MudTh><MudTableSortLabel SortLabel="jamPulang_field" T="JadwalKehadiranDTO">Jam Pulang</MudTableSortLabel></MudTh>      
+      <MudTh><MudTableSortLabel SortLabel="terlambat_field" T="JadwalKehadiranDTO">Terlambat</MudTableSortLabel></MudTh>
+
+   </HeaderContent>
+   <RowTemplate>
+      <MudTd DataLabel="GrupKerja">@context.GrupKerja</MudTd>
+      <MudTd DataLabel="Tanggal">@context.JadwalMasuk.Value.Date.ToString("dd-MM-yyyy")</MudTd>
+      <MudTd DataLabel="NIK">@context.NIK</MudTd>
+      <MudTd DataLabel="Nama">@context.Nama</MudTd>
+      <MudTd DataLabel="JamMasuk">@context.JamMasuk</MudTd>
+      <MudTd DataLabel="JamPulang">@context.JamPulang</MudTd>
+      <MudTd DataLabel="Terlambat">@context.Terlambat</MudTd>
+   </RowTemplate>
+   <NoRecordsContent>
+      <MudText>No matching records found</MudText>
+   </NoRecordsContent>
+   <LoadingContent>
+      <MudText>Loading...</MudText>
+   </LoadingContent>
+   <PagerContent>
+      <MudTablePager />
+   </PagerContent>
+</MudTable>
+
+<style>
+   #hadir {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+   }
+
+      #hadir td, #hadir th {
+         border: 1px solid #ddd;
+         padding: 8px;
+      }
+
+      #hadir tr:nth-child(even) {
+         background-color: #f2f2f2;
+      }
+
+      #hadir tr:hover {
+         background-color: #ddd;
+      }
+
+      #hadir th {
+         padding-top: 12px;
+         padding-bottom: 12px;
+         text-align: left;
+         background-color: #04AA6D;
+         color: white;
+      }
+</style>
+
+@if(printing == true){
+   <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Close" OnClick="CloseReport" Size="Size.Small" Class="mt-4">Close</MudButton>
+   <div id="printable">
+      <table style="width: 100%;" id="hadir">
+         <thead>
+            <tr>
+               <th>Grup Kerja</th>
+               <th>Tanggal</th>
+               <th>NIK</th>
+               <th>Nama</th>
+               <th>Jam Masuk</th>
+               <th>Jam Pulang</th>
+               <th>Terlambat</th>
+            </tr>
+         </thead>
+         <tbody>
+            @foreach(var h in listHadir){
+               <tr>
+                  <td>@h.GrupKerja</td>
+                  <td>@h.Tanggal</td>
+                  <td>@h.NIK</td>
+                  <td>@h.Nama</td>
+                  <td>@h.JamMasuk</td>
+                  <td>@h.JamPulang</td>
+                  <td>@h.Terlambat</td>
+               </tr>
+            }
+         </tbody>
+      </table>
+   </div>
+}
+
+@code {
+   [Inject]IKehadiranService? kehadiranService { get; set; }
+   [Inject]IGroupService? groupService { get; set; }
+   [Inject]IJadwalKehadiranService? jadwalKehadiranService { get; set; }
+
+   private IEnumerable<KehadiranDTO> kehadiranDTOs { get; set; } = new List<KehadiranDTO>();
+   private IEnumerable<JadwalKehadiranDTO>? pagedData;
+   private List<GroupDTO> groupDTOs { get; set; } = new();
+   private IEnumerable<JadwalKehadiranDTO> jadwalKehadiranDTOs { get; set; } = new List<JadwalKehadiranDTO>();
+
+   private MudTable<JadwalKehadiranDTO>? tableKehadiran;
+   private MudDateRangePicker tglPeriode;
+   private DateRange _dateRange;
+   private MudSelect<string?> selectGroup;
+   private bool _processing = false;
+   private string searchString = null;
+   private int totalItems;
+   string group = "STAFF";
+   string startDate = DateConversions.DateToString(DateTime.Now.Date);
+   string endDate = DateConversions.DateToString(DateTime.Now.Date);
+
+   private RenderFragment html;
+   private bool printing = false;
+   private IEnumerable<KehadiranDTO> listHadir = new List<KehadiranDTO>();
+   public KehadiranData kehadiranData;
+
+   protected override async Task OnInitializedAsync() {
+      // return base.OnInitializedAsync();
+      groupDTOs = await groupService.GetListGroupsAsync();
+   }
+
+   private async Task<TableData<JadwalKehadiranDTO>> ServerReload(TableState state) {
+      var dt = await jadwalKehadiranService!.GetByGroupAndDateRange(group, startDate, endDate);
+      IEnumerable<JadwalKehadiranDTO> data = dt!.AsEnumerable();
+      await Task.Delay(50);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.GrupKerja!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.JadwalMasuk.ToString()!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.NIK!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.Nama!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.Keterangan!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if ($"{element.GrupKerja} {element.JadwalMasuk.ToString()} {element.NIK} {element.Nama} {element.Keterangan}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "grupKerja_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.GrupKerja);
+         break;
+         case "tanggal_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.JadwalMasuk);
+         break;
+         case "nik_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+         break;
+         case "nama_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Nama);
+         break;
+         case "jamMasuk_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.JamMasuk);
+         break;
+         case "jamPulang_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.JamPulang);
+         break;
+         case "terlambat_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Terlambat);
+         break;
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<JadwalKehadiranDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      tableKehadiran!.ReloadServerData();
+   }
+
+   async Task PrintPreview() {
+      _processing = true;
+      string strGroup = selectGroup.Value!;
+      group = strGroup!.Replace("/", "-");
+
+      DateTime date1 = _dateRange.Start!.Value.Date;
+      startDate = DateConversions.DateToString(date1.Date);
+
+      DateTime date2 = _dateRange.End!.Value.Date;
+      endDate = DateConversions.DateToString(date2.Date);
+
+      await tableKehadiran!.ReloadServerData();
+      await Task.Delay(2000);
+      _processing = false;
+   }
+
+   private void CloseReport() {
+      printing = false;
+      StateHasChanged();
+   }
+
+   protected async Task ExportToExcel() {
+      // await kehadiranService.ExportToExcel(group, startDate, endDate);
+      var response = await httpClient.GetAsync($"/Kehadiran/ExportToExcel/{group}/{startDate}/{endDate}");
+      // response.EnsureSuccessStatusCode();
+      if (response.IsSuccessStatusCode) {
+         var fileBytes = await response.Content.ReadAsByteArrayAsync();
+         var fileName = "kehadiran.xlsx";
+         await JSRuntime.InvokeAsync<object>("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+
+      }
+   }
+
+   async Task PrintReport() {
+      listHadir = await kehadiranService.GetByGroupAndDate(group, startDate, endDate);
+      printing = true;
+      StateHasChanged();
+      await JSRuntime.InvokeVoidAsync("Print");
+
+      // var parameters = new DialogParameters {
+      //    ["listHadir"] = listHadir
+      // };
+
+      // var options = new DialogOptions() { CloseButton = false, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+
+      // var dialog = await DialogService.ShowAsync<KehadiranData>("-", parameters, options);
+      // var result = await dialog.Result;
+
+      // kehadiranData.listHadir = listHadir;
+      // StateHasChanged();
+      // await JSRuntime.InvokeAsync<object>("open", new object[] { "/KehadiranData", "_blank" });
+
+      // if (!result.Canceled) {
+      //    await tableJadwalKerjaKaryawan.ReloadServerData();
+      // }
+   }
+
+
+}

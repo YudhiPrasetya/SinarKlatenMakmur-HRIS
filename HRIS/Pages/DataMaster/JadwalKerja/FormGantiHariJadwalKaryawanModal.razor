@@ -1,0 +1,84 @@
+﻿@using SKM.Shared.Dtos;
+@using HRIS.Contracts;
+
+<MudGrid>
+	<MudDatePicker Class="ma-2" Label="Tanggal" @ref="tanggal" @bind-Value="tgl"/>
+	<MudIconButton Color="Color.Secondary" Icon="@Icons.Material.Filled.Search" OnClick="SearchByDate" />
+	<MudField Variant="Variant.Outlined" Label="Data Jadwal Karyawan">
+		<MudTable Items="jadwalKerjaKaryawanDTOs" T="JadwalKerjaKaryawanDTO" Striped="true" RowClass="cursor-pointer" Dense="true" MultiSelection="true" Hover="true" @bind-SelectedItems="selectedItems" Filter="new Func<JadwalKerjaKaryawanDTO,bool>(FilterFunc1)" @bind-SelectOnRowClick="@_selectOnRowClick" Style="max-height: 800px; overflow: scroll" FixedHeader="true" FixedFooter="true">
+			<ToolBarContent>
+				<MudText Typo="Typo.h6" Color="Color.Warning">Daftar Jadwal Kerja Karyawan</MudText>
+				<MudSpacer />
+				<MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+			</ToolBarContent>
+			<HeaderContent>
+				@if (!_showColId) {
+					<MudTh>Id</MudTh>
+				}
+				<MudTh>Grup</MudTh>
+				<MudTh>NIK</MudTh>
+				<MudTh>Nama</MudTh>
+				<MudTh>Tanggal</MudTh>
+				<MudTh>Jam Masuk</MudTh>
+				<MudTh>Jam Pulang</MudTh>
+			</HeaderContent>
+			<RowTemplate>
+				@if (!_showColId) {
+					<MudTd>@context.Id</MudTd>
+				}
+				<MudTd>@context.GroupName</MudTd>
+				<MudTd>@context.NIK</MudTd>
+				<MudTd>@context.NamaKaryawan</MudTd>
+				<MudTd>@context?.Tgl?.Date.ToString("dd-MM-yyyy")</MudTd>
+				<MudTd>@context.JamMasuk</MudTd>
+				<MudTd>@context.JamPulang</MudTd>
+			</RowTemplate>
+			<NoRecordsContent>
+				<MudText>No Data</MudText>
+			</NoRecordsContent>
+			<PagerContent>
+				@*<MudTablePager PageSizeOptions="new int[] {5, 10, 20, 25, 50, 75, 100, 150, int.MaxValue}" /> *@
+				<MudTablePager />
+			</PagerContent>
+		</MudTable>
+	</MudField>
+</MudGrid>
+
+@code {
+	[Parameter] public List<GroupDTO> groupDTOs { get; set; } = new List<GroupDTO>();
+	private MudDatePicker tanggal;
+	private DateTime tgl { get; set; } = new();
+	[Inject] IGroupService groupService { get; set; }
+	[Inject]IJadwalKerjaKaryawanService jadwalKerjaKaryawanService { get; set; }
+	private List<JadwalKerjaKaryawanDTO> jadwalKerjaKaryawanDTOs { get; set; } = new();
+	private HashSet<JadwalKerjaKaryawanDTO> selectedItems = new();
+	private string? searchString1;
+	private bool _selectOnRowClick = true;
+	private bool _showColId = true;
+
+	protected override async Task OnInitializedAsync() {
+		// return base.OnInitializedAsync();
+		groupDTOs = await groupService.GetListGroupsAsync();
+	}
+
+	private bool FilterFunc1(JadwalKerjaKaryawanDTO element) => FilterFunc(element, searchString1);
+
+	private bool FilterFunc(JadwalKerjaKaryawanDTO element, string searchString) {
+		if (string.IsNullOrWhiteSpace(searchString))
+			return true;
+		if (element.GroupName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.NamaKaryawan.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if ($"{element.GroupName}{element.NamaKaryawan}{element.NIK}".Contains(searchString))
+			return true;
+		return false;
+	}
+
+	private async void SearchByDate() {
+		jadwalKerjaKaryawanDTOs = await jadwalKerjaKaryawanService.GetByDate(tgl);
+
+	}
+}

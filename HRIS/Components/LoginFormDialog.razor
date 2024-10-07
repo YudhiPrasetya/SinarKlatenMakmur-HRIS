@@ -1,0 +1,58 @@
+﻿@using HRIS.Contracts;
+@using HRIS.Models;
+
+<MudDialog>
+   <TitleContent>
+      <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-2 mb-n1" />
+      <MudChip Color="Color.Secondary" Variant="Variant.Text">Login Form</MudChip>
+   </TitleContent>
+   <DialogContent>
+      <MudForm @ref="form">
+         <MudCardContent>
+            <MudTextField @bind-Value="user.UserName"
+                          Immediate="true"
+                          Label="User Name" />
+            <MudTextField @bind-Value="user.Password"
+                          Immediate="true"
+                          Label="Password" InputType="InputType.Password" />
+            <MudCardActions>
+               <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="LoginAsync">Login</MudButton>
+            </MudCardActions>
+         </MudCardContent>
+      </MudForm>
+      
+   </DialogContent>
+   
+</MudDialog>
+
+@inject NavigationManager navigationManager
+@inject IAuthenticationHttpClientService authenticationHttpClientService
+@code {
+   [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+   [Parameter]public bool Open { get; set; }
+   UserLoginDTO user { get; set; } = new();
+   MudTextField<string> UserName;
+   MudTextField<string> Psw;
+   MudForm form;
+
+   private async Task LoginAsync() {
+      try {
+         var result = await authenticationHttpClientService.LoginUser(user);
+         // if (result.Succeeded) {
+         if (result != null) {
+            navigationManager.NavigateTo("");
+
+         }
+         else {
+
+         }
+      }
+      catch (System.Exception) {
+
+         throw;
+      }
+   }
+   void Submit() => MudDialog.Close(DialogResult.Ok(true));
+
+
+}

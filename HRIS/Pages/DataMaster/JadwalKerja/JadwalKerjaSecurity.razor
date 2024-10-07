@@ -1,0 +1,970 @@
+﻿@page "/jadwalkerjasecurity"
+
+@inject ISnackbar SnackBar
+@inject IDialogService DialogService
+
+@using HRIS.Components;
+@using HRIS.Contracts;
+@using Newtonsoft.Json.Converters;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq;
+@using SKM.Shared.Dtos;
+@using System.Data;
+@using SKM.Shared.Helpers;
+@using System.Dynamic;
+@using System.Globalization;
+
+<style type="text/css">
+	.mud-table-head .header-centered th {
+		text-align: center;
+		font-size: 1.2em;
+	}
+
+	.mud-table-foot .bold-text .mud-table-cell {
+		font-weight: 500;
+	}
+	.backdrops-style {
+		backdrop-filter: blur(5px);
+	}
+</style>
+
+<MudGrid Class="mb-6">
+	<MudItem xs="3" sm="3">
+		<MudSelect Label="Pilih Bulan" T="int" @bind-Value="bulan">
+			<MudSelectItem Value="1">Januari</MudSelectItem>
+			<MudSelectItem Value="2">Pebruari</MudSelectItem>
+			<MudSelectItem Value="3">Maret</MudSelectItem>
+			<MudSelectItem Value="4">April</MudSelectItem>
+			<MudSelectItem Value="5">Mei</MudSelectItem>
+			<MudSelectItem Value="6">Juni</MudSelectItem>
+			<MudSelectItem Value="7">Juli</MudSelectItem>
+			<MudSelectItem Value="8">Agustus</MudSelectItem>
+			<MudSelectItem Value="9">September</MudSelectItem>
+			<MudSelectItem Value="10">Oktber</MudSelectItem>
+			<MudSelectItem Value="11">Nopember</MudSelectItem>
+			<MudSelectItem Value="12">Desember</MudSelectItem>
+		</MudSelect>
+	</MudItem>
+	<MudItem xs="3" sm="3">
+		<MudSelect Label="Pilih Tahun" T="int" @bind-Value="tahun">
+			<MudSelectItem Value="2023">2023</MudSelectItem>
+			<MudSelectItem Value="2024">2024</MudSelectItem>
+			<MudSelectItem Value="2025">2025</MudSelectItem>
+			<MudSelectItem Value="2026">2026</MudSelectItem>
+			<MudSelectItem Value="2027">2027</MudSelectItem>
+			<MudSelectItem Value="2028">2028</MudSelectItem>
+			<MudSelectItem Value="2029">2029</MudSelectItem>
+			<MudSelectItem Value="2030">2030</MudSelectItem>
+		</MudSelect>
+	</MudItem>
+	<MudItem xs="3" sm="3">
+		<MudSelect Label="Pilih Grup kerja" T="string" @bind-Value="grupKerja">
+			<MudSelectItem Value="@("SECURITY_PRIA")">Security Pria</MudSelectItem>
+			<MudSelectItem Value="@("SECURITY_WANITA")">Security Wanita</MudSelectItem>
+		</MudSelect>
+	</MudItem>
+	<MudItem xs="3" sm="3">
+		<MudButton OnClick="proses" Color="Color.Info" Variant="Variant.Filled" Disabled="processing">
+			@if (processing) {
+				<MudProgressCircular Class="ms-n1" Size="Size.Small" Color="Color.Success" Indeterminate="true" />
+				<MudText>Processing...</MudText>
+			}else{
+				<MudText>Proses</MudText>
+			}
+		</MudButton>
+	</MudItem>
+</MudGrid>
+
+@* @if(showTable == true) { *@
+
+	<MudTable ServerData="@(new Func<TableState, Task<TableData<Jadwal>>>(ServerJadwalReload))" CustomHeader="true" CustomFooter="true" HeaderClass="table-head-bordered" FooterClass="table-foot-bordered" Bordered="true" Striped="true" Hover="true" Dense="true" CanCancelEdit="true" @ref="tableJadwal" IsEditRowSwitchingBlocked="true" @bind-SelectedItem="jadwalSelectedItem" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValue" RowEditCommit="ItemHasBeenCommited">
+		<ToolBarContent>
+        <MudText Typo="Typo.h6">Jadwal Kerja Security</MudText>
+@*         <MudSpacer />
+			<MudTextField T="string" Placeholder="Search" Adornment="Adornment.Start" ValueChanged="@(s=>OnSearch(s))"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField> *@
+			<MudSpacer />
+			<MudFab IconSize="Size.Small" Size="Size.Small" StartIcon="@Icons.Material.Filled.Add" Color="Color.Surface" IconColor="Color.Secondary" OnClick="AddJadwal"></MudFab>
+		</ToolBarContent>
+		<HeaderContent>
+			<MudTHeadRow Class="header-centered">
+				<MudTh rowspan="2">Nama</MudTh>
+				@* <MudTh rowspan="2">NIK</MudTh> *@
+				<MudTh colspan="31">Tanggal</MudTh>
+			</MudTHeadRow>
+			<MudTHeadRow Class="header-centered">
+  				<MudTh>1</MudTh>
+				<MudTh>2</MudTh>
+				<MudTh>3</MudTh>
+				<MudTh>4</MudTh>
+				<MudTh>5</MudTh>
+				<MudTh>6</MudTh>
+				<MudTh>7</MudTh>
+				<MudTh>8</MudTh>
+				<MudTh>9</MudTh>
+				<MudTh>10</MudTh>
+				<MudTh>11</MudTh>
+				<MudTh>12</MudTh>
+				<MudTh>13</MudTh>
+				<MudTh>14</MudTh>
+				<MudTh>15</MudTh>
+				<MudTh>16</MudTh>
+				<MudTh>17</MudTh>
+				<MudTh>18</MudTh>
+				<MudTh>19</MudTh>
+				<MudTh>20</MudTh>
+				<MudTh>21</MudTh>
+				<MudTh>22</MudTh>
+				<MudTh>23</MudTh>
+				<MudTh>24</MudTh>
+				<MudTh>25</MudTh>
+				<MudTh>26</MudTh>
+				<MudTh>27</MudTh>
+				<MudTh>28</MudTh>
+				<MudTh>29</MudTh>
+				<MudTh>30</MudTh>
+				<MudTh>31</MudTh>
+			</MudTHeadRow>
+		</HeaderContent>
+		<RowTemplate>
+			<MudTd DataLabel="Nama" Class="px-1">@context!.Nama</MudTd>
+			@* <MudTd DataLabel="NIK" Class="px-1">@context!.NIK</MudTd> *@
+			<MudTd DataLabel="1" Class="px-1 text-center">@context!._1</MudTd>
+			<MudTd DataLabel="2" Class="px-1 text-center">@context!._2</MudTd>
+			<MudTd DataLabel="3" Class="px-1 text-center">@context!._3</MudTd>
+			<MudTd DataLabel="4" Class="px-1 text-center">@context!._4</MudTd>
+			<MudTd DataLabel="5" Class="px-1 text-center">@context!._5</MudTd>
+			<MudTd DataLabel="6" Class="px-1 text-center">@context!._6</MudTd>
+			<MudTd DataLabel="7" Class="px-1 text-center">@context!._7</MudTd>
+			<MudTd DataLabel="8" Class="px-1 text-center">@context!._8</MudTd>
+			<MudTd DataLabel="9" Class="px-1 text-center">@context!._9</MudTd>
+			<MudTd DataLabel="10" Class="px-1 text-center">@context!._10</MudTd>
+			<MudTd DataLabel="11" Class="px-1 text-center">@context!._11</MudTd>
+			<MudTd DataLabel="12" Class="px-1 text-center">@context!._12</MudTd>
+			<MudTd DataLabel="13" Class="px-1 text-center">@context!._13</MudTd>
+			<MudTd DataLabel="14" Class="px-1 text-center">@context!._14</MudTd>
+			<MudTd DataLabel="15" Class="px-1 text-center">@context!._15</MudTd>
+			<MudTd DataLabel="16" Class="px-1 text-center">@context!._16</MudTd>
+			<MudTd DataLabel="17" Class="px-1 text-center">@context!._17</MudTd>
+			<MudTd DataLabel="18" Class="px-1 text-center">@context!._18</MudTd>
+			<MudTd DataLabel="19" Class="px-1 text-center">@context!._19</MudTd>
+			<MudTd DataLabel="20" Class="px-1 text-center">@context!._20</MudTd>
+			<MudTd DataLabel="21" Class="px-1 text-center">@context!._21</MudTd>
+			<MudTd DataLabel="22" Class="px-1 text-center">@context!._22</MudTd>
+			<MudTd DataLabel="23" Class="px-1 text-center">@context!._23</MudTd>
+			<MudTd DataLabel="24" Class="px-1 text-center">@context!._24</MudTd>
+			<MudTd DataLabel="25" Class="px-1 text-center">@context!._25</MudTd>
+			<MudTd DataLabel="26" Class="px-1 text-center">@context!._26</MudTd>
+			<MudTd DataLabel="27" Class="px-1 text-center">@context!._27</MudTd>
+			<MudTd DataLabel="28" Class="px-1 text-center">@context!._28</MudTd>
+			<MudTd DataLabel="29" Class="px-1 text-center">@context!._29</MudTd>
+			<MudTd DataLabel="30" Class="px-1 text-center">@context!._30</MudTd>
+			<MudTd DataLabel="31" Class="px-1 text-center">@context!._31</MudTd>
+		</RowTemplate>
+		<RowEditingTemplate>
+			<MudTd DataLabel="Nama" Class="px-1">@context!.Nama</MudTd>
+			@* <MudTd DataLabel="NIK" Class="px-1">@context!.NIK</MudTd> *@
+			<MudTd DataLabel="1" Class="px-1">
+			@if(context!._1 != null) {
+				<MudSelect @bind-Value="@context._1" @ref="selectJadwal1">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="2" Class="px-1">
+			@if (context!._2 != null) {
+				<MudSelect @bind-Value="@context._2" @ref="selectJadwal2">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="3" Class="px-1">
+			@if (context!._3 != null) {
+				<MudSelect @bind-Value="@context._3" @ref="selectJadwal3">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="4" Class="px-1">
+			@if (context!._4 != null) {
+				<MudSelect @bind-Value="@context._4" @ref="selectJadwal4">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="5" Class="px-1">
+			@if (context!._5 != null) {
+				<MudSelect @bind-Value="@context._5" @ref="selectJadwal5">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="6" Class="px-1">
+			@if (context!._6 != null) {
+				<MudSelect @bind-Value="@context._6" @ref="selectJadwal6">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="7" Class="px-1">
+			@if (context!._7 != null) {
+				<MudSelect @bind-Value="@context._7" @ref="selectJadwal7">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="8" Class="px-1">
+			@if (context!._8 != null) {
+				<MudSelect @bind-Value="@context._8" @ref="selectJadwal8">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="9" Class="px-1">
+			@if (context!._9 != null) {
+				<MudSelect @bind-Value="@context._9" @ref="selectJadwal9">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="10" Class="px-1">
+			@if (context!._10 != null) {
+				<MudSelect @bind-Value="@context._10" @ref="selectJadwal10">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="11" Class="px-1">
+			@if (context!._11 != null) {
+				<MudSelect @bind-Value="@context._11" @ref="selectJadwal11">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="12" Class="px-1">
+			@if (context!._12 != null) {
+				<MudSelect @bind-Value="@context._12" @ref="selectJadwal12">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="13" Class="px-1">
+			@if (context!._13 != null) {
+				<MudSelect @bind-Value="@context._13" @ref="selectJadwal13">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="14" Class="px-1">
+			@if (context!._14 != null) {
+				<MudSelect @bind-Value="@context._14" @ref="selectJadwal14">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="15" Class="px-1">
+			@if (context!._15 != null) {
+				<MudSelect @bind-Value="@context._15" @ref="selectJadwal15">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="16" Class="px-1">
+			@if (context!._16 != null) {
+				<MudSelect @bind-Value="@context._16" @ref="selectJadwal16">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="17" Class="px-1">
+			@if (context!._17 != null) {
+				<MudSelect @bind-Value="@context._17" @ref="selectJadwal17">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="18" Class="px-1">
+			@if (context!._18 != null) {
+				<MudSelect @bind-Value="@context._18" @ref="selectJadwal18">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="19" Class="px-1">
+			@if (context!._19 != null) {
+				<MudSelect @bind-Value="@context._19" @ref="selectJadwal19">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="20" Class="px-1">
+			@if (context!._20 != null) {
+				<MudSelect @bind-Value="@context._20" @ref="selectJadwal20">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="21" Class="px-1">
+			@if (context!._21 != null) {
+				<MudSelect @bind-Value="@context._21" @ref="selectJadwal21">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="22" Class="px-1">
+			@if (context!._22 != null) {
+				<MudSelect @bind-Value="@context._22" @ref="selectJadwal22">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="23" Class="px-1">
+			@if (context!._23 != null) {
+				<MudSelect @bind-Value="@context._23" @ref="selectJadwal23">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="24" Class="px-1">
+			@if (context!._24 != null) {
+				<MudSelect @bind-Value="@context._24" @ref="selectJadwal24">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="25" Class="px-1">
+			@if (context!._25 != null) {
+				<MudSelect @bind-Value="@context._25" @ref="selectJadwal25">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="26" Class="px-1">
+			@if (context!._26 != null) {
+				<MudSelect @bind-Value="@context._26" @ref="selectJadwal26">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="27" Class="px-1">
+			@if (context!._27 != null) {
+				<MudSelect @bind-Value="@context._27" @ref="selectJadwal27">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="28" Class="px-1">
+			@if (context!._28 != null) {
+				<MudSelect @bind-Value="@context._28" @ref="selectJadwal28">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="29" Class="px-1">
+			@if (context!._29 != null) {
+				<MudSelect @bind-Value="@context._29" @ref="selectJadwal29">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="30" Class="px-1">
+			@if (context!._30 != null) {
+				<MudSelect @bind-Value="@context._30" @ref="selectJadwal30">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+			<MudTd DataLabel="31" Class="px-1">
+			@if (context!._31 != null) {
+				<MudSelect @bind-Value="@context._31" @ref="selectJadwal31">
+					<MudSelectItem Value="@("P")">P</MudSelectItem>
+					<MudSelectItem Value="@("S")">S</MudSelectItem>
+					<MudSelectItem Value="@("M")">M</MudSelectItem>
+					<MudSelectItem Value="@("PW")">PW</MudSelectItem>
+					<MudSelectItem Value="@("SW")">SW</MudSelectItem>
+					<MudSelectItem Value="@("L")">L</MudSelectItem>
+				</MudSelect>
+			}
+			</MudTd>
+		</RowEditingTemplate>
+		<NoRecordsContent>
+			<MudText>No matching records found</MudText>
+		</NoRecordsContent>
+		<LoadingContent>
+			<MudText>Loading...</MudText>
+		</LoadingContent>
+		<FooterContent>
+			<MudTFootRow Class="bold-text">
+				<MudTd>Nama</MudTd>
+				@* <MudTd>NIK</MudTd> *@
+				<MudTd>1</MudTd>
+				<MudTd>2</MudTd>
+				<MudTd>3</MudTd>
+				<MudTd>4</MudTd>
+				<MudTd>5</MudTd>
+				<MudTd>6</MudTd>
+				<MudTd>7</MudTd>
+				<MudTd>8</MudTd>
+				<MudTd>9</MudTd>
+				<MudTd>10</MudTd>
+				<MudTd>11</MudTd>
+				<MudTd>12</MudTd>
+				<MudTd>13</MudTd>
+				<MudTd>14</MudTd>
+				<MudTd>15</MudTd>
+				<MudTd>16</MudTd>
+				<MudTd>17</MudTd>
+				<MudTd>18</MudTd>
+				<MudTd>19</MudTd>
+				<MudTd>20</MudTd>
+				<MudTd>21</MudTd>
+				<MudTd>22</MudTd>
+				<MudTd>23</MudTd>
+				<MudTd>24</MudTd>
+				<MudTd>25</MudTd>
+				<MudTd>26</MudTd>
+				<MudTd>27</MudTd>
+				<MudTd>28</MudTd>
+				<MudTd>29</MudTd>
+				<MudTd>30</MudTd>
+				<MudTd>31</MudTd>
+			</MudTFootRow>
+		</FooterContent>
+		<PagerContent>
+			<MudTablePager />
+		</PagerContent>
+	</MudTable>
+
+@* } *@
+
+@code {
+	// [Inject]IJadwalKerjaSecurityService jadwalKerjaSecurityService { get; set; }
+	[Inject]IJadwalKehadiranService? jadwalKehadiranService {get; set;}
+	[Inject]IJadwalShiftSecurityServicecs? jadwalShiftSecurityService {get; set;}
+	[Inject]IEmployeeService? employeeService {get; set;}
+
+	private MudTable<Jadwal>? tableJadwal;
+	private string? searchString;
+	private int totalItems;
+	private IEnumerable<JadwalKehadiranDTO>? jadwalKehadiranDTOs { get; set; } = new List<JadwalKehadiranDTO>();
+	private DataTable jadwalKehadiranFiltered { get; set; } = new();
+	// private List<dynamic> jadwalKerjaSecurityFiltered { get; set; } = new();
+	private string? jsonData;
+	private dynamic[]? jadwalKehadiranData;
+
+	private List<DaysOfMonth> daysOfMonths { get; set; } = new();
+	// private DataTable? jadwalKerjaSecurityData { get; set; } = new();
+	// private List<dynamic> jadwals = new();
+	private List<Jadwal> jadwals { get; set; } = new List<Jadwal>();
+	private IEnumerable<Jadwal> pagedData { get; set; } = new List<Jadwal>();
+	private Jadwal jadwal { get; set; } = new();
+	private int bulan;
+	private int tahun;
+	private string grupKerja = "SECURITY_PRIA";
+	private int totalDays;
+	private bool showTable = false;
+	private Jadwal? jadwalSelectedItem = null;
+	private Jadwal? jadwalBeforeEdit;
+	private List<EmployeeDTO> EmployeeDTOs { get; set; } = new();
+	private List<JadwalShiftSecurityDTO> jadwalShiftSecurityDTOs { get; set; } = new();
+	private bool processing = false;
+
+	private MudSelect<string>? selectJadwal1;
+	private MudSelect<string>? selectJadwal2;
+	private MudSelect<string>? selectJadwal3;
+	private MudSelect<string>? selectJadwal4;
+	private MudSelect<string>? selectJadwal5;
+	private MudSelect<string>? selectJadwal6;
+	private MudSelect<string>? selectJadwal7;
+	private MudSelect<string>? selectJadwal8;
+	private MudSelect<string>? selectJadwal9;
+	private MudSelect<string>? selectJadwal10;
+	private MudSelect<string>? selectJadwal11;
+	private MudSelect<string>? selectJadwal12;
+	private MudSelect<string>? selectJadwal13;
+	private MudSelect<string>? selectJadwal14;
+	private MudSelect<string>? selectJadwal15;
+	private MudSelect<string>? selectJadwal16;
+	private MudSelect<string>? selectJadwal17;
+	private MudSelect<string>? selectJadwal18;
+	private MudSelect<string>? selectJadwal19;
+	private MudSelect<string>? selectJadwal20;
+	private MudSelect<string>? selectJadwal21;
+	private MudSelect<string>? selectJadwal22;
+	private MudSelect<string>? selectJadwal23;
+	private MudSelect<string>? selectJadwal24;
+	private MudSelect<string>? selectJadwal25;
+	private MudSelect<string>? selectJadwal26;
+	private MudSelect<string>? selectJadwal27;
+	private MudSelect<string>? selectJadwal28;
+	private MudSelect<string>? selectJadwal29;
+	private MudSelect<string>? selectJadwal30;
+	private MudSelect<string>? selectJadwal31;
+
+	private async Task<TableData<Jadwal>> ServerJadwalReload(TableState state) {
+		jadwalKehadiranDTOs = await jadwalKehadiranService!.GetByGroupAndRangePeriode(grupKerja, bulan, tahun);
+
+		jadwalKehadiranData = jadwalKehadiranDTOs!.ToPivotArray(
+			item => item.JadwalMasuk!.Value.Date.Day,
+			item => item.Nama,
+			items => items?.First().Inisial_Shift
+		);
+		jsonData = JsonConvert.SerializeObject(jadwalKehadiranData, new KeyValuePairConverter());
+		var jsonArray = JArray.Parse(jsonData);
+		jadwals.Clear();
+		foreach (var data in jsonArray) {
+			jadwals.Add(new Jadwal {
+					Nama = (string?)data["Nama"],
+					// NIK = (string?)data["NIK"],
+					_1 = (string?)data["1"],
+					_2 = (string?)data["2"],
+					_3 = (string?)data["3"],
+					_4 = (string?)data["4"],
+					_5 = (string?)data["5"],
+					_6 = (string?)data["6"],
+					_7 = (string?)data["7"],
+					_8 = (string?)data["8"],
+					_9 = (string?)data["9"],
+					_10 = (string?)data["10"],
+					_11 = (string?)data["11"],
+					_12 = (string?)data["12"],
+					_13 = (string?)data["13"],
+					_14 = (string?)data["14"],
+					_15 = (string?)data["15"],
+					_16 = (string?)data["16"],
+					_17 = (string?)data["17"],
+					_18 = (string?)data["18"],
+					_19 = (string?)data["19"],
+					_20 = (string?)data["20"],
+					_21 = (string?)data["21"],
+					_22 = (string?)data["22"],
+					_23 = (string?)data["23"],
+					_24 = (string?)data["24"],
+					_25 = (string?)data["25"],
+					_26 = (string?)data["26"],
+					_27 = (string?)data["27"],
+					_28 = (string?)data["28"],
+					_29 = (string?)data["29"],
+					_30 = (string?)data["30"],
+					_31 = (string?)data["31"]
+				});
+		}
+
+		await Task.Delay(300);
+		// jadwals = jadwals.Where(element => {
+		// 	if (string.IsNullOrWhiteSpace(searchString))
+		// 		return true;
+		// 	if (element.Nama.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+		// 		return true;
+		// 	if ($"{element.Nama}".Contains(searchString))
+		// 		return true;
+		// 	return false;
+		// }).ToArray();
+		totalItems = jadwals.Count();
+
+		pagedData = jadwals.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+		return new TableData<Jadwal>() { TotalItems = totalItems, Items = pagedData };
+	}
+
+	protected override async Task OnInitializedAsync() {
+		// return base.OnInitializedAsync();
+		// jadwalKerjaSecurityDTOs = await jadwalKerjaSecurityService.GetJadwalKerjaSecuritiesAsync();
+
+		var dateNow = DateTime.Now;
+		bulan = dateNow.Month;
+		tahun = dateNow.Year;
+		EmployeeDTOs = await employeeService!.GetSecurities();
+		jadwalShiftSecurityDTOs = await jadwalShiftSecurityService!.GetJadwalShiftSecurityAsync();
+	}
+
+	private void OnSearch(string text) {
+		searchString = text;
+		tableJadwal!.ReloadServerData();
+	}
+
+	private void BackupItem(object el) {
+		jadwalBeforeEdit = new()
+			{
+				_1 = ((Jadwal)el)._1,
+				_2 = ((Jadwal)el)._2,
+				_3 = ((Jadwal)el)._3,
+				_4 = ((Jadwal)el)._4,
+				_5 = ((Jadwal)el)._5,
+				_6 = ((Jadwal)el)._6,
+				_7 = ((Jadwal)el)._7,
+				_8 = ((Jadwal)el)._8,
+				_9 = ((Jadwal)el)._9,
+				_10 = ((Jadwal)el)._10,
+				_11 = ((Jadwal)el)._11,
+				_12 = ((Jadwal)el)._12,
+				_13 = ((Jadwal)el)._13,
+				_14 = ((Jadwal)el)._14,
+				_15 = ((Jadwal)el)._15,
+				_16 = ((Jadwal)el)._16,
+				_17 = ((Jadwal)el)._17,
+				_18 = ((Jadwal)el)._18,
+				_19 = ((Jadwal)el)._19,
+				_20 = ((Jadwal)el)._20,
+				_21 = ((Jadwal)el)._21,
+				_22 = ((Jadwal)el)._22,
+				_23 = ((Jadwal)el)._23,
+				_24 = ((Jadwal)el)._24,
+				_25 = ((Jadwal)el)._25,
+				_26 = ((Jadwal)el)._26,
+				_27 = ((Jadwal)el)._27,
+				_28 = ((Jadwal)el)._28,
+				_29 = ((Jadwal)el)._29,
+				_30 = ((Jadwal)el)._30,
+				_31 = ((Jadwal)el)._31
+			};
+	}
+
+	private void ResetItemToOriginalValue(object el) {
+		((Jadwal)el)._1 = jadwalBeforeEdit._1;
+		((Jadwal)el)._2 = jadwalBeforeEdit._2;
+		((Jadwal)el)._3 = jadwalBeforeEdit._3;
+		((Jadwal)el)._4 = jadwalBeforeEdit._4;
+		((Jadwal)el)._5 = jadwalBeforeEdit._5;
+		((Jadwal)el)._6 = jadwalBeforeEdit._6;
+		((Jadwal)el)._7 = jadwalBeforeEdit._7;
+		((Jadwal)el)._8 = jadwalBeforeEdit._8;
+		((Jadwal)el)._9 = jadwalBeforeEdit._9;
+		((Jadwal)el)._10 = jadwalBeforeEdit._10;
+		((Jadwal)el)._11 = jadwalBeforeEdit._11;
+		((Jadwal)el)._12 = jadwalBeforeEdit._12;
+		((Jadwal)el)._13 = jadwalBeforeEdit._13;
+		((Jadwal)el)._14 = jadwalBeforeEdit._14;
+		((Jadwal)el)._15 = jadwalBeforeEdit._15;
+		((Jadwal)el)._16 = jadwalBeforeEdit._16;
+		((Jadwal)el)._17 = jadwalBeforeEdit._17;
+		((Jadwal)el)._18 = jadwalBeforeEdit._18;
+		((Jadwal)el)._19 = jadwalBeforeEdit._19;
+		((Jadwal)el)._20 = jadwalBeforeEdit._20;
+		((Jadwal)el)._21 = jadwalBeforeEdit._21;
+		((Jadwal)el)._22 = jadwalBeforeEdit._22;
+		((Jadwal)el)._23 = jadwalBeforeEdit._23;
+		((Jadwal)el)._24 = jadwalBeforeEdit._24;
+		((Jadwal)el)._25 = jadwalBeforeEdit._25;
+		((Jadwal)el)._26 = jadwalBeforeEdit._26;
+		((Jadwal)el)._27 = jadwalBeforeEdit._27;
+		((Jadwal)el)._28 = jadwalBeforeEdit._28;
+		((Jadwal)el)._29 = jadwalBeforeEdit._29;
+		((Jadwal)el)._30 = jadwalBeforeEdit._30;
+		((Jadwal)el)._31 = jadwalBeforeEdit._31;
+	}
+
+	private void ItemHasBeenCommited(object el) {
+		Console.WriteLine($"Before: {jadwalBeforeEdit!._1}, After: {selectJadwal1!.Value}");
+
+		if(jadwalBeforeEdit._1 != selectJadwal1!.Value) {
+			UpdateJadwal(((Jadwal)el)!.Nama, bulan, tahun, 1, selectJadwal1.Value);
+		}else if(jadwalBeforeEdit._2 != selectJadwal2!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 2, selectJadwal2.Value);
+		}else if(jadwalBeforeEdit._3 != selectJadwal3!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 3, selectJadwal3.Value);
+		}else if(jadwalBeforeEdit._4 != selectJadwal4!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 4, selectJadwal4.Value);
+		}else if(jadwalBeforeEdit._5 != selectJadwal5!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 5, selectJadwal5.Value);
+		}else if(jadwalBeforeEdit._6 != selectJadwal6!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 6, selectJadwal6.Value);
+		}else if(jadwalBeforeEdit._7 != selectJadwal7!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 7, selectJadwal7.Value);
+		}else if(jadwalBeforeEdit._8 != selectJadwal8!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 8, selectJadwal8.Value);
+		}else if(jadwalBeforeEdit._9 != selectJadwal9!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 9, selectJadwal9.Value);
+		}else if (jadwalBeforeEdit._10 != selectJadwal10!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 10, selectJadwal10.Value);
+		}else if(jadwalBeforeEdit._11 != selectJadwal11!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 11, selectJadwal11.Value);
+		}else if(jadwalBeforeEdit._12 != selectJadwal12!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 12, selectJadwal12.Value);
+		}else if(jadwalBeforeEdit._13 != selectJadwal13!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 13, selectJadwal13.Value);
+		}else if(jadwalBeforeEdit._14 != selectJadwal14!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 14, selectJadwal14.Value);
+		}else if(jadwalBeforeEdit._15 != selectJadwal15!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 15, selectJadwal15.Value);
+		}else if(jadwalBeforeEdit._16 != selectJadwal16!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 16, selectJadwal16.Value);
+		}else if(jadwalBeforeEdit._17 != selectJadwal17!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 17, selectJadwal17.Value);
+		}else if(jadwalBeforeEdit._18 != selectJadwal18!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 18, selectJadwal18.Value);
+		}else if(jadwalBeforeEdit._19 != selectJadwal19!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 19, selectJadwal19.Value);
+		}else if (jadwalBeforeEdit._20 != selectJadwal20!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 20, selectJadwal20.Value);
+		}else if(jadwalBeforeEdit._21 != selectJadwal21!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 21, selectJadwal21.Value);
+		}else if(jadwalBeforeEdit._22 != selectJadwal22!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 22, selectJadwal22.Value);
+		}else if(jadwalBeforeEdit._23 != selectJadwal23!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 23, selectJadwal23.Value);
+		}else if(jadwalBeforeEdit._24 != selectJadwal24!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 24, selectJadwal24.Value);
+		}else if(jadwalBeforeEdit._25 != selectJadwal25!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 25, selectJadwal25.Value);
+		}else if(jadwalBeforeEdit._26 != selectJadwal26!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 26, selectJadwal26.Value);
+		}else if(jadwalBeforeEdit._27 != selectJadwal27!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 27, selectJadwal27.Value);
+		}else if(jadwalBeforeEdit._28 != selectJadwal28!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 28, selectJadwal28.Value);
+		}else if(jadwalBeforeEdit._29 != selectJadwal29!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 29, selectJadwal29.Value);
+		}else if (jadwalBeforeEdit._30 != selectJadwal30!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 30, selectJadwal30.Value);
+		}else if (jadwalBeforeEdit._31 != selectJadwal31!.Value) {
+			UpdateJadwal(((Jadwal)el).Nama, bulan, tahun, 31, selectJadwal31.Value);
+		}
+	}
+
+	private async void UpdateJadwal(string? Nama, int Bulan, int Tahun, int Hari, string jadwalVal) {
+		// var tgl = new DateTime(Tahun, Bulan, Hari);
+		string bln = (Bulan < 10 ? "0" + Bulan.ToString() : Bulan.ToString());
+		string hr = (Hari < 10 ? "0" + Hari.ToString() : Hari.ToString());
+		string tgl = $"{Tahun}-{bln}-{hr}";
+		JadwalKehadiranDTO? jadwalKerja = new();
+		jadwalKerja = await jadwalKehadiranService!.GetByNamaAndDate(Nama, tgl);
+
+		if(jadwalKerja != null){
+			var jadwalShift = await jadwalShiftSecurityService!.GetByInisialAsync(jadwalVal);
+			jadwalKerja.Shift = jadwalShift!.Deskripsi;
+			jadwalKerja.Inisial_Shift = jadwalVal;
+			CultureInfo culture = new CultureInfo("id-ID");
+			jadwalKerja.JadwalMasuk = Convert.ToDateTime($"{tgl} {jadwalShift.JadwalMasuk}", culture);
+			jadwalKerja.JadwalPulang = DateTime.Parse($"{tgl} {jadwalShift.JadwalPulang}", culture);
+			var jadwalKerjaUpdated = await jadwalKehadiranService.UpdateJadwal(jadwalKerja);
+			if (jadwalKerjaUpdated != null) {
+				SnackBar.Add("Update Jadwal Kerja security berhasil di updated", Severity.Success, config => {
+					config.HideTransitionDuration = 200;
+				});
+				await tableJadwal!.ReloadServerData();
+			}
+		}
+
+	}
+
+	private void JadwalSecurityModalShow(){}
+
+	private async Task AddJadwal() {
+		var dialogOptions = new DialogOptions { ClassBackground = "backdrops-style", DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Small, Position = DialogPosition.Center };
+		var dialogParameters = new DialogParameters {
+				["EmployeeDTOs"] = EmployeeDTOs,
+				["jadwalShiftSecurityDTOs"] = jadwalShiftSecurityDTOs,
+				["Bulan"] = bulan,
+				["Tahun"] = tahun
+			};
+		var dialog = await DialogService.ShowAsync<AddJadwalKerjaSecurityDialog>("Tambah Data Jadwal Kerja Security", dialogParameters, dialogOptions);
+		var dialogResult = await dialog.Result;
+		if (!dialogResult.Canceled) {
+			await tableJadwal!.ReloadServerData();
+		}
+	}
+
+	async Task proses() {
+		await tableJadwal!.ReloadServerData();
+	}
+
+	class DaysOfMonth {
+		public int Day { get; set; }
+	}
+
+	class Jadwal {
+		// public IEnumerable<string?> Columns { get; set; }
+		// public IEnumerable<string?> Rows { get; set; }
+		public string? Nama { get; set; }
+		// public string? NIK { get; set; }
+		// public string[]? Tanggal { get; set; }
+		// public List<TanggalJadwal> Tanggal { get; set; }
+		public string? _1 {get; set;}
+		public string? _2 {get; set;}
+		public string? _3 {get; set;}
+		public string? _4 {get; set;}
+		public string? _5 {get; set;}
+		public string? _6 {get; set;}
+		public string? _7 {get; set;}
+		public string? _8 {get; set;}
+		public string? _9 {get; set;}
+		public string? _10 {get; set;}
+		public string? _11 {get; set;}
+		public string? _12 {get; set;}
+		public string? _13 {get; set;}
+		public string? _14 {get; set;}
+		public string? _15 {get; set;}
+		public string? _16 {get; set;}
+		public string? _17 {get; set;}
+		public string? _18 {get; set;}
+		public string? _19 {get; set;}
+		public string? _20 {get; set;}
+		public string? _21 {get; set;}
+		public string? _22 {get; set;}
+		public string? _23 {get; set;}
+		public string? _24 {get; set;}
+		public string? _25 {get; set;}
+		public string? _26 {get; set;}
+		public string? _27 {get; set;}
+		public string? _28 {get; set;}
+		public string? _29 {get; set;}
+		public string? _30 {get; set;}
+		public string? _31 {get; set;}
+	}
+
+	class TanggalJadwal {
+		public string? ColumnName { get; set; }
+		public string? Value { get; set; }
+	}
+
+}

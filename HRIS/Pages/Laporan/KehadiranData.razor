@@ -1,0 +1,43 @@
+﻿@layout BlankLayout
+
+@page "/KehadiranData"
+@using SKM.Shared.Dtos;
+
+<body onload="window.print()">
+	@* <MudDialog> *@
+		@* <DialogContent> *@
+			<table>
+				<thead>
+					<tr>
+						<th>Grup Kerja</th>
+						<th>Tanggal</th>
+						<th>NIK</th>
+						<th>Nama</th>
+						<th>Jam Masuk</th>
+						<th>Jam Pulang</th>
+						<th>Terlambat</th>
+					</tr>
+
+				</thead>
+				<tbody>
+					@foreach (var hadir in listHadir) {
+						<tr>
+							<td>@hadir.GrupKerja</td>
+							<td>@hadir.Tanggal</td>
+							<td>@hadir.NIK</td>
+							<td>@hadir.Nama</td>
+							<td>@hadir.JamMasuk</td>
+							<td>@hadir.JamPulang</td>
+							<td>@hadir.Terlambat</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		@* </DialogContent> *@
+	@* </MudDialog> *@
+	
+</body>
+
+@code {
+	[Parameter] public List<KehadiranDTO>? listHadir { get; set; } = new();
+}

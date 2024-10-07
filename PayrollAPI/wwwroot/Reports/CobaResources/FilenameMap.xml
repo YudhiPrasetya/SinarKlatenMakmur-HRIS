@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-16"?>
+<SchemaMap xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Compressed="true">
+  <SchemaEntry OriginalSchemaUri="D:\SKM\SinarKlatenMakmur\PayrollAPI\wwwroot\Reports\Coba.xsd" ResourceSchemaUri="Schema1.zxsd" TargetNamespaceUri="http://tempuri.org/Coba.xsd" ExplicitlyLoad="true" />
+</SchemaMap>

@@ -1,0 +1,240 @@
+﻿@* @page "/jadwalkerjasecurity" *@
+
+@using HRIS.Contracts;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Converters;
+@using Newtonsoft.Json.Linq;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+@using System.Collections.ObjectModel;
+
+<MudGrid Class="mb-6">
+	<MudItem xs="4" sm="4">
+		<MudSelect Label="Pilih Bulan" T="int" @bind-Value="bulan">
+			<MudSelectItem Value="1">Januari</MudSelectItem>
+			<MudSelectItem Value="2">Pebruari</MudSelectItem>
+			<MudSelectItem Value="3">Maret</MudSelectItem>
+			<MudSelectItem Value="4">April</MudSelectItem>
+			<MudSelectItem Value="5">Mei</MudSelectItem>
+			<MudSelectItem Value="6">Juni</MudSelectItem>
+			<MudSelectItem Value="7">Juli</MudSelectItem>
+			<MudSelectItem Value="8">Agustus</MudSelectItem>
+			<MudSelectItem Value="9">September</MudSelectItem>
+			<MudSelectItem Value="10">Oktber</MudSelectItem>
+			<MudSelectItem Value="11">Nopember</MudSelectItem>
+			<MudSelectItem Value="12">Desember</MudSelectItem>
+		</MudSelect>
+	</MudItem>
+	<MudItem xs="4" sm="4">
+		<MudSelect Label="Pilih Tahun" T="int" @bind-Value="tahun">
+			@for(int x = 2023; x < 2051; x++) {
+				int i = x;
+				<MudSelectItem T="int" Value="@i">@i</MudSelectItem>
+			}
+		</MudSelect>
+	</MudItem>
+	<MudItem xs="4" sm="4">
+		<MudButton OnClick="proses" Color="Color.Info" Variant="Variant.Filled" Disabled="disableBtnProses">
+			@if (processing) {
+				<MudProgressCircular Class="ms-n1" Size="Size.Small" Color="Color.Success" Indeterminate="true" />
+				<MudText>Processing...</MudText>
+			}
+			else {
+				<MudText>Proses</MudText>
+			}
+		</MudButton>
+	</MudItem>
+</MudGrid>
+
+<MudDataGrid T="JadwalSecurity" Items="jadwals" Dense="true" EditMode="DataGridEditMode.Cell">
+	<ToolBarContent>
+		<MudText Typo="Typo.h6" Color="Color.Warning" Class="mr-6">Jadwal Kerja Security</MudText>
+		<MudIconButton Icon="@Icons.Material.Filled.AddTask" OnClick="AddJadwalSecurity" Color="Color.Success" Size="Size.Medium" />
+		<MudSpacer />
+		<MudTextField Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" />
+	</ToolBarContent>
+	<Columns>
+		<PropertyColumn Property="x => x.Nama" Title="Nama" />
+		<PropertyColumn Property="x => x._1" Title="1">
+			<EditTemplate>
+				<MudSelect @bind-Value="context.Item._1">
+					@foreach(var i in jadwalShiftSecurityDTOs) {
+						<MudSelectItem Value="i.Initial">@i.Initial</MudSelectItem>
+					}
+				</MudSelect>
+			</EditTemplate>
+		</PropertyColumn>
+		<PropertyColumn Property="x => x._2" Title="2" />
+		<PropertyColumn Property="x => x._3" Title="3" />
+		<PropertyColumn Property="x => x._4" Title="4" />
+		<PropertyColumn Property="x => x._5" Title="5" />
+		<PropertyColumn Property="x => x._6" Title="6" />
+		<PropertyColumn Property="x => x._7" Title="7" />
+		<PropertyColumn Property="x => x._8" Title="8" />
+		<PropertyColumn Property="x => x._9" Title="9" />
+		<PropertyColumn Property="x => x._10" Title="10" />
+		<PropertyColumn Property="x => x._11" Title="11" />
+		<PropertyColumn Property="x => x._12" Title="12" />
+		<PropertyColumn Property="x => x._13" Title="13" />
+		<PropertyColumn Property="x => x._14" Title="14" />
+		<PropertyColumn Property="x => x._15" Title="15" />
+		<PropertyColumn Property="x => x._16" Title="16" />
+		<PropertyColumn Property="x => x._17" Title="17" />
+		<PropertyColumn Property="x => x._18" Title="18" />
+		<PropertyColumn Property="x => x._19" Title="19" />
+		<PropertyColumn Property="x => x._20" Title="20" />
+		<PropertyColumn Property="x => x._21" Title="21" />
+		<PropertyColumn Property="x => x._22" Title="22" />
+		<PropertyColumn Property="x => x._23" Title="23" />
+		<PropertyColumn Property="x => x._24" Title="24" />
+		<PropertyColumn Property="x => x._25" Title="25" />
+		<PropertyColumn Property="x => x._26" Title="26" />
+		<PropertyColumn Property="x => x._27" Title="27" />
+		<PropertyColumn Property="x => x._28" Title="28" />
+		<PropertyColumn Property="x => x._29" Title="29" />
+		<PropertyColumn Property="x => x._30" Title="30" />
+		<PropertyColumn Property="x => x._31" Title="31" />
+	</Columns>
+</MudDataGrid>
+
+@code {
+	[Inject]IJadwalKerjaSecurityService jadwalKerjaSecurityService { get; set; }
+	[Inject]IJadwalShiftSecurityServicecs jadwalShiftSecurityService {get; set;}
+	[Inject]IEmployeeService employeeService {get; set;}
+
+	private List<EmployeeDTO> EmployeeDTOs { get; set; } = new();
+	private List<JadwalShiftSecurityDTO> jadwalShiftSecurityDTOs { get; set; } = new();
+	private IEnumerable<JadwalKerjaSecurityDTO> jadwalKerjaSecurityDTOs { get; set; } = new List<JadwalKerjaSecurityDTO>();
+	private IEnumerable<EmployeeDTO> listEmpoSecurity = new List<EmployeeDTO>();
+
+	private int bulan;
+	private int tahun;
+	private bool processing;
+	private bool disableBtnProses = false;
+	private string jsonData;
+	private dynamic[] jadwalKerjaSecurityData;
+
+	// private List<JadwalSecurity> jadwals { get; set; } = new List<JadwalSecurity>();
+	private ObservableCollection<JadwalSecurity> jadwals { get; set; } = new ObservableCollection<JadwalSecurity>();
+
+	protected override async Task OnInitializedAsync() {
+		bulan = DateTime.Now.Month;
+		tahun = DateTime.Now.Year;
+		jadwals = await SetJadwalSecurity();
+		jadwalShiftSecurityDTOs = await jadwalShiftSecurityService.GetJadwalShiftSecurityAsync();
+	}
+
+	private async Task<ObservableCollection<JadwalSecurity>> SetJadwalSecurity() {
+		jadwalKerjaSecurityDTOs = await jadwalKerjaSecurityService.GetJadwalKerjaSecuritiesByMonthYearAsync(bulan, tahun);
+
+		jadwalKerjaSecurityData = jadwalKerjaSecurityDTOs.ToPivotArray(
+			item => item.Tgl.Day,
+			item => item.Nama,
+			items => items.Any() ? items?.First().Inisial_Shift : null
+		);
+		jsonData = JsonConvert.SerializeObject(jadwalKerjaSecurityData, new KeyValuePairConverter());
+		var jsonArray = JArray.Parse(jsonData);
+
+		ObservableCollection<JadwalSecurity> jadwalSecurities = new();
+
+		foreach (var data in jsonArray) {
+			jadwalSecurities.Add(new JadwalSecurity {
+					Nama = (string?)data["Nama"],
+					_1 = (string?)data["1"],
+					_2 = (string?)data["2"],
+					_3 = (string?)data["3"],
+					_4 = (string?)data["4"],
+					_5 = (string?)data["5"],
+					_6 = (string?)data["6"],
+					_7 = (string?)data["7"],
+					_8 = (string?)data["8"],
+					_9 = (string?)data["9"],
+					_10 = (string?)data["10"],
+					_11 = (string?)data["11"],
+					_12 = (string?)data["12"],
+					_13 = (string?)data["13"],
+					_14 = (string?)data["14"],
+					_15 = (string?)data["15"],
+					_16 = (string?)data["16"],
+					_17 = (string?)data["17"],
+					_18 = (string?)data["18"],
+					_19 = (string?)data["19"],
+					_20 = (string?)data["20"],
+					_21 = (string?)data["21"],
+					_22 = (string?)data["22"],
+					_23 = (string?)data["23"],
+					_24 = (string?)data["24"],
+					_25 = (string?)data["25"],
+					_26 = (string?)data["26"],
+					_27 = (string?)data["27"],
+					_28 = (string?)data["28"],
+					_29 = (string?)data["29"],
+					_30 = (string?)data["30"],
+					_31 = (string?)data["31"]
+				});
+		}
+
+		return jadwalSecurities;
+	}
+
+	private async void proses() {
+		processing = true;
+		disableBtnProses = true;
+		jadwals = await SetJadwalSecurity();
+		processing = false;
+		disableBtnProses = false;
+		StateHasChanged();
+	}
+
+	private async void AddJadwalSecurity() {
+		listEmpoSecurity = await employeeService.GetSecurities();
+
+		foreach(var empSecurity in listEmpoSecurity) {
+			jadwals.Add(new JadwalSecurity
+			{
+				Nama = empSecurity.Name,
+				_1 = null,_2 = null,_3 = null,_4 = null,_5 = null,_6 = null,_7 = null,_8 = null,_9 = null,_10 = null,
+				_11 = null,_12 = null,_13 = null,_14 = null,_15 = null,_16 = null,_17 = null,_18 = null,_19 = null,_20 = null,
+				_21 = null,_22 = null,_23 = null,_24 = null,_25 = null,_26 = null,_27 = null,_28 = null,_29 = null,_30 = null,_31 = null,
+
+			});
+		}
+
+		StateHasChanged();
+	}
+
+	class JadwalSecurity {
+		public string? Nama { get; set; }
+		public string? _1 { get; set; }
+		public string? _2 { get; set; }
+		public string? _3 { get; set; }
+		public string? _4 { get; set; }
+		public string? _5 { get; set; }
+		public string? _6 { get; set; }
+		public string? _7 { get; set; }
+		public string? _8 { get; set; }
+		public string? _9 { get; set; }
+		public string? _10 { get; set; }
+		public string? _11 { get; set; }
+		public string? _12 { get; set; }
+		public string? _13 { get; set; }
+		public string? _14 { get; set; }
+		public string? _15 { get; set; }
+		public string? _16 { get; set; }
+		public string? _17 { get; set; }
+		public string? _18 { get; set; }
+		public string? _19 { get; set; }
+		public string? _20 { get; set; }
+		public string? _21 { get; set; }
+		public string? _22 { get; set; }
+		public string? _23 { get; set; }
+		public string? _24 { get; set; }
+		public string? _25 { get; set; }
+		public string? _26 { get; set; }
+		public string? _27 { get; set; }
+		public string? _28 { get; set; }
+		public string? _29 { get; set; }
+		public string? _30 { get; set; }
+		public string? _31 { get; set; }
+	}
+}

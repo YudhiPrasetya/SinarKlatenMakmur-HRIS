@@ -1,0 +1,73 @@
+﻿@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+@inject ISnackbar Snackbar;
+
+<MudDialog>
+   <DialogContent>
+      <MudForm @ref="frmJadwalShiftKaryawan">
+         <MudTextField @ref="Deskripsi" T="string" Label="Deskripsi" @bind-Value="jadwalShiftKaryawanDTO.Deskripsi" />
+
+         <MudTimePicker @ref="jadwalMasuk" Label="Jadwal Masuk" @bind-Time="jadwalShiftKaryawanDTO.JadwalMasuk" PickerVariant="PickerVariant.Dialog" />
+
+         <MudTimePicker @ref="jadwalPulang" @bind-Time="jadwalShiftKaryawanDTO.JadwalPulang" PickerVariant="PickerVariant.Dialog" Label="Jadwal Pulang" />
+
+         <MudSelect MultiSelection="true" Label="Pilih Hari" T="string" SelectAll="true" @bind-Value="hariValue" @bind-SelectedValues="hariOptions">
+            @foreach(var hari in listNamaHari) {
+               <MudSelectItem Value="hari.HariNum" T="string">@hari.HariName</MudSelectItem>
+            }
+         </MudSelect>
+
+         <MudTextField @ref="Inisial" T="string" Label="Deskripsi" @bind-Value="jadwalShiftKaryawanDTO.Initial" />
+
+      </MudForm>
+   </DialogContent>
+   <DialogActions>
+      <MudButton OnClick="Close">Close</MudButton>
+      <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+   </DialogActions>
+</MudDialog>
+
+@code {
+   [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+   [Inject]IJadwalShiftKaryawanService? jadwalShiftKaryawanService { get; set; }
+   MudForm? frmJadwalShiftKaryawan;
+   JadwalShiftKaryawanDTO jadwalShiftKaryawanDTO { get; set; } = new();
+   MudTextField<string>? Deskripsi;
+   MudTimePicker? jadwalMasuk;
+   MudTimePicker? jadwalPulang;
+   MudTextField<string>? Inisial;
+
+   [Parameter] public List<NamaHari> listNamaHari { get; set; } = new();
+   private IEnumerable<string> options { get; set; } = new HashSet<string>();
+   private string hariValue { get; set; } = "Nothing selected";
+   private IEnumerable<string> hariOptions { get; set; } = new HashSet<string>();
+
+   async Task Submit() {
+      JadwalShiftKaryawanDTO jskDTO = new()
+      {
+         Id = 0,
+         Deskripsi = jadwalShiftKaryawanDTO.Deskripsi,
+         JadwalMasuk = jadwalShiftKaryawanDTO.JadwalMasuk,
+         JadwalPulang = jadwalShiftKaryawanDTO.JadwalPulang,
+         Days = hariValue,
+         Initial = jadwalShiftKaryawanDTO.Initial
+      };
+
+      var jadwal = await jadwalShiftKaryawanService!.AddJadwalShiftKaryawan(jskDTO);
+      if(jadwal != null) {
+         Snackbar.Add("Data Jadwal Shift Karyawan berhasil ditambahkan.", Severity.Success, c =>
+         {
+            c.HideTransitionDuration = 300;
+         });         
+      }
+      await frmJadwalShiftKaryawan!.ResetAsync();
+      Console.WriteLine($"hariValues: {hariValue}");
+
+   }
+
+   void Close() {
+      MudDialog?.Close(DialogResult.Ok(true));
+   } 
+}

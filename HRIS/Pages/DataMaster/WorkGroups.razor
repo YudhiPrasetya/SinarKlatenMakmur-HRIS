@@ -1,0 +1,278 @@
+﻿@page "/workgroups";
+@using HRIS.Contracts;
+@using HRIS.Services;
+@using SKM.Shared.Dtos;
+@using System.Collections.ObjectModel;
+
+@inject ISnackbar Snackbar;
+@inject IDialogService DialogService;
+
+<MudCard Class="mt-5" Elevation="1">
+   <MudCardHeader>
+      <CardHeaderContent>
+         <MudText Typo="Typo.h6">Data Kelompok Kerja</MudText>
+      </CardHeaderContent>
+      <CardHeaderActions>
+         @*<MudIconButton Icon="@Icons.Material.Filled.Add" Title="Tambah Data" Color="Color.Success"></MudIconButton>*@
+         @*			<MudFab Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Label="Tambah Data" />*@
+
+         @*         <MudButton Color="Color.Tertiary" OnClick="@((e) => addException())" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add">Tambah Data</MudButton>*@
+      </CardHeaderActions>
+   </MudCardHeader>
+   <MudCardContent>
+      <MudExpansionPanels Elevation="3">
+         <MudExpansionPanel @bind-IsExpanded="isOpen" HideIcon="true">
+            <TitleContent>
+               <div class="d-flex">
+                  <MudText Color="@TitlePanelColor"><strong>@formCaption</strong></MudText>
+                  <MudIcon Icon="@(isOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Add)" class="ml-auto"></MudIcon>
+               </div>
+            </TitleContent>
+            <ChildContent>
+               <MudForm @ref="workGroupForm" @bind-IsValid="@success" @bind-Errors="@errors">
+                  <MudGrid>
+                     <MudItem xs="1">
+                        <MudTextField @ref="Id" T="int" Label="Id" Required="true" Disabled="true" @bind-Value="@groupDTO.GroupID"></MudTextField>
+                     </MudItem>
+                     <MudItem xs=4>
+                        <MudTextField @ref="GroupDescription" Label="Deskripsi" Required="true" @bind-Value="@groupDTO.GroupDesc"></MudTextField>
+                     </MudItem>
+                     <MudItem xs="2">
+                        <MudSwitch @ref="IsActive" @bind-Checked="@groupDTO.IsActive" Color="Color.Success" Label="Aktif" LabelPosition="MudBlazor.LabelPosition.End"></MudSwitch>
+                        @*                         <MudCheckBox  @bind-Checked="@departmentDTO.IsActive" Label="Aktif" Color="Color.Success" LabelPosition="MudBlazor.LabelPosition.Start"></MudCheckBox> *@
+                     </MudItem>
+                  </MudGrid>
+                  <MudDivider DividerType="DividerType.Inset" Class="my-4"></MudDivider>
+                  <MudPaper Class="d-flex flex-row-reverse flex-grow-1 gap-4" Elevation="0">
+                     <MudButton OnClick="SaveWorkGroup" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Update">Save</MudButton>
+                     <MudButton Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Cancel" OnClick="Cancel">Cancel</MudButton>
+                  </MudPaper>
+               </MudForm>
+            </ChildContent>
+
+         </MudExpansionPanel>
+      </MudExpansionPanels>
+
+      <MudTable ServerData="@(new Func<TableState, Task<TableData<GroupDTO>>>(ServerReload))" Dense="true" T="GroupDTO" Hover="true" @ref="workGroupTable" Elevation="4" FixedHeader="true" FixedFooter="true" Bordered="false" Breakpoint="Breakpoint.Sm" Class="cursor-pointer">
+         <ToolBarContent>
+            <MudText Typo="Typo.h6">Daftar Kelompok Kerja</MudText>
+            <MudSpacer />
+            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+         </ToolBarContent>
+         <HeaderContent>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="id_field" T="GroupDTO">ID</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="desc_field" T="GroupDTO">Deskripsi</MudTableSortLabel></MudTh>
+            <MudTh Class="bg-opacity-25 mud-theme-info"><MudTableSortLabel SortLabel="active_field" T="GroupDTO">Aktif</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"></MudTh>
+         </HeaderContent>
+         <RowTemplate>
+            <MudTd Class="pa-2" DataLabel="ID">@context.GroupID</MudTd>
+            <MudTd Class="pa-1" DataLabel="Deskripsi">@context.GroupDesc</MudTd>
+            <MudTd Class="pa-1" DataLabel="Aktif"><MudSwitch Label="Aktif" Color="Color.Success" @bind-Checked="context.IsActive" ReadOnly="true" LabelPosition="MudBlazor.LabelPosition.End"></MudSwitch></MudTd>
+            <MudTd Class="pa-1">
+               <MudGrid>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Edit Data" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="((e) =>EditWorkGroup(context))"></MudIconButton>
+                  </MudItem>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Hapus Data" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="((e) => DeleteWorkGroup(context.GroupID))"></MudIconButton>
+                  </MudItem>
+               </MudGrid>
+            </MudTd>
+
+         </RowTemplate>
+         <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+         </NoRecordsContent>
+         <LoadingContent>
+            <MudText>Loading...</MudText>
+         </LoadingContent>
+         <PagerContent>
+            <MudTablePager />
+         </PagerContent>
+      </MudTable>
+   </MudCardContent>
+</MudCard>
+
+@code {
+   [Inject] IWorkGroupService workGroupService { get; set; }
+   private List<GroupDTO> groupDTOs { get; set; } = new List<GroupDTO>();
+   // private static IEnumerable<DepartmentDTO> ListDepartment { get; set; }
+   private IEnumerable<GroupDTO> pagedData;
+   private GroupDTO groupDTO { get; set; } = new GroupDTO();
+   private bool isOpen;
+   private bool success;
+   private bool isEdit = false;
+   private MudBlazor.Color TitlePanelColor = Color.Tertiary;
+   private MudForm workGroupForm;
+   private MudTable<GroupDTO> workGroupTable;
+   private string formCaption = "Tambah Data Kelompok Kerja";
+   private string TitlePanelCaption;
+   private string searchString = null;
+   private string[] errors = { };
+   private string Mode = "Add";
+   private int totalItems;
+   private MudTextField<int> Id;
+   private MudTextField<string> GroupDescription;
+   // private bool IsActive;
+   // private MudCheckBox<bool> IsActive;
+   private MudSwitch<bool> IsActive;
+
+   // protected async override Task OnInitializedAsync() {
+   //    // return base.OnInitializedAsync();
+   //    // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+   //    GetDepartments();
+   //    // await FillDepartments();
+   // }
+
+   // protected override void OnInitialized() {
+   //    // base.OnInitialized();
+   //    GetDepartments().GetAwaiter().GetResult();
+   // }
+
+   // private List<DepartmentDTO> GetDepartments() {
+   //    // var task = departmentService.GetListDepartmentsAsync();
+   //    // task.Wait();
+
+
+   //    // return task.Result;
+   //    // await Task.Delay(100);
+   //    // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+
+   //    // return departmentDTOs;
+   //    departmentDTOs = departmentService.GetListDepartmentsAsync();
+   //    return departmentDTOs;
+
+   // }
+
+   // private async Task FillDepartments() {
+   //    IList<DepartmentDTO> departments = new List<DepartmentDTO>();
+   //    departments = await departmentService.GetListDepartmentsAsync();
+   //    ListDepartment = departments;
+   //    StateHasChanged();
+   //    await Task.Delay(200);
+   // }
+
+   // private async void GetDepartments() {
+   //    departmentDTOs = new List<DepartmentDTO>();
+   //    // departmentDTOs.Clear();
+   //    departmentDTOs = await departmentService.GetListDepartmentsAsync();
+   //    // await Task.Delay(200);
+   //    StateHasChanged();
+   //    // Task.Delay(100);
+
+   // }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      workGroupTable.ReloadServerData();
+   }
+
+   private async Task<TableData<GroupDTO>> ServerReload(TableState state) {
+      IEnumerable<GroupDTO> data = await workGroupService.GetListWorkGroupAsync();
+      await Task.Delay(100);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.GroupDesc.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+         if ($"{element.GroupDesc}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "id_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.GroupID);
+         break;
+
+         case "desc_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.GroupDesc);
+         break;
+
+         case "active_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.IsActive);
+         break;
+
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<GroupDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   private void Cancel() {
+      workGroupForm.ResetAsync();
+      isEdit = false;
+      Mode = "Add";
+      TitlePanelColor = Color.Tertiary;
+      formCaption = "Tambah Data Kelompok Kerja";
+   }
+
+   async Task EditWorkGroup(GroupDTO selectedGroup) {
+      Mode = "Edit";
+      TitlePanelColor = Color.Warning;
+      formCaption = "Edit Data Kelompok Kerja";
+      groupDTO.GroupID = selectedGroup.GroupID;
+      groupDTO.GroupDesc = selectedGroup.GroupDesc;
+      groupDTO.IsActive = selectedGroup.IsActive;
+      isOpen = true;
+
+   }
+
+   // private void OnIsActiveChange(bool b) {
+   //    IsActive = b;
+   // }
+
+   private async void SaveWorkGroup() {
+
+      groupDTO.GroupID = Id.Value;
+      groupDTO.GroupDesc = GroupDescription.Value;
+      groupDTO.IsActive = IsActive.Checked;
+      groupDTO.CreatedAt = DateTime.Now;
+      groupDTO.CreatedBy = 1;
+      if (Mode == "Add") {
+         await workGroupService.AddWorkGroupAsync(groupDTO);
+      }
+      else {
+         var depDTO = await workGroupService.UpdateWorkGroupAsync(groupDTO);
+         // bool departmentOfferSend = await departmentService.SendDepartmentOffer(depDTO);
+         // Console.WriteLine(departmentOfferSend);
+         isOpen = false;
+         Mode = "Add";
+         formCaption = "Tambah Data Kelompok Kerja";
+      }
+
+      // departmentDTOs.Clear();
+      // departmentTable.Items = null;
+      // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+      // departmentTable.Items = departmentDTOs;
+      // StateHasChanged();
+      // await FillDepartments();
+      Snackbar.Add("Data kelompok kerja berhasil disimpan di database!", Severity.Success, config => {
+         config.HideTransitionDuration = 100;
+      });
+
+      // Task.Delay(100);
+      await workGroupTable.ReloadServerData();
+      await workGroupForm.ResetAsync();
+      // GetDepartments();
+   }
+
+   async Task DeleteWorkGroup(int Id) {
+      bool? deleteConfirmation = await DialogService.ShowMessageBox("Konfirmasi", "Yakin akan menghapus?", "Ya", "Tidak");
+      if (deleteConfirmation == true) {
+         var response = await workGroupService.DeleteWorkGroupAsync(Id);
+         if (response != null) {
+            await workGroupTable.ReloadServerData();
+            Snackbar.Add("Data kelompok kerja berhasil dihapus.", Severity.Info, config => {
+               config.HideTransitionDuration = 100;
+            });
+         }
+
+      }
+   }
+
+}

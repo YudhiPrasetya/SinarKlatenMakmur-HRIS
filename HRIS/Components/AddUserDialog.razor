@@ -1,0 +1,91 @@
+﻿@using System.Text.RegularExpressions;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+@using HRIS.Validations;
+@using HRIS.Services;
+
+@inject ISnackbar Snackbar;
+@inject HttpClient httpClient;
+
+<MudDialog>
+	<DialogContent>
+		<MudForm @ref="userForm" @bind-IsValid="@success">
+			<MudTextField T="string" @ref="userName" @bind-Value="userDTO.UserName" Label="User Name" Required="true" RequiredError="User name is required!"></MudTextField>
+
+				<MudTextField T="string" @bind-Value="userDTO.Password" InputType="InputType.Password" @ref="password" Label="Password" Required="true" RequiredError="Password is required!" HelperText="Choose a strong password" Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))"></MudTextField>
+
+				<MudTextField T="string" InputType="InputType.Password" @ref="confirmPassword" Label=" Confirm Password" HelperText="Repeat the password" Validation="@(new Func<string, string>(PasswordMatch))"></MudTextField>
+
+			<MudSelect @ref="role" Placeholder="Please select a role" T="string" @bind-Value="userDTO.Role"  Required="true" RequiredError="Role is required!">
+				<MudSelectItem Value="@("Admin")">Administrator</MudSelectItem>
+				<MudSelectItem Value="@("User")">User</MudSelectItem>
+				<MudSelectItem Value="@("Security")">Security</MudSelectItem>
+				<MudSelectItem Value="@("Manager")">Manager</MudSelectItem>
+				<MudSelectItem Value="@("Supervisor")">Supervisor</MudSelectItem>
+				@* <MudSelectItem Value="@("Manager")">Manager</MudSelectItem> *@
+			</MudSelect>
+
+
+			<MudCheckBox @bind-Checked="userDTO.IsActive" T="bool?" Color="Color.Tertiary" Label="Active" Size="Size.Large" @ref="isActive" Required="true" RequiredError="IsActive is required!"></MudCheckBox>
+
+			<MudDivider DividerType="DividerType.FullWidth" Class="mb-4" />
+
+			<div class="d-flex align-center justify-space-between">
+				<MudButton Variant="Variant.Filled" Color="Color.Default" Class="ml-auto" StartIcon="@Icons.Material.Filled.Cancel" OnClick="Cancel">Cancel</MudButton>
+
+				<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Disabled="@(!success)" OnClick="ExecuteAddUser">Submit</MudButton>
+			</div>
+		</MudForm>
+	</DialogContent>
+</MudDialog>
+
+@code {
+	[Inject]UserService userService { get; set; }
+	private UserDTO userDTO { get; set; } = new();
+	private MudForm userForm;
+	private MudTextField<int> userId;
+	private MudTextField<string> userName;
+	private MudTextField<string> password;
+	private MudTextField<string> confirmPassword;
+	private MudSelect<string> role;
+	private MudCheckBox<bool?> isActive;
+	private UserValidator userValidator { get; set; } = new();
+	private bool success;
+
+	private IEnumerable<string> PasswordStrength(string pw) {
+		if (string.IsNullOrWhiteSpace(pw)) {
+			yield return "Password is required!";
+			yield break;
+		}
+		if (pw.Length < 8)
+			yield return "Password must be at least of length 8";
+		if (!Regex.IsMatch(pw, @"[A-Z]"))
+			yield return "Password must contain at least one capital letter";
+		if (!Regex.IsMatch(pw, @"[a-z]"))
+			yield return "Password must contain at least one lowercase letter";
+		if (!Regex.IsMatch(pw, @"[0-9]"))
+			yield return "Password must contain at least one digit";
+	}
+
+	private string PasswordMatch(string arg) {
+		if (password.Value != arg)
+			return "Passwords don't match";
+		return null;
+	}
+
+	private async void Cancel() {
+		await userForm.ResetAsync();
+	}
+
+	private async Task ExecuteAddUser() {
+		string psw = userDTO.Password!;
+		string encPsw = EncryptDecryptString.EncryptSHA256Hash(psw);
+		userDTO.Password = encPsw;
+
+		var data = await userService.AddUser(userDTO);
+		Snackbar.Add("Data user berhasil disimpan di database!", Severity.Success, config => {
+			config.HideTransitionDuration = 100;
+		});
+
+	}
+}

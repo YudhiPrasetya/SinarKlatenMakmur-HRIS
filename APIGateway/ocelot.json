@@ -1,0 +1,2396 @@
+{
+   "GlobalConfiguration": {
+      "BaseUrl": "https://localhost:7023"
+
+     //"BaseUrl": "http://192.168.90.10:9023"
+      //"RequestIdKey": "X-Correlation-Id"
+   },
+   "Routes": [
+      // Authentication Web API
+      {
+         "UpstreamPathTemplate": "/Auth",
+         "UpstreamHttpMethod": [ "Post" ],
+         "DownstreamPathTemplate": "/api/auth",
+         "DownstreamScheme": "https",
+         //"DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               //"Host": "authenticationwebapi",
+               "Host": "localhost",
+               //"Host": "192.168.90.10",
+               "Port": 5002
+               //"Port": 9003
+            }
+         ]
+      },
+
+      // Users Routes
+      // Users /get
+      {
+         "UpstreamPathTemplate": "/Users",
+         "UpstreamHttpMethod": [ "Get" ],
+         "DownstreamPathTemplate": "/api/users",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Host": "192.168.90.10",
+               //"Port": 7116
+               "Port": 9116
+            }
+         ],
+         //"FileCacheOptions": { "TtlSeconds": 120 },
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer",
+            "AllowedScopes": []
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admini , User , Security"
+         }
+      },
+
+      //{
+      //   "UpstreamPathTemplate": "/Users",
+      //   "UpstreamHttpMethod": [ "Post" ],
+      //   "DownstreamPathTemplate": "/api/users",
+      //   "DownstreamScheme": "https",
+      //   "DownstreamHostAndPorts": [
+      //      {
+      //         //"Host": "departmentapi",
+      //         "Host": "localhost",
+      //         "Port": 7116
+      //      }
+      //   ],
+      //   //"FileCacheOptions": { "TtlSeconds": 120 },
+      //   "AuthenticationOptions": {
+      //      "AuthenticationProviderKey": "Bearer"
+      //   },
+      //   "RouteClaimsRequirement": {
+      //      "Role": "Administrator"
+      //   }
+      //},
+      // Get Users/userListTriggred
+      {
+         "UpstreamPathTemplate": "/UsersTriggered",
+         "UpstreamHttpMethod": [ "Get" ],
+         "DownstreamPathTemplate": "/api/users/userListTriggered",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               //"Host": "departmentapi",
+               "Host": "localhost",
+               //"Host": "192.168.90.10",
+               //"Port": 7116
+               "Port": 9116
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+         //"RouteClaimsRequirement": {
+         //  "Role": "Administrator"
+         //}
+      },
+
+      // Get Departments/{id}
+      {
+         "UpstreamPathTemplate": "/Users/{id}",
+         "UpstreamHttpMethod": [ "Get" ],
+         "DownstreamPathTemplate": "/api/users/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Host": "192.168.90.10",
+               //"Port": 7116
+               "Port": 9116
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer",
+            "AllowedScopes": []
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      {
+         "UpstreamPathTemplate": "/Users/{id}",
+         "UpstreamHttpMethod": [ "Delete" ],
+         "DownstreamPathTemplate": "/api/users/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Host": "192.168.90.10",
+               //"Port": 7116
+               "Port": 9116
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer",
+            "AllowedScopes": []
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+
+      // Post, Put Departments
+      {
+         "UpstreamPathTemplate": "/Users",
+         "UpstreamHttpMethod": [ "Post", "Put" ],
+         "DownstreamPathTemplate": "/api/users",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Host": "192.168.90.10",
+               //"Port": 7116
+               "Port": 9116
+            }
+         ],
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         },
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer",
+            "AllowedScopes": []
+         }
+      },
+
+      // Department Routes
+      // department /get
+      {
+         "UpstreamPathTemplate": "/Departments",
+         "UpstreamHttpMethod": [ "Get" ],
+         "DownstreamPathTemplate": "/api/department",
+         "DownstreamScheme": "http",
+         //"DownstreamScheme": "https",
+         "DownstreamHostAndPorts": [
+            {
+               //"Host": "departmentapi",
+               "Host": "localhost",
+               "Port": 9281
+               //"Port": 7281
+            }
+         ],
+         //"FileCacheOptions": { "TtlSeconds": 120 }
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+
+      // Get Departments/{id}
+      {
+         "UpstreamPathTemplate": "/Departments/{id}",
+         "UpstreamHttpMethod": [ "Get" ],
+         "DownstreamPathTemplate": "/api/department/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               //"Host": "departmentapi",
+               "Host": "localhost",
+               "Port": 9281
+               //"Port": 7281
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+
+      // Delete Departments/id
+      {
+         "UpstreamPathTemplate": "/Departments/{id}",
+         "UpstreamHttpMethod": [ "Delete" ],
+         "DownstreamPathTemplate": "/api/department/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               "Port": 9281
+               //"Port": 7281
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+
+      // Post, Put Departments
+      {
+         "UpstreamPathTemplate": "/Departments",
+         "UpstreamHttpMethod": [ "Post", "Put" ],
+         "DownstreamPathTemplate": "/api/department",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               //"Host": "departmentapi",
+               "Host": "localhost",
+               "Port": 9281
+               //"Port": 7281
+            }
+         ],
+         //"RouteClaimsRequirement": {
+         //  "Role": "Administrator"
+         //},
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+      // sendDepartmentOffer
+      {
+         "UpstreamPathTemplate": "/Departments/sendoffer",
+         "UpstreamHttpMethod": [ "Post" ],
+         "DownstreamPathTemplate": "/api/department/sendoffer",
+         "DownstreamScheme": "https",
+         "DownstreamHostAndPorts": [
+            {
+               //"Host": "departmentapi",
+               "Host": "localhost",
+               "Port": 7281
+            }
+         ],
+         //"RouteClaimsRequirement": {
+         //  "Role": "Administrator"
+         //},
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+
+
+      // Mesin ABsen Routes
+      // MesinAbsen /get
+      {
+         "UpstreamPathTemplate": "/MesinAbsens",
+         "UpstreamHttpMethod": [ "Get" ],
+         "DownstreamPathTemplate": "/api/mesinabsens",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7294
+               "Port": 9294
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+
+      // Get/id /MesinAbsens/id
+      {
+         "UpstreamPathTemplate": "/MesinAbsens/{id}",
+         "UpstreamHttpMethod": [ "Get" ],
+         "DownstreamPathTemplate": "/api/mesinabsens/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7294
+               "Port": 9294
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+
+      // Delete MesinAbsens/{id}
+      {
+         "UpstreamPathTemplate": "/MesinAbsens/{id}",
+         "UpstreamHttpMethod": [ "Delete" ],
+         "DownstreamPathTemplate": "/api/mesinabsens/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7294
+               "Port": 9294
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+            //  "AllowedScopes": []
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+
+      // Post, Put MesinAbsens
+      {
+         "UpstreamPathTemplate": "/MesinAbsens",
+         "UpstreamHttpMethod": [ "Post", "Put" ],
+         "DownstreamPathTemplate": "/api/mesinabsens",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               //"Host": "departmentapi",
+               "Host": "localhost",
+               //"Port": 7294
+               "Port": 9294
+            }
+         ],
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         },
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+            //"AllowedScopes": []
+         }
+
+         //"RouteClaimsRequirement": {
+         //  "Role": "Administrator"
+         //  //"http://schemas.microsoft.com/ws/2008/06/identity/claims/role":  "Administrator"
+         //}
+      },
+      //Groups routes
+      // /Groups get route
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Groups",
+         "DownstreamPathTemplate": "/api/group",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7181
+               "Port": 9181
+            }
+         ],
+         //"FileCacheOptions": { "TtlSeconds": 120 },
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User, Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/Groups",
+         "DownstreamPathTemplate": "/api/group",
+         "DownstreamScheme": "https",
+         //"DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7181
+               "Port": 9181
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+      //Groups/{id} get route
+      {
+         "UpstreamHttpMethod": [ "Delete" ],
+         "UpstreamPathTemplate": "/Groups/{id}",
+         "DownstreamPathTemplate": "/api/group/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7181
+               "Port": 9181
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/Groups",
+         "DownstreamPathTemplate": "/api/group",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7181
+               "Port": 9181
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+
+      },
+      // Position routes
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Positions",
+         "DownstreamPathTemplate": "/api/positions",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7229
+               "Port": 9229
+            }
+         ],
+         //"FileCacheOptions": { "TtlSeconds": 120 },
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+
+      //Position/{id} get route
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Positions/{id}",
+         "DownstreamPathTemplate": "/api/positions/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7229
+               "Port": 9229
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Delete" ],
+         "UpstreamPathTemplate": "/Positions/{id}",
+         "DownstreamPathTemplate": "/api/positions/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7229
+               "Port": 9229
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+
+      //Employee routes
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees",
+         "DownstreamPathTemplate": "/api/employee",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ],
+         //"FileCacheOptions": { "TtlSeconds": 300 },
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User, Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees/CountActiveEmployee",
+         "DownstreamPathTemplate": "/api/employee/CountActiveEmployee",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ],
+         //"FileCacheOptions": { "TtlSeconds": 300 },
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security, Manager"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees/GetEmployeesBirthday",
+         "DownstreamPathTemplate": "/api/employee/GetEmployeesBirthday",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ]
+         //"FileCacheOptions": { "TtlSeconds": 300 },
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees/GetStafsBirthday",
+         "DownstreamPathTemplate": "/api/employee/GetStafsBirthday",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ]
+         //"FileCacheOptions": { "TtlSeconds": 300 },
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees/KomposisiKaryawan",
+         "DownstreamPathTemplate": "/api/employee/KomposisiKaryawan",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ]
+         //"FileCacheOptions": { "TtlSeconds": 300 },
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees/GroupAndDate/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/employee/GroupAndDate/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees/ExportToExcel/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/employee/ExportToExcel/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees/GetSecurities",
+         "DownstreamPathTemplate": "/api/employee/GetSecurities",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ],
+         //"FileCacheOptions": { "TtlSeconds": 300 },
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      //Get By groupId
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees/Group/{groupId}",
+         "DownstreamPathTemplate": "/api/employee/group/{groupId}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ],
+         //"FileCacheOptions": { "TtlSeconds": 300 },
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+
+      //Employee/{id} get route
+      {
+         "UpstreamHttpMethod": [ "Delete" ],
+         "UpstreamPathTemplate": "/Employees/{id}",
+         "DownstreamPathTemplate": "/api/employee/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees/NIK/{nik}",
+         "DownstreamPathTemplate": "/api/employee/NIK/{nik}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Employees/{id}",
+         "DownstreamPathTemplate": "/api/employee/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+
+      },
+      {
+         "UpstreamHttpMethod": [ "Post", "Put" ],
+         "UpstreamPathTemplate": "/Employees",
+         "DownstreamPathTemplate": "/api/employee",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7093
+               "Port": 9093
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+      //ExceptionType Routes
+      //ExceptionType get
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/TipeTidakHadir",
+         "DownstreamPathTemplate": "/api/ExceptionType",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7200
+               "Port": 9200
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      //Get/{anything}
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/TipeTidakHadir/Alasan/{val}",
+         "DownstreamPathTemplate": "/api/ExceptionType/ExceptionName/{val}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7200
+               "Port": 9200
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+
+      //Exception Routes
+      //Get
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/TidakHadir",
+         "DownstreamPathTemplate": "/api/Exception",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7095
+               "Port": 9095
+            }
+         ],
+         //"FileCacheOptions": { "TtlSeconds": 120 },
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/TidakHadir/GroupAndDate/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/Exception/GroupAndDate/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7
+               "Port": 9095
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+
+      //Get, Delete
+      {
+         "UpstreamHttpMethod": [ "Get", "Delete" ],
+         "UpstreamPathTemplate": "/TidakHadir/{id}",
+         "DownstreamPathTemplate": "/api/Exception/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7095
+               "Port": 9095
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+      //Post, Put
+      {
+         "UpstreamHttpMethod": [ "Post", "Put" ],
+         "UpstreamPathTemplate": "/TidakHadir",
+         "DownstreamPathTemplate": "/api/Exception",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7095
+               "Port": 9095
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+
+      //SPL routes
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/SPL",
+         "DownstreamPathTemplate": "/api/SPL",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               "Port": 9184
+               //"Port": 7184
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+         //"FileCacheOptions": { "TtlSeconds": 120 }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/SPL/Report/All",
+         "DownstreamPathTemplate": "/api/SPL/Report/All",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               "Port": 9184
+               //"Port": 7184
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security , Manager"
+         }
+         //"FileCacheOptions": { "TtlSeconds": 120 }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/SPL/{groupId}/{otDate}",
+         "DownstreamPathTemplate": "/api/SPL/{groupId}/{otDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7184
+               "Port": 9184
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security , Manager"
+         }
+         //"FileCacheOptions": { "TtlSeconds": 120 }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/SPL/GroupAndDate/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/SPL/GroupAndDate/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7184
+               "Port": 9184
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security , Manager"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/SPL/ReportRekapLembur/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/SPL/ReportRekapLembur/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7184
+               "Port": 9184
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security , Manager"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/SPL/ExportToExcel/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/SPL/ExportToExcel/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7184
+               "Port": 9184
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+      //Get, Delete
+      {
+         "UpstreamHttpMethod": [ "Get", "Delete" ],
+         "UpstreamPathTemplate": "/SPL/{id}",
+         "DownstreamPathTemplate": "/api/SPL/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7184
+               "Port": 9184
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      //Post, Put
+      {
+         "UpstreamHttpMethod": [ "Post", "Put" ],
+         "UpstreamPathTemplate": "/SPL",
+         "DownstreamPathTemplate": "/api/SPL",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7184
+               "Port": 9184
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/SPL/AddSPLRange",
+         "DownstreamPathTemplate": "/api/SPL/AddSPLRange",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               "Port": 9184
+               //"Port": 7184
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+
+      //UMP Routes
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/UMP",
+         "DownstreamPathTemplate": "/api/UMP",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7034
+               "Port": 9034
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+         //"FileCacheOptions": { "TtlSeconds": 120 }
+      },
+      //Get, Delete
+      {
+         "UpstreamHttpMethod": [ "Get", "Delete" ],
+         "UpstreamPathTemplate": "/UMP/{id}",
+         "DownstreamPathTemplate": "/api/UMP/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7034
+               "Port": 9034
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      //Post, Put
+      {
+         "UpstreamHttpMethod": [ "Post", "Put" ],
+         "UpstreamPathTemplate": "/UMP",
+         "DownstreamPathTemplate": "/api/UMP",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7034
+               "Port": 9034
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+
+      //PTKP Routes
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/PTKP",
+         "DownstreamPathTemplate": "/api/PTKP",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7022
+               "Port": 9022
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+         //"FileCacheOptions": { "TtlSeconds": 120 }
+      },
+      //Get, Delete
+      {
+         "UpstreamHttpMethod": [ "Get", "Delete" ],
+         "UpstreamPathTemplate": "/PTKP/{id}",
+         "DownstreamPathTemplate": "/api/PTKP/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7022
+               "Port": 9022
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      //Post, Put
+      {
+         "UpstreamHttpMethod": [ "Post", "Put" ],
+         "UpstreamPathTemplate": "/PTKP",
+         "DownstreamPathTemplate": "/api/PTKP",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7022
+               "Port": 9022
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+
+      //Gaji dan tunjangan routes
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Gaji",
+         "DownstreamPathTemplate": "/api/Gaji",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7028
+               "Port": 9028
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+         //"FileCacheOptions": { "TtlSeconds": 120 }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Gaji/NIK/{nik}",
+         "DownstreamPathTemplate": "/api/Gaji/NIK/{nik}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7028
+               "Port": 9028
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+         //"FileCacheOptions": { "TtlSeconds": 120 }
+      },
+      //Get, Delete
+      {
+         "UpstreamHttpMethod": [ "Get", "Delete" ],
+         "UpstreamPathTemplate": "/Gaji/{id}",
+         "DownstreamPathTemplate": "/api/Gaji/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7028
+               "Port": 9028
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+      //Get By group Id
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Gaji/Group{groupId}",
+         "DownstreamPathTemplate": "/api/Gaji/Group{groupId}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7028
+               "Port": 9028
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Gaji/GroupName/{groupName}",
+         "DownstreamPathTemplate": "/api/Gaji/GroupName/{groupName}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7028
+               "Port": 9028
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      //Post, Put
+      {
+         "UpstreamHttpMethod": [ "Post", "Put" ],
+         "UpstreamPathTemplate": "/Gaji",
+         "DownstreamPathTemplate": "/api/Gaji",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7028
+               "Port": 9028
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/Gaji/AddGajiRange",
+         "DownstreamPathTemplate": "/api/Gaji/AddGajiRange",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7028
+               "Port": 9028
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
+
+      //Kehadiran routes
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Kehadiran",
+         "DownstreamPathTemplate": "/api/Kehadiran",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Kehadiran/CountByEmpGender",
+         "DownstreamPathTemplate": "/api/Kehadiran/CountByEmpGender",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Kehadiran/Terlambat/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/Kehadiran/Terlambat/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Kehadiran/GroupAndDate/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/Kehadiran/GroupAndDate/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Kehadiran/ExportToExcel/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/Kehadiran/ExportToExcel/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security , Manager"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/Kehadiran/Absen",
+         "DownstreamPathTemplate": "/api/Kehadiran/Absen",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User , Security"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/Kehadiran/Terlambat/Add",
+         "DownstreamPathTemplate": "/api/Kehadiran/Terlambat/Add",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/Kehadiran/AbsenPulang",
+         "DownstreamPathTemplate": "/api/Kehadiran/AbsenPulang",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/Kehadiran/Ijin",
+         "DownstreamPathTemplate": "/api/Kehadiran/Ijin",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/Kehadiran",
+         "DownstreamPathTemplate": "/api/Kehadiran",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/Kehadiran/Terlambat/Update",
+         "DownstreamPathTemplate": "/api/Kehadiran/Terlambat/Update",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/Kehadiran/UbahJam",
+         "DownstreamPathTemplate": "/api/Kehadiran/UbahJam",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Kehadiran/NIKAndDate/{nik}/{date}",
+         "DownstreamPathTemplate": "/api/Kehadiran/NIKAndDate/{nik}/{date}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/Kehadiran/DateRange/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/Kehadiran/DateRange/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/AbsenPulang/NIK/{nik}",
+         "DownstreamPathTemplate": "/api/AbsenPulang/NIK/{nik}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/AbsenPulang/DateRange/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/AbsenPulang/DateRange/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/Kehadiran/AbsenPulang",
+         "DownstreamPathTemplate": "/api/Kehadiran/AbsenPulang",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7209
+               "Port": 9209
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      //Payroll routes
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/Payroll",
+         "DownstreamPathTemplate": "/api/Payroll",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7215
+               "Port": 9215
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         //"UpstreamHttpMethod": [ "Get" ],
+         "UpstreamHttpMethod": [ "Post" ],
+         //"UpstreamPathTemplate": "/Payroll/ExportToExcel/{group}/{startDate}/{endDate}",
+         "UpstreamPathTemplate": "/Payroll/ExportToExcel",
+         //"DownstreamPathTemplate": "/api/payroll/ExportToExcel/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/payroll/ExportToExcel",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7215
+               "Port": 9215
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/Payroll/SlipGaji",
+         "DownstreamPathTemplate": "/api/payroll/SlipGaji",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7215
+               "Port": 9215
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+
+      //Lupa absen routes
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/LupaAbsen",
+         "DownstreamPathTemplate": "/api/LupaAbsen",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               "Port": 9253
+               //"Port": 7253
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/LupaAbsen",
+         "DownstreamPathTemplate": "/api/LupaAbsen",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7253
+               "Port": 9253
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/LupaAbsen/GroupAndDate/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/LupaAbsen/GroupAndDate/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7253
+               "Port": 9253
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/LupaAbsen/ExportToExcel/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/LupaAbsen/ExportToExcel/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7253
+               "Port": 9253
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      //Jadwal Kerja Karyawan absen routes
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan/AddRange",
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan/AddRange",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7017
+               "Port": 9017
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan",
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7017
+               "Port": 9017
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan/GetByDate/{date}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan/GetByDate/{date}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7017
+               "Port": 9017
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan/NIK/{nik}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan/NIK/{nik}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7017
+               "Port": 9017
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan/GroupName/{groupName}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan/GroupName/{groupName}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7017
+               "Port": 9017
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan/{id}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7017
+               "Port": 9017
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan/UpdateRange",
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan/UpdateRange",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7017
+               "Port": 9017
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan/UpdateSingle",
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan/UpdateSingle",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7017
+               "Port": 9017
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan/GroupAndDate/{group}/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan/GroupAndDate/{group}/{startDate}/{endDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7017
+               "Port": 9017
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan/NIKAndDate/{nik}/{strDate}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan/NIKAndDate/{nik}/{strDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7017
+               "Port": 9017
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+      },
+      {
+         "UpstreamPathTemplate": "/JadwalKerjaKaryawan/{id}",
+         "UpstreamHttpMethod": [ "Delete" ],
+         "DownstreamPathTemplate": "/api/JadwalKerjaKaryawan/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               "Port": 9017
+               //"Port": 7281
+            }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //}
+         //"RouteClaimsRequirement": {
+         //  "Role": "Administrator"
+         //}
+      },
+
+      //Shift routes
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalShiftKaryawan",
+         "DownstreamPathTemplate": "/api/JadwalShiftKaryawan",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/JadwalShiftKaryawan",
+         "DownstreamPathTemplate": "/api/JadwalShiftKaryawan",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/JadwalShiftKaryawan/",
+         "DownstreamPathTemplate": "/api/JadwalShiftKaryawan",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalShiftDepartemen",
+         "DownstreamPathTemplate": "/api/JadwalShiftDepartemen",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/JadwalShiftDepartemen",
+         "DownstreamPathTemplate": "/api/JadwalShiftDepartemen",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/JadwalShiftDepartemen/AddRange",
+         "DownstreamPathTemplate": "/api/JadwalShiftDepartemen/AddRange",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/JadwalShiftDepartemen",
+         "DownstreamPathTemplate": "/api/JadwalShiftDepartemen",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalShiftSecurity",
+         "DownstreamPathTemplate": "/api/JadwalShiftSecurity",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalShiftSecurity/Inisial/{inisial}",
+         "DownstreamPathTemplate": "/api/JadwalShiftSecurity/Inisial/{inisial}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Post", "Put" ],
+         "UpstreamPathTemplate": "/JadwalShiftSecurity",
+         "DownstreamPathTemplate": "/api/JadwalShiftSecurity",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , Security"
+         }
+      },
+      //Jam kerja routes
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JamKerja/{id}",
+         "DownstreamPathTemplate": "/api/JamKerja/{id}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/JamKerja",
+         "DownstreamPathTemplate": "/api/JamKerja",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/JamKerja",
+         "DownstreamPathTemplate": "/api/JamKerja",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7044
+               "Port": 9044
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin"
+         }
+      },
+      //JadwalKerjaSecurityAPI Routes
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaSecurity/Jadwal/{tgl}/{name}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaSecurity/Jadwal/{tgl}/{name}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7083
+               "Port": 9083
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaSecurity/NIKAndDate/{nik}/{strDate}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaSecurity/NIKAndDate/{nik}/{strDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7083
+               "Port": 9083
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/JadwalKerjaSecurity",
+         "DownstreamPathTemplate": "/api/JadwalKerjaSecurity",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7083
+               "Port": 9083
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Put" ],
+         "UpstreamPathTemplate": "/JadwalKerjaSecurity",
+         "DownstreamPathTemplate": "/api/JadwalKerjaSecurity",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7083
+               "Port": 9083
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaSecurity",
+         "DownstreamPathTemplate": "/api/JadwalKerjaSecurity",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7083
+               "Port": 9083
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaSecurity/{month}/{year}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaSecurity/{month}/{year}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7083
+               "Port": 9083
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaSecurity/JKS/{nik}/{tahun}/{bulan}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaSecurity/JKS/{nik}/{tahun}/{bulan}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7083
+               "Port": 9083
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+      {
+         "UpstreamHttpMethod": [ "Get" ],
+         "UpstreamPathTemplate": "/JadwalKerjaSecurity/JKS/{startDate}/{endDate}",
+         "DownstreamPathTemplate": "/api/JadwalKerjaSecurity/JKS/{startDate}/{startDate}",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7083
+               "Port": 9083
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      },
+
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/JadwalKerjaSecurity/AddJadwalSecurityRange",
+         "DownstreamPathTemplate": "/api/JadwalKerjaSecurity/AddJadwalSecurityRange",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7083
+               "Port": 9083
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         }
+      }
+   ]
+}

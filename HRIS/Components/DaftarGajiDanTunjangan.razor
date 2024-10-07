@@ -1,0 +1,284 @@
+﻿@using SKM.Shared.Dtos
+@using HRIS.Contracts
+@using HRIS.Services
+
+@inject ISnackbar Snackbar
+<style type="text/css">
+	.mud-table-head .header-centered th {
+		text-align: center;
+		font-size: 1.2em;
+	}
+	.mud-table-foot .bold-text .mud-table-cell {
+		font-weight: 500;
+	}
+</style>
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<GajiDanTunjanganDTO>>>(ServerReload))" Dense="true" T="GajiDanTunjanganDTO" Hover="true" @ref="gajiTable" FixedHeader="true" FixedFooter="true" Bordered="true" Class="cursor-pointer" Striped="true" Breakpoint="Breakpoint.Sm" CustomHeader="true" CustomFooter="true" HeaderClass="table-head-bordered" FooterClass="table-foot-bordered">
+	<ToolBarContent>
+		<MudText Typo="Typo.h6">Daftar Gaji Dan Tunjangan</MudText>
+		<MudSpacer />
+		<MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search..." Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+	</ToolBarContent>
+	<HeaderContent>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="id_field" T="GajiDanTunjanganDTO">ID</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="group_field" T="GajiDanTunjanganDTO">Grup</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="nik_field" T="GajiDanTunjanganDTO">NIK</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="namaKaryawan_field" T="GajiDanTunjanganDTO">Nama</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="upah_field" T="GajiDanTunjanganDTO">Upah</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="ptkp_field" T="GajiDanTunjanganDTO">Keterangan</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="ptkpRP_field" T="GajiDanTunjanganDTO">Jumlah</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="tunjJabatan_field" T="GajiDanTunjanganDTO">Jabatan</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="tunjKeterampilan_field" T="GajiDanTunjanganDTO">Keterampilan</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel T="GajiDanTunjanganDTO" SortLabel="tunjMasaKerja_field">Masa Kerja</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="tunjLain_field" T="GajiDanTunjanganDTO">Lain2</MudTableSortLabel>
+			</MudTh>
+@* 			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="potKoperasi_field" T="GajiDanTunjanganDTO">Koperasi</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="potLain_field" T="GajiDanTunjanganDTO">Lain2</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="bpjskes_field" T="GajiDanTunjanganDTO">Kesesehatan</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="bpjsTK_field" T="GajiDanTunjanganDTO">Tenaga Kerja</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="bpjsOrtu1_field" T="GajiDanTunjanganDTO">BPJS Ortu1(%)</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="bpjsOrtu2_field" T="GajiDanTunjanganDTO">BPJS Ortu2(%)</MudTableSortLabel>
+			</MudTh>
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="bpjsOrtu3_field" T="GajiDanTunjanganDTO">BPJS Ortu3(%)</MudTableSortLabel>
+			</MudTh> 
+			<MudTh Class="mud-theme-info">
+				<MudTableSortLabel SortLabel="bpjsOrtu4_field" T="GajiDanTunjanganDTO">BPJS Ortu4(%)</MudTableSortLabel>
+			</MudTh>*@
+		<MudTh Class="mud-theme-info"></MudTh>
+	</HeaderContent>
+	<RowTemplate>
+		<MudTd DataLabel="ID">
+			@context.Id
+		</MudTd>
+		<MudTd DataLabel="Grup Kerja">
+			@context.GrupKerja
+		</MudTd>
+		<MudTd DataLabel="NIK">
+			@context.NIK
+		</MudTd>
+		<MudTd DataLabel="Nama Karyawan">
+			@context.NamaKaryawan
+		</MudTd>
+		<MudTd DataLabel="Upah">
+			@context.Upah
+		</MudTd>
+		<MudTd DataLabel="PTKP">
+			@context.PTKP
+		</MudTd>
+		<MudTd DataLabel="PTKP (Rp.)">
+			@context.PTKP_Jumlah
+		</MudTd>
+		<MudTd DataLabel="Tunj.Jabatan">
+			@context.TunjJabatan
+		</MudTd>
+		<MudTd DataLabel="Tunj.Keterampilan">
+			@context.TunjKeterampilan
+		</MudTd>
+		<MudTd DataLabel="Tunj.Masa Kerja">
+			@context.TunjMasaKerja
+		</MudTd>
+		<MudTd DataLabel="Tunj.Lain2">
+			@context.TunjLain
+		</MudTd>
+@* 		<MudTd DataLabel="Pot.Koperasi">
+			@context.PotonganKoperasi
+		</MudTd>
+		<MudTd DataLabel="Pot.Lain2">
+			@context.PotonganLain
+		</MudTd>
+		<MudTd DataLabel="BPJSKes">
+			@context.Potong_BPJSKes
+		</MudTd>
+		<MudTd DataLabel="BPJSTK">
+			@context.Potong_BPJSTK
+		</MudTd>
+		<MudTd DataLabel="BPJS Ortu1(%)">
+			@context.BPJS_Ortu1
+		</MudTd>
+		<MudTd DataLabel="BPJS Ortu2(%)">
+			@context.BPJS_Ortu2
+		</MudTd>
+		<MudTd DataLabel="BPJS Ortu3(%)">
+			@context.BPJS_Ortu3
+		</MudTd>
+		<MudTd DataLabel="BPJS Ortu4(%)">
+			@context.BPJS_Ortu4
+		</MudTd> *@
+		<MudTd Class="pa-1">
+			<MudStack Row="true">
+				<MudIconButton Size="Size.Small" Title="Edit Data" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="((e) => EditGajiDanTunjangan(context))"></MudIconButton>
+				<MudIconButton Size="Size.Small" Title="Hapus Data" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="((e) => HapusGajiDanTunjangan(context.Id))"></MudIconButton>
+			</MudStack>
+		</MudTd>
+	</RowTemplate>
+	<NoRecordsContent>
+		<MudText>No records found</MudText>
+	</NoRecordsContent>
+	<LoadingContent>
+		<MudText>Loading ...</MudText>
+	</LoadingContent>
+	<PagerContent>
+		<MudTablePager />
+	</PagerContent>
+</MudTable>
+
+@code {
+	[Inject] IGajiDanTunjanganService gajiService { get; set; }
+
+	[Parameter]
+	public MudTable<GajiDanTunjanganDTO> gajiTable { get; set; }
+
+	[Parameter]
+	public IEnumerable<GajiDanTunjanganDTO> gajiDTOs { get; set; } = new List<GajiDanTunjanganDTO>();
+
+	[Parameter]
+	public EventCallback<int> DeleteGaji { get; set; }
+
+	[Parameter]
+	public EventCallback<GajiDanTunjanganDTO> GetGaji {get; set;}
+
+	private IEnumerable<GajiDanTunjanganDTO> pagedData;
+	private string searchString;
+	private string searchString1;
+	private int totalItems;
+	private string Mode = "Add";
+
+	// protected override async Task OnInitializedAsync() {
+	// 	// return base.OnInitializedAsync();
+	// 	await gajiDTOS();
+	// }
+
+	// private async Task<IEnumerable<GajiDanTunjanganDTO>> gajiDTOS() {
+	// 	return (IEnumerable<GajiDanTunjanganDTO>)LoadGajiDTOS.InvokeAsync();
+	// }
+
+	// private bool FilterFunc1(GajiDanTunjanganDTO element) => FilterFunc(element, searchString1);
+	// private bool FilterFunc(GajiDanTunjanganDTO el, string searchString) {
+	// 	// if (string.IsNullOrWhiteSpace(searchString))
+	// 	// 	return true;
+	// 	// if (element.Sign.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+	// 	// 	return true;
+	// 	// if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+	// 	// 	return true;
+	// 	// if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
+	// 	// 	return true;
+	// 	if (string.IsNullOrWhiteSpace(searchString)) return true;
+	// 	if (el.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.GrupKerja.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.NamaKaryawan.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.Upah.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.PTKP.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.PTKP_Jumlah.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.TunjJabatan.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.TunjKeterampilan.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.TunjMasaKerja.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.TunjLain.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.PotonganKoperasi.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.PotonganLain.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.Potong_BPJSKes.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.Potong_BPJSTK.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.BPJS_Ortu1.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.BPJS_Ortu2.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.BPJS_Ortu3.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if (el.BPJS_Ortu4.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+	// 	if ($"{el.Id.ToString()}{el.GrupKerja}{el.NIK}{el.NamaKaryawan}{el.Upah.ToString()}{el.PTKP}{el.PTKP_Jumlah}{el.TunjJabatan.ToString()}{el.TunjKeterampilan.ToString()}{el.TunjMasaKerja.ToString()}{el.TunjLain.ToString()}{el.PotonganKoperasi.ToString()}{el.PotonganLain.ToString()}{el.Potong_BPJSKes}{el.Potong_BPJSTK}{el.BPJS_Ortu1.ToString()}{el.BPJS_Ortu2.ToString()}{el.BPJS_Ortu3.ToString()}{el.BPJS_Ortu4.ToString()}".Contains(searchString)) return true;
+	// 	return false;
+	// }
+
+	private async Task<TableData<GajiDanTunjanganDTO>> ServerReload(TableState state) {
+		// IEnumerable<GajiDanTunjanganDTO> data = await gajiService.GetGajiListAsync();
+		await Task.Delay(300);
+		gajiDTOs = gajiDTOs.Where(el => {
+			if (string.IsNullOrWhiteSpace(searchString)) return true;
+			if (el.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.GrupKerja.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.NamaKaryawan.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.Upah.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.PTKP.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.PTKP_Jumlah.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.TunjJabatan.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.TunjKeterampilan.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.TunjMasaKerja.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.TunjLain.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.PotonganKoperasi.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.PotonganLain.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.Potong_BPJSKes.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.Potong_BPJSTK.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.BPJS_Ortu1.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.BPJS_Ortu2.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.BPJS_Ortu3.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.BPJS_Ortu4.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if ($"{el.Id.ToString()}{el.GrupKerja}{el.NIK}{el.NamaKaryawan}{el.Upah.ToString()}{el.PTKP}{el.PTKP_Jumlah}{el.TunjJabatan.ToString()}{el.TunjKeterampilan.ToString()}{el.TunjMasaKerja.ToString()}{el.TunjLain.ToString()}{el.PotonganKoperasi.ToString()}{el.PotonganLain.ToString()}{el.Potong_BPJSKes}{el.Potong_BPJSTK}{el.BPJS_Ortu1.ToString()}{el.BPJS_Ortu2.ToString()}{el.BPJS_Ortu3.ToString()}{el.BPJS_Ortu4.ToString()}".Contains(searchString)) return true;
+			return false;
+		}).ToArray();
+		totalItems = gajiDTOs.Count();
+		switch (state.SortLabel) {
+			case "id_field":
+			gajiDTOs = gajiDTOs.OrderByDirection(state.SortDirection, o => o.Id);
+			break;
+			case "group_field":
+			gajiDTOs = gajiDTOs.OrderByDirection(state.SortDirection, o => o.GrupKerja);
+			break;
+			case "nik_field":
+			gajiDTOs = gajiDTOs.OrderByDirection(state.SortDirection, o => o.NIK);
+			break;			
+			case "namaKaryawan_field":
+			gajiDTOs = gajiDTOs.OrderByDirection(state.SortDirection, o => o.NamaKaryawan);
+			break;
+
+		}
+
+		pagedData = gajiDTOs.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+		return new TableData<GajiDanTunjanganDTO>() { TotalItems = totalItems, Items = pagedData };
+	}
+
+	private void OnSearch(string text) {
+		searchString = text;
+		gajiTable.ReloadServerData();
+	}
+
+	async Task EditGajiDanTunjangan(GajiDanTunjanganDTO gaji) {
+		Mode = "Edit";
+		await GetGaji.InvokeAsync(gaji);
+	}
+
+	async Task HapusGajiDanTunjangan(int Id) {
+		await DeleteGaji.InvokeAsync(Id);
+
+	}
+}

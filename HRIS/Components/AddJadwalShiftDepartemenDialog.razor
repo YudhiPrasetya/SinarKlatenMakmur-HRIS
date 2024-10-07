@@ -1,0 +1,77 @@
+﻿@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+@inject ISnackbar Snackbar;
+
+<MudDialog>
+   <DialogContent>
+      <MudForm @ref="frmJadwalShiftDepartemen">
+         <MudTextField @ref="Keterangan" T="string" Label="Keterangan" Variant="Variant.Outlined" @bind-Value="jadwalShiftDepartemenDTO.Keterangan" Margin="Margin.Dense" Class="mb-4"></MudTextField>
+
+         <MudSelect MultiSelection="true" SelectAll="true" SelectAllText="Pilih Semua Grup" @bind-Value="selectedGroup" @bind-SelectedValues="selectedGroups" T="string" Label="Grup Kerja" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-4" @ref="GrupKerja">
+            @foreach(var g in groupDTOs) {
+               <MudSelectItem T="string" Value="g.GroupDesc">@g.GroupDesc</MudSelectItem>
+            }
+         </MudSelect>
+
+         <MudTimePicker @ref="jadwalMasuk" Label="Jadwal Masuk" Variant="Variant.Outlined" PickerVariant="PickerVariant.Dialog" @bind-Time="jadwalShiftDepartemenDTO.JadwalMasuk" Class="mb-4"></MudTimePicker>
+
+         <MudTimePicker @ref="jadwalPulang" Variant="Variant.Outlined" PickerVariant="PickerVariant.Dialog" @bind-Time="jadwalShiftDepartemenDTO.JadwalPulang" Label="Jadwal Pulang" Class="mb-4"></MudTimePicker>
+      </MudForm>
+   </DialogContent>
+   <DialogActions>
+      <MudButton OnClick="Close">Close</MudButton>
+      <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+   </DialogActions>
+</MudDialog>
+
+@code {
+   [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+   [Parameter] public IEnumerable<GroupDTO> groupDTOs { get; set; } = new List<GroupDTO>();
+   private IEnumerable<string> selectedGroups { get; set; } = new HashSet<string>();
+   private string selectedGroup { get; set; }
+   [Inject]IJadwalShiftDepartemenService jadwalShiftDepartemenService { get; set; }
+
+   MudForm frmJadwalShiftDepartemen;
+   JadwalShiftDepartemenDTO jadwalShiftDepartemenDTO { get; set; } = new();
+   MudTextField<string> Keterangan;
+   MudSelect<string> GrupKerja;
+   MudTimePicker jadwalMasuk;
+   MudTimePicker jadwalPulang;
+
+   async Task Submit() {
+      string[] selectedTexts = selectedGroups.ToArray();
+      List<JadwalShiftDepartemenDTO> listJadwalShiftDepartemen = new();
+      foreach(var text in selectedTexts) {
+         JadwalShiftDepartemenDTO newJadwal = new();
+         newJadwal.Id = 0;
+         newJadwal.Keterangan = $"{Keterangan.Value} - {text.ToString()}";
+         newJadwal.GrupKerja = text.ToString();
+         newJadwal.JadwalMasuk = jadwalMasuk.Time.Value;
+         newJadwal.JadwalPulang = jadwalPulang.Time.Value;
+         listJadwalShiftDepartemen.Add(newJadwal);
+
+         // listJadwalShiftDepartemen.Add(new JadwalShiftDepartemenDTO
+         // {
+         //       Id = 0,
+         //       Keterangan = jadwalShiftDepartemenDTO.Keterangan,
+         //       GrupKerja = text.ToString(),
+         //       JadwalMasuk = jadwalShiftDepartemenDTO.JadwalMasuk,
+         //       JadwalPulang = jadwalShiftDepartemenDTO.JadwalPulang
+         // });
+      }
+      await jadwalShiftDepartemenService.AddRange(listJadwalShiftDepartemen);
+      // if(jadwal != null) {
+         Snackbar.Add("Data Jadwal Shift Departemen berhasil ditambahkan.", Severity.Success, c =>
+         {
+            c.HideTransitionDuration = 300;
+         });         
+      // }
+      await frmJadwalShiftDepartemen.ResetAsync();
+      await GrupKerja.Clear();      
+   }
+
+   void Close() {
+      MudDialog?.Close(DialogResult.Ok(true));
+   } 
+}

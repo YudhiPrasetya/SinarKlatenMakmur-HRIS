@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Coba>
+  <NIK>0001</NIK>
+  <Nama>Nama1</Nama>
+  <GrupKerja>Grup Kerja1</GrupKerja>
+	<NIK>0002</NIK>
+	<Nama>Nama2</Nama>
+	<GrupKerja>Grup Kerja2</GrupKerja>
+	<NIK>0003</NIK>
+	<Nama>Nama3</Nama>
+	<GrupKerja>Grup Kerja3</GrupKerja>
+	<NIK>0004</NIK>
+	<Nama>Nama4</Nama>
+	<GrupKerja>Grup Kerja4</GrupKerja>
+	<NIK>0005</NIK>
+	<Nama>Nama5</Nama>
+	<GrupKerja>Grup Kerja5</GrupKerja>	
+</Coba>

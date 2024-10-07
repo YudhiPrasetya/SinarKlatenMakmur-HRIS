@@ -1,0 +1,102 @@
+﻿@using HRIS.Contracts;
+@using HRIS.Services;
+@using SKM.Shared.Dtos;
+
+@inject IDialogService DialogService;
+
+<style>
+   .selected {
+      background-color: #1E88E5 !important;
+   }
+
+      .selected > td {
+         color: white !important;
+      }
+
+         .selected > td .mud-input {
+            color: white !important;
+         }
+</style>
+
+<MudDialog>
+   <DialogContent>
+      <MudTable Dense="true" Class="cursor-pointer" Items="@GajiDTOS" Hover="true" Striped="true" Filter="new Func<GajiDanTunjanganDTO, bool>(FilterFunc1)" T="GajiDanTunjanganDTO" @ref="gajiTable" OnRowClick="RowClickEvent" RowClassFunc="@SelectedRowClassFunc" @bind-bind-SelectedItems="selectedGajis">
+         <ToolBarContent>
+            <MudText Typo="Typo.h6">@ModalLabel</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="strSearch" Placeholder="Search..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            <MudSpacer />
+            <MudButton Class="ml-2 mr-2" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Check" Disabled="@disable" Color="Color.Success" Size="Size.Small" IconSize="Size.Small" OnClick="selectedGaji">Pilih</MudButton>
+            <MudButton Class="ml-2 mr-2" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Secondary" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
+
+         </ToolBarContent>
+         <HeaderContent>
+            <MudTh>NIK</MudTh>
+            <MudTh>Nama</MudTh>
+            <MudTh>Grup Kerja</MudTh>
+            <MudTh>Departemen</MudTh>
+         </HeaderContent>
+         <RowTemplate>
+            <MudTd DataLabel="NIK">@context.NIK</MudTd>
+            <MudTd DataLabel="Nama">@context.NamaKaryawan</MudTd>
+            <MudTd DataLabel="Grup Kerja">@context.GrupKerja</MudTd>
+            <MudTd DataLabel="Departemen">@context.DepartmentName</MudTd>
+         </RowTemplate>
+         <PagerContent>
+            <MudTablePager />
+         </PagerContent>
+      </MudTable>
+   </DialogContent>
+</MudDialog>
+
+@code {
+   [CascadingParameter]MudDialogInstance? MudDialog { get; set; }
+
+   [Parameter]public string? ModalLabel { get; set; }
+   [Parameter]public IEnumerable<GajiDanTunjanganDTO>? GajiDTOS { get; set; }
+
+   private MudTable<GajiDanTunjanganDTO>? gajiTable;
+   private string strSearch = "";
+   private GajiDanTunjanganDTO? selectedItem;
+   private bool disable = true;
+   private int selectedRowNumber = -1;
+   private IEnumerable<GajiDanTunjanganDTO> selectedGajis = new List<GajiDanTunjanganDTO>();
+
+   private bool FilterFunc1(GajiDanTunjanganDTO gajiDTO) => FilterFunc(gajiDTO, strSearch);
+
+   private bool FilterFunc(GajiDanTunjanganDTO gajiDTO, string sSearch) {
+      if (string.IsNullOrWhiteSpace(sSearch)) return true;
+      if (gajiDTO.NIK.Contains(sSearch, StringComparison.OrdinalIgnoreCase)) return true;
+      if (gajiDTO.NamaKaryawan.Contains(sSearch, StringComparison.OrdinalIgnoreCase)) return true;
+      if (gajiDTO.GrupKerja.Contains(sSearch, StringComparison.OrdinalIgnoreCase)) return true;
+      if ($"{gajiDTO.DepartmentName}".Contains(sSearch)) return true;
+      return false;
+   }
+
+   private void RowClickEvent(TableRowClickEventArgs<GajiDanTunjanganDTO> args) {
+      selectedItem = args.Item;
+      disable = false;
+   }
+
+   private void selectedGaji() {
+      MudDialog?.Close(DialogResult.Ok(selectedItem));
+   }
+
+   private void Cancel() {
+      MudDialog?.Cancel();
+   }
+
+   private string SelectedRowClassFunc(GajiDanTunjanganDTO gajiDTO, int rowNumber) {
+      if(selectedRowNumber == rowNumber) {
+         selectedRowNumber = -1;
+         return string.Empty;
+      }else if(gajiTable!.SelectedItem is not null && gajiTable.SelectedItem.Equals(gajiDTO)) {
+         selectedRowNumber = rowNumber;
+         return "selected";
+      }
+      else {
+         return string.Empty;
+      }
+   }
+
+}

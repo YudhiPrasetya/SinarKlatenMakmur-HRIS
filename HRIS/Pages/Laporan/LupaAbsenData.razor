@@ -1,0 +1,41 @@
+﻿@layout BlankLayout
+
+@page "/LupaAbsenData"
+@using SKM.Shared.Dtos;
+
+<body onload="window.print()">
+	@* <MudDialog> *@
+	@* <DialogContent> *@
+	<table>
+		<thead>
+			<tr>
+				<th>Grup Kerja</th>
+				<th>Tanggal</th>
+				<th>NIK</th>
+				<th>Nama</th>
+				<th>Lupa Absen</th>
+				<th>Jam</th>
+			</tr>
+
+		</thead>
+		<tbody>
+			@foreach (var lupa in listLupaAbsen) {
+				<tr>
+					<td>@lupa.GrupKerja</td>
+					<td>@lupa.Tanggal</td>
+					<td>@lupa.NIK</td>
+					<td>@lupa.NamaKaryawan</td>
+					<td>@lupa.Absen</td>
+					<td>@lupa.Jam</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+	@* </DialogContent> *@
+	@* </MudDialog> *@
+
+</body>
+
+@code {
+	[Parameter] public List<LupaAbsenDTO>? listLupaAbsen { get; set; } = new();
+}

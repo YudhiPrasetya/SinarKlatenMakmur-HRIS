@@ -1,0 +1,20 @@
+﻿<MudDialog>
+   <TitleContent>
+      <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-2 mb-n1" />
+      <MudChip Color="Color.Secondary" Variant="Variant.Text">Forbidden!</MudChip>
+   </TitleContent>
+   <DialogContent>
+            <MudText Typo="Typo.h5" Color="Color.Error">@Message</MudText>
+   </DialogContent>
+   <DialogActions>
+      <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="BackToHome">Back To Home</MudButton>
+   </DialogActions>
+</MudDialog>
+@inject NavigationManager navManager;
+
+@code {
+   [Parameter]public string? Message { get; set; }
+   private void BackToHome() {
+      navManager.NavigateTo("", true);
+   }
+}

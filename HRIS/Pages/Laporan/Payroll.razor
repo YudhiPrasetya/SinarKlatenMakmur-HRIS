@@ -1,0 +1,596 @@
+﻿@page "/payroll"
+
+@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+@using System.Data;
+@using System.Globalization;
+
+@inject HttpClient httpClient
+@inject IJSRuntime JSRuntime
+
+<MudPaper Class="mb-4">
+   <MudGrid Class="d-flex justify-center">
+      <MudItem xs="3">
+         <MudDateRangePicker DateFormat="dd-MM-yyyy" @ref="tglPeriode" @bind-DateRange="_dateRange" Margin="Margin.Dense" PlaceholderStart="Dari" PlaceholderEnd="Sampai" Variant="MudBlazor.Variant.Outlined" DisableToolbar="true" Label="Periode"></MudDateRangePicker>
+      </MudItem>
+      <MudItem xs="3">
+@*          <MudSelect T="string" @ref="selectGroup" Variant="MudBlazor.Variant.Outlined" Margin="Margin.Dense">
+            <MudSelectItem Value="@("All")">Semua</MudSelectItem>
+            @foreach (var g in groupDTOs) {
+               <MudSelectItem Value="@g.GroupDesc">@g.GroupDesc</MudSelectItem>
+            }
+         </MudSelect> *@
+         <MudAutocomplete T="GroupDTO" Label="Grup Kerja" @bind-Value="groupDTO" SearchFunc="@searchGroup" ResetValueOnEmptyText="true" CoerceText="true" CoerceValue="true">
+
+         </MudAutocomplete>
+      </MudItem>
+      <MudItem xs="4" Class="align-center d-flex justify-center">
+         <MudButtonGroup Variant="MudBlazor.Variant.Filled" Color="Color.Success">
+            <MudButton Disabled="@_processing" StartIcon="@Icons.Material.Filled.Preview" OnClick="PrintPreview" Size="MudBlazor.Size.Small">
+               @if (_processing) {
+                  <MudProgressCircular Class="ms-n1" Size="MudBlazor.Size.Small" Indeterminate="true" />
+                  <MudText Class="ms-2">...Processing</MudText>
+               }
+               else {
+                  <MudText>Preview</MudText>
+               }
+            </MudButton>
+
+@*             <MudButton Target="_blank" StartIcon="@Icons.Material.Filled.ImportExport" Size="MudBlazor.Size.Small" OnClick="@(async() =>  await ExportToPDF())">
+               @if (_printProcessing) {
+                  <MudProgressCircular Class="ms-n1" Size="MudBlazor.Size.Small" Indeterminate="true" />
+                  <MudText Class="ms-2">...Processing</MudText>
+               }
+               else {
+                  <MudText>To PDF</MudText>
+               }
+
+            </MudButton> *@
+
+            @*             <MudButton Href="@($"{BaseUrl.LocalBaseUrl}/ReportRekapLembur/{group}/{startDate}/{endDate}")" Target="_blank" StartIcon="@Icons.Material.Filled.Print" Size="Size.Small">Print</MudButton> *@
+
+            <MudButton StartIcon="@Icons.Material.Filled.ImportExport" Size="MudBlazor.Size.Small" OnClick="@(async() => await ExportToExcel())">
+               @if (_exportProcessing) {
+                  <MudProgressCircular Class="ms-n1" Size="MudBlazor.Size.Small" Indeterminate="true" />
+                  <MudText Class="ms-2">...Processing</MudText>
+               }
+               else {
+                  <MudText>To Excel</MudText>
+               }
+            </MudButton>
+
+         </MudButtonGroup>
+
+      </MudItem>
+   </MudGrid>
+</MudPaper>
+
+<style>
+   .mud-table-head .header-centered th {
+      text-align: center;
+      font-size: 1em;
+   }
+
+   .mud-table-foot .bold-text .mud-table-cell {
+      font-weight: 500;
+   }
+</style>
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<PayrollPreviewDTO>>>(ServerReload))"
+          Dense="true" Hover="true" @ref="payrollTable" Striped="true" Bordered="true" CustomHeader="true" CustomFooter="true" HeaderClass="table-head-bordered">
+   <ToolBarContent>
+      <MudText Typo="Typo.h6">Search Data</MudText>
+      <MudSpacer />
+      <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+      <MudSpacer />
+      <MudButton StartIcon="@Icons.Material.Filled.Print" OnClick="@(async() =>  await PrintSlipGaji())">
+         @if (_printProcessing) {
+            <MudProgressCircular Class="ms-n1" Size="MudBlazor.Size.Small" Indeterminate="true" />
+            <MudText Class="ms-2">...Processing</MudText>
+         }
+         else {
+            <MudText>Cetak Slip Gaji</MudText>
+         }
+
+      </MudButton>
+   </ToolBarContent>
+   <HeaderContent>
+      <MudTh>
+         <MudTableSortLabel SortLabel="grup_field" T="PayrollPreviewDTO">
+            Grup
+         </MudTableSortLabel>
+      </MudTh>
+      <MudTh>NIK</MudTh>
+      <MudTh>Nama</MudTh>
+      <MudTh>Up</MudTh>
+      <MudTh>Absen</MudTh>
+      <MudTh>Nilai</MudTh>
+      <MudTh>Check Nilai Pot Tdk Hadir</MudTh>
+      <MudTh>Jumlah Up</MudTh> <!--???-->
+      <MudTh>Check Up</MudTh>
+      <MudTh>Tunj. Jabatan</MudTh>
+      <MudTh>Tunj. MK</MudTh>
+      <MudTh>Tunj. Ket</MudTh>
+      <MudTh>Tunj. Utility</MudTh>
+      <MudTh>Shift 2</MudTh>
+      <MudTh>Amt Shift 2</MudTh>
+      <MudTh>Check Premi Shift 2</MudTh>
+      <MudTh>Shift 3</MudTh>
+      <MudTh>Amt Shift 3</MudTh>
+      <MudTh>Check Premi Shift 3</MudTh>
+      <MudTh>OT 1</MudTh>
+      <MudTh>Amt OT 1</MudTh>
+      <MudTh>Check OT 1</MudTh>
+      <MudTh>OT 2</MudTh>
+      <MudTh>Amt OT 2</MudTh>
+      <MudTh>Check OT 2</MudTh>
+      <MudTh>OT 3</MudTh>
+      <MudTh>Amt OT 3</MudTh>
+      <MudTh>Check OT 3</MudTh>
+      <MudTh>OT 4</MudTh>
+      <MudTh>Amt OT 4</MudTh>
+      <MudTh>Check OT 4</MudTh>
+      <MudTh>Tot Sblm JMS</MudTh>
+      <MudTh>Check Sblm Pot BPJS</MudTh>
+      <MudTh>Pot BPJS TK</MudTh>
+      <MudTh>Pot BPJS KS</MudTh>
+      <MudTh>Pot Lain-lain</MudTh>
+      <MudTh>Total</MudTh>
+      <MudTh>Check Total</MudTh>
+      <MudTh>Transfer</MudTh>
+      <MudTh>Tunai</MudTh>
+   </HeaderContent>
+   <RowTemplate>
+      <MudTd>@context.GrupKerja</MudTd>
+      <MudTd>@context.NIK</MudTd>
+      <MudTd>@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(context.Nama!.ToLower())</MudTd>
+      <MudTd>@context.Hadir</MudTd>
+      <MudTd>@context.TidakHadir</MudTd>
+      <MudTd>@context.TidakHadirNominal!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context.CheckNilaiPotTdkHadir</MudTd>
+      <MudTd>@context.JmlUpah!.Value.ToString("#,##0.00")</MudTd> <!--???-->
+      <MudTd>@context.CheckUp!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.TunjJabatan!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.TunjMakan!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context.TunjKeterampilan!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.TunjUtility!.Value.ToString("#,##0.00")</MudTd>
+      <!--<MudTd>@context?.TunjLain2.Value.ToString("#,##0.00")</MudTd>-->
+      <MudTd>@context?.Shift2</MudTd>
+      <MudTd>@context?.AmtShift2!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.CheckPremiShift2!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.Shift3</MudTd>
+      <MudTd>@context?.AmtShift3!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.CheckPremiShift3!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.OT1</MudTd>
+      <MudTd>@context?.AmtOT1!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.CheckOT1!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.OT2</MudTd>
+      <MudTd>@context?.AmtOT2!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.CheckOT2!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.OT3</MudTd>
+      <MudTd>@context?.AmtOT3!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.CheckOT3!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.OT4</MudTd>
+      <MudTd>@context?.AmtOT4!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.CheckOT4!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.TotSblmJMS!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.CheckSblmPotBPJS!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.PotBPJSTK!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.PotBPJSKes!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.PotLain2!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.TotalPenerimaan!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.CheckTotal!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.TotalPenerimaan!.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.TotalPenerimaan!.Value.ToString("#,##0.00")</MudTd>
+@*       <MudTd>@context.SUMOTP1</MudTd>
+      <MudTd>@context?.SUMNominalOTP1.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context.SUMOTP2</MudTd>
+      <MudTd>@context?.SUMNominalOTP2.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context.SUMOTP3</MudTd>
+      <MudTd>@context?.SUMNominalOTP3.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context.SUMOTP4</MudTd>
+      <MudTd>@context?.SUMNominalOTP4.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.PotBPJSTK.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.PotBPJSKes.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.PotLain2.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@context?.TotalPendapatan.Value.ToString("#,##0.00")</MudTd>
+      <MudTd>@(context.NoRek == "-" ? "Cash" : "Transfer")</MudTd> *@
+   </RowTemplate>
+   <NoRecordsContent>No Data</NoRecordsContent>
+   <LoadingContent>Loading...</LoadingContent>
+   <PagerContent><MudTablePager PageSizeOptions="new int[] {5,10,15,25,50,75,100, int.MaxValue}" /></PagerContent>
+</MudTable>
+
+@code {
+   [Inject] IEmployeeService? employeeService { get; set; }
+   [Inject] IGroupService? groupService { get; set; }
+   [Inject] IGajiDanTunjanganService? gajiDanTunjanganService { get; set; }
+   // [Inject] IKehadiranService? kehadiranService { get; set; }
+   // [Inject] IJadwalKerjaKaryawanService? jadwalKerjaKaryawanService { get; set; }
+   // [Inject]IJadwalKerjaSecurityService? jadwalKerjaSecurityService { get; set; }
+   [Inject]IJadwalKehadiranService? jadwalKehadiranService { get; set; }
+   [Inject]IJamKerjaService? jamKerjaService { get; set; }
+   [Inject]ISuratPerintahLemburService? SPLService { get; set; }
+
+   private List<EmployeeDTO>? employeeDTOs { get; set; } = new();
+   private List<GroupDTO>? groupDTOs { get; set; } = new();
+   private GroupDTO? groupDTO { get; set; } = new();
+
+   private IEnumerable<GajiDanTunjanganDTO>? gajiDanTunjanganDTOs { get; set; } = new List<GajiDanTunjanganDTO>();
+
+   private JamKerjaDTO? jamKerjaDTO { get; set; } = new();
+
+   private MudDateRangePicker? tglPeriode;
+   private DateRange? _dateRange;
+   private MudSelect<string>? selectGroup;
+
+   private bool _processing = false;
+   private bool _exportProcessing = false;
+   private bool _printProcessing = false;
+   private string? searchString = null;
+   private int totalItems;
+   string? group;
+   // string? group = "";
+   private string startDate = DateConversions.DateToString(DateTime.Now.Date);
+   // string? startDate = "";
+   private string endDate = DateConversions.DateToString(DateTime.Now.Date);
+   // string? endDate = "";
+
+   private string? periode;
+
+   private MudTable<PayrollPreviewDTO>? payrollTable;
+   private IEnumerable<PayrollPreviewDTO>? pagedData;
+   private IEnumerable<PayrollPreviewDTO>? payrollPreviewDTOs = new List<PayrollPreviewDTO>();
+   private List<decimal>? totalLembur { get; set; }
+
+   // private IEnumerable<KehadiranDTO> kehadiranDTOs { get; set; } = new List<KehadiranDTO>();
+   // private List<JadwalKerjaKaryawanDTO> jadwalKerjaKaryawanDTOs { get; set; } = new();
+   // private List<JadwalKerjaSecurityDTO> jadwalKerjaSecurityDTOs { get; set; } = new();
+   private List<JadwalKehadiranDTO>? jadwalKehadiranDTOs { get; set; } = new();
+   private IEnumerable<SuratPerintahLemburDTO>? SPLDTOs { get; set; } = new List<SuratPerintahLemburDTO>();
+
+   protected override async Task OnInitializedAsync() {
+      // return base.OnInitializedAsync();
+      // employeeDTOs = await employeeService.GetListEmployeesAsync();
+      // gajiDanTunjanganDTOs = await gajiDanTunjanganService.GetGajiListAsync();
+      // groupDTOs = await groupService.GetListGroupsAsync();
+      // jamKerjaDTO = await jamKerjaService.GetJamKerja(1);
+      // selectGroup.Value = "SK/STAF";
+   }
+
+   private async Task<IEnumerable<GroupDTO>> searchGroup(string value) {
+      await Task.Delay(5);
+
+      if(string.IsNullOrEmpty(value)) return groupDTOs!;
+
+      return groupDTOs!.Where(x => x.GroupDesc.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+   }
+
+   async Task PrintPreview() {
+      _processing = true;
+      // string? strGroup = groupDTO?.GroupDesc;
+      // group = strGroup?.Replace("/", "-").Replace(" ", "_");
+      group = groupDTO?.GroupDesc;
+
+      DateTime? date1 = _dateRange?.Start?.Date;
+      startDate = DateConversions.DateToString(date1);
+
+      DateTime? date2 = _dateRange?.End?.Date;
+      endDate = DateConversions.DateToString(date2);
+
+      periode = $"{startDate} s/d {endDate}";
+
+      // SPLDTOs = await SPLService.GetByGroupAndDate(group, startDate, endDate);
+      // kehadiranDTOs = await kehadiranService.GetByGroupAndDate(group, startDate, endDate);
+
+      // if (groupDTO?.GroupDesc != "SK/SECURITY" && groupDTO.GroupDesc != "SK/SECURITY WANITA") {
+      //    jadwalKerjaKaryawanDTOs = await jadwalKerjaKaryawanService.GetByGroupAndDate(group, startDate, endDate);
+
+      //    payrollPreviewDTOs = HitungPayroll.Payroll(periode, employeeDTOs, jadwalKerjaKaryawanDTOs, kehadiranDTOs, SPLDTOs, gajiDanTunjanganDTOs, jamKerjaDTO);
+      // }  else {
+      //    jadwalKerjaSecurityDTOs = await jadwalKerjaSecurityService.GetByDateRange(startDate, endDate);
+
+      //    payrollPreviewDTOs = HitungPayroll.Payroll(periode, employeeDTOs, jadwalKerjaSecurityDTOs, kehadiranDTOs, SPLDTOs, gajiDanTunjanganDTOs, jamKerjaDTO);
+      // }
+
+      await payrollTable!.ReloadServerData();
+
+      // await Task.Delay(300);
+
+      _processing = false;
+   }
+
+   // async Task ExportToPDF() {
+   //    await httpClient.GetAsync($"{BaseUrl.ServerBaseUrl}/Payroll/CobaFR");  
+
+   // }
+
+   async Task ExportToExcel() {
+      // var response = await httpClient.GetAsync($"{BaseUrl.LocalBaseUrl}/Payroll/ExportToExcel/{group}/{startDate}/{endDate}");
+      var response = await httpClient.PostAsJsonAsync($"{BaseUrl.ServerBaseUrl}/Payroll/ExportToExcel", payrollPreviewDTOs);
+      // response.EnsureSuccessStatusCode();
+      if (response.IsSuccessStatusCode) {
+         var fileBytes = await response.Content.ReadAsByteArrayAsync();
+         var fileName = $"Laporan Payroll Periode {periode}.xlsx";
+         await JSRuntime.InvokeAsync<object>("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+
+      }
+   }
+
+   async Task PrintSlipGaji() {
+      var response = await httpClient.PostAsJsonAsync($"{BaseUrl.ServerBaseUrl}/Payroll/SlipGaji", payrollPreviewDTOs);
+      if (response.IsSuccessStatusCode) {
+         var fileBytes = response.Content.ReadAsByteArrayAsync().Result.ToArray();
+         await JSRuntime.InvokeVoidAsync("openPDFInNewTab", fileBytes);
+
+         await Task.Delay(300);
+         _printProcessing = false;
+      }
+   }
+
+   private async Task<TableData<PayrollPreviewDTO>> ServerReload(TableState state) {
+      if(group is null){
+         jadwalKehadiranDTOs = await jadwalKehadiranService!.GetByDateRange(startDate, endDate);
+         employeeDTOs = await employeeService!.GetListEmployeesAsync();
+         gajiDanTunjanganDTOs = await gajiDanTunjanganService!.GetGajiListAsync();
+         SPLDTOs = await SPLService!.GetByDateRange(startDate, endDate);
+      }
+      else {
+         jadwalKehadiranDTOs = await jadwalKehadiranService!.GetByGroupAndDateRange(group, startDate, endDate);
+         employeeDTOs = await employeeService!.GetByGroupName(group);
+         gajiDanTunjanganDTOs = await gajiDanTunjanganService!.GetByGroupName(group);
+         SPLDTOs = await SPLService!.GetByGroupAndDate(group, startDate, endDate);
+      }
+      // gajiDanTunjanganDTOs = await gajiDanTunjanganService!.GetGajiListAsync();
+      // groupDTOs = await groupService!.GetListGroupsAsync();
+      jamKerjaDTO = await jamKerjaService!.GetJamKerja(1);
+
+      DateTime sDate = DateConversions.StringToDate(startDate);
+      DateTime eDate = DateConversions.StringToDate(endDate);
+      periode = $"{sDate.ToString("dd-MM-yyyy")} s/d {eDate.ToString("dd-MM-yyyy")}";
+
+      // string? groupDesc = groupDTO?.GroupDesc;
+      // group = groupDesc?.Replace("/", "-").Replace(" ", "_");
+
+      // SPLDTOs = await SPLService!.GetByGroupAndDate(group, startDate, endDate);
+
+      // kehadiranDTOs = await kehadiranService!.GetByGroupAndDate(group, startDate, endDate);
+      // jadwalKehadiranDTOs = await jadwalKehadiranService!.GetByGroupAndDateRange(group, startDate, endDate);
+
+      // if (groupDTO?.GroupDesc != "SK/SECURITY" && groupDTO?.GroupDesc != "SK/SECURITY WANITA") {
+      //    jadwalKerjaKaryawanDTOs = await jadwalKerjaKaryawanService!.GetByGroupAndDate(group, startDate, endDate);
+
+      //    payrollPreviewDTOs = HitungPayroll.Payroll(periode, employeeDTOs, jadwalKerjaKaryawanDTOs, kehadiranDTOs, SPLDTOs, gajiDanTunjanganDTOs, jamKerjaDTO);
+      // }
+      // else {
+      //    jadwalKerjaSecurityDTOs = await jadwalKerjaSecurityService.GetByDateRange(startDate, endDate);
+
+      //    payrollPreviewDTOs = HitungPayroll.PayrollSecurity(groupDTO.GroupDesc, periode, employeeDTOs, jadwalKerjaSecurityDTOs, kehadiranDTOs, SPLDTOs, gajiDanTunjanganDTOs, jamKerjaDTO);
+      // }
+      payrollPreviewDTOs = HitungPayroll.Payroll(periode, employeeDTOs, jadwalKehadiranDTOs, SPLDTOs, gajiDanTunjanganDTOs, jamKerjaDTO);
+
+      await Task.Delay(300);
+      payrollPreviewDTOs = payrollPreviewDTOs.Where(element =>
+      {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.Nama!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.NIK!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.GrupKerja!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+         if ($"{element.Nama} {element.NIK} {element.GrupKerja}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = payrollPreviewDTOs.Count();
+      switch (state.SortLabel)
+      {
+         case "grup_field":
+         payrollPreviewDTOs = payrollPreviewDTOs.OrderByDirection(state.SortDirection, o => o.GrupKerja);
+         break;
+      }
+
+      pagedData = payrollPreviewDTOs.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<PayrollPreviewDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      payrollTable!.ReloadServerData();
+   }
+
+   // private List<PayrollPreviewDTO> HitungPayroll(string periode, List<EmployeeDTO> employeeDTOs, List<JadwalKerjaKaryawanDTO> jadwalKerjaKaryawanDTOs, IEnumerable<KehadiranDTO> kehadiranDTOs, List<SuratPerintahLemburDTO>? SPLDTOs, List<GajiDanTunjanganDTO> gajiDTOs, JamKerjaDTO jamKerjaDTO) {
+
+   //    List<PayrollPreviewDTO> payrollPreviewDTOs = new();
+   //    List<JadwalKerjaKaryawanDTO>? hadir = new();
+   //    List<JadwalKerjaKaryawanDTO>? tdkHadir = new();
+
+   //    int? tdkHadirCount = 0, hadirCount = 0;
+   //    decimal? sumNominalOT1 = 0, sumNominalOT2 = 0, sumNominalOT3 = 0, sumNominalOT4 = 0, SUMOTP1 = 0, SUMOTP2 = 0, SUMOTP3 = 0, SUMOTP4 = 0, OTPNominal1 = 0, OTPNominal2 = 0, OTPNominal3 = 0, OTPNominal4 = 0, nominalTdkHadir = 0, upah = 0 ;
+
+   //    int? tunjJabatan = 0, tunjKeterampilan = 0, tunjMasaKerja = 0, tunjLain = 0;
+
+   //    // try {
+   //    hadir = jadwalKerjaKaryawanDTOs?.Where(jd => kehadiranDTOs.Any(kh => kh.NIK == jd.NIK && kh.Tanggal == jd.Tgl)).ToList();
+   //    // Console.WriteLine("hadir");
+   //    // foreach(var h in hadir){
+   //    //    Console.WriteLine($"NIK: {h.NIK}, Nama: {h.NamaKaryawan}, Tanggal: {h.Tgl.Value.Date}");
+   //    // }
+
+   //    tdkHadir = jadwalKerjaKaryawanDTOs?.Where(jd => !kehadiranDTOs.Any(kh => kh.NIK == jd.NIK && kh.Tanggal == jd.Tgl)).ToList();
+   //    // Console.WriteLine("tdkHadir");
+   //    // foreach(var t in tdkHadir){
+   //    //    Console.WriteLine($"NIK: {t.NIK}, Nama: {t.NamaKaryawan}, Tanggal: {t.Tgl.Value.Date}");
+   //    // }
+   //    // Console.WriteLine($"tdkHadir is null: {tdkHadir is null}");
+   //    //var jadwalKerjaKaryawanDistinct = (from jd in jadwalKerjaKaryawanDTOs select jd).DistinctBy(x => x.NIK);
+   //    //if (SPLDTOs is null) SPLDTOs = new List<SuratPerintahLemburDTO>();
+   //    foreach (var j in jadwalKerjaKaryawanDTOs) {
+   //       PayrollPreviewDTO payroll = new();
+   //       payroll.Nama = j.NamaKaryawan;
+   //       payroll.NIK = j.NIK;
+   //       payroll.GrupKerja = j.GroupName;
+   //       payroll.Periode = periode;
+
+   //       EmployeeDTO? empl = employeeDTOs?.FirstOrDefault(e => e.NIK == j.NIK);
+
+   //       payroll.NoKTP = empl?.KTP ?? "-";
+   //       payroll.NoBPJSTK = empl?.NOBPJSTK ?? "-";
+   //       payroll.NoBPJSKS = empl?.NOBPJSKS ?? "-";
+   //       payroll.Alamat = empl?.Address;
+   //       payroll.Gender = (empl?.Gender == true ? "Laki-laki" : "Perempuan");
+   //       payroll.NoRek = empl?.AccountBank ?? "-";
+
+   //       payroll.TglCetak = DateTime.Now.Date.ToString("dd-MM-yyyy");
+
+   //       // hadir = jadwalKerjaKaryawanDTOs.Where(jd => kehadiranDTOs.Any(kh => kh.NIK == jd.NIK));
+   //       // tdkHadir = jadwalKerjaKaryawanDTOs.Where(jd => !kehadiranDTOs.Any(kh => kh.NIK == jd.NIK));
+
+   //       if (hadir is null) {
+   //          hadirCount = 0;
+   //       }else{
+   //          hadirCount = hadir.Where(h => h.NIK == j.NIK).Count();
+   //       }
+   //       payroll.Hadir = hadirCount;
+
+   //       if (tdkHadir is null) {
+   //          tdkHadirCount = 0;
+   //       }else{
+   //          tdkHadirCount = tdkHadir.Where(th => th.NIK == j.NIK).Count();
+   //       } 
+   //       payroll.TidakHadir = tdkHadirCount;
+
+   //       GajiDanTunjanganDTO? gaji = gajiDTOs?.FirstOrDefault(g => g.NIK == j.NIK);
+   //       if(gaji is not null) {
+   //          upah = ((decimal)gaji?.Upah == null ? 0 : (decimal)gaji?.Upah);
+   //          tunjJabatan = ((int)gaji?.TunjJabatan == null ? 0 : (int)gaji?.TunjJabatan);
+   //          tunjKeterampilan = ((int)gaji?.TunjKeterampilan == null ? 0 : (int)gaji?.TunjKeterampilan);
+   //          tunjMasaKerja = ((int)gaji?.TunjMasaKerja == null ? 0 : (int)gaji?.TunjMasaKerja);
+   //          tunjLain = ((int)gaji?.TunjLain == null ? 0 : (int)gaji?.TunjLain);
+   //       }
+   //       else {
+   //          upah = 0;
+   //          tunjJabatan = 0;
+   //          tunjKeterampilan = 0;
+   //          tunjMasaKerja = 0;
+   //          tunjLain = 0;
+   //       }
+
+   //       payroll.Upah = gaji?.Upah;
+
+   //       nominalTdkHadir = Math.Round((decimal)tdkHadirCount * (decimal)((upah + tunjKeterampilan + tunjJabatan + tunjMasaKerja + tunjLain) / jamKerjaDTO.PembagiPayroll), 2);
+
+   //       payroll.TidakHadirNominal = nominalTdkHadir;
+   //       payroll.TunjKeterampilan = tunjKeterampilan;
+   //       payroll.TunjJabatan = tunjJabatan;
+   //       payroll.TunjMasaKerja = tunjMasaKerja;
+   //       payroll.TunjLain2 = tunjLain;
+
+   //       decimal? jmlUpah = (decimal)(upah + tunjJabatan + tunjKeterampilan + tunjMasaKerja + tunjLain) - nominalTdkHadir;
+
+   //       payroll.JmlUpah = jmlUpah;
+   //       if(SPLDTOs?.Count > 0) {
+   //          List<SuratPerintahLemburDTO>? Arrlembur = SPLDTOs?.Where(l => l.NIK == j.NIK).ToList();
+
+   //          // OTPNominal1 = (int)Arrlembur.FirstOrDefault(spl => spl.NIK == j.NIK).OTPNominal1;
+   //          OTPNominal1 = (from spl in Arrlembur select spl.OTPNominal1 ?? 0).FirstOrDefault();
+   //          //OTPNominal2 = 0;
+   //          OTPNominal2 = (from spl in Arrlembur select spl.OTPNominal2 ?? 0).FirstOrDefault();
+   //          //OTPNominal3 = 0;
+   //          OTPNominal3 = (from spl in Arrlembur select spl.OTPNominal3 ?? 0).FirstOrDefault();
+   //          OTPNominal4 = (from spl in Arrlembur select spl.OTPNominal4 ?? 0).FirstOrDefault();
+   //          //OTPNominal4 = 0;
+
+   //          SUMOTP1 = (from spl in Arrlembur select spl.OTP1 ?? 0).Sum();
+   //          SUMOTP2 = (from spl in Arrlembur select spl.OTP2 ?? 0).Sum();
+   //          SUMOTP3 = (from spl in Arrlembur select spl.OTP3 ?? 0).Sum();
+   //          SUMOTP4 = (from spl in Arrlembur select spl.OTP4 ?? 0).Sum();
+
+   //          //sumNominalOT1 = (int)Math.Round((decimal)(Arrlembur?[0].OTPNominal1 ?? 0)) * SUMOTP1;
+   //          //sumNominalOT1 = OTPNominal1 * SUMOTP1;
+   //          //sumNominalOT2 = OTPNominal2 * SUMOTP2;
+   //          sumNominalOT1 = (int)Math.Round((decimal)OTPNominal1) * SUMOTP1 ?? 0;
+   //          sumNominalOT2 = (int)Math.Round((decimal)OTPNominal2) * SUMOTP2 ?? 0;
+   //          sumNominalOT3 = (int)Math.Round((decimal)OTPNominal3) * SUMOTP3 ?? 0;
+   //          //sumNominalOT3 = OTPNominal3 * SUMOTP3;
+   //          sumNominalOT4 = (int)Math.Round((decimal)OTPNominal4) * SUMOTP4 ?? 0;
+   //          //sumNominalOT4 = OTPNominal4 * SUMOTP4;
+   //       }
+
+   //       payroll.SUMOTP1 = (int)SUMOTP1;
+   //       payroll.SUMOTP2 = (int)SUMOTP2;
+   //       payroll.SUMOTP3 = (int)SUMOTP3;
+   //       payroll.SUMOTP4 = (int)SUMOTP4;
+
+   //       payroll.SUMNominalOTP1 = (int)sumNominalOT1;
+   //       payroll.SUMNominalOTP2 = (int)sumNominalOT2;
+   //       payroll.SUMNominalOTP3 = (int)sumNominalOT3;
+   //       payroll.SUMNominalOTP4 = (int)sumNominalOT4;
+
+   //       payroll.OTPNominal1 = (int)OTPNominal1;
+   //       payroll.OTPNominal2 = (int)OTPNominal2;
+   //       payroll.OTPNominal3 = (int)OTPNominal3;
+   //       payroll.OTPNominal4 = (int)OTPNominal4;
+   //       payroll.JamLemburKe1 = 0;
+   //       payroll.JamLemburKe2 = 0;
+   //       payroll.JamLemburKe3 = 0;
+   //       payroll.JamLemburKe4 = 0;
+   //       payroll.NominalLemburKe1 = 0;
+   //       payroll.NominalLemburKe2 = 0;
+   //       payroll.NominalLemburKe3 = 0;
+   //       payroll.NominalLemburKe4 = 0;
+
+   //       //payroll.TotalPenerimaan = gaji.Upah + nominalLemburKe1 + nominalLemburKe2 + nominalLemburKe3 + nominalLemburKe4 + tunjJabatan + tunjKeterampilan + tunjMasaKerja + tunjLain2;
+
+   //       payroll.TotalPenerimaan = (decimal)upah + (decimal)sumNominalOT1 + (decimal)sumNominalOT2 + (decimal)sumNominalOT3 + (decimal)sumNominalOT4 + (int)tunjJabatan + (int)tunjKeterampilan + (int)tunjMasaKerja + (int)tunjLain;
+
+   //       decimal? potBPJSKes = 0.01m * (upah + tunjJabatan + tunjKeterampilan + tunjMasaKerja + tunjLain);
+   //       payroll.PotBPJSKes = potBPJSKes;
+
+   //       decimal? pensiunanKaryawan = 0.01m * (upah + tunjJabatan + tunjKeterampilan + tunjMasaKerja + tunjLain);
+   //       decimal? JHT = 0.02m * (upah + tunjJabatan + tunjKeterampilan + tunjMasaKerja + tunjLain);
+
+   //       payroll.PotBPJSTK = pensiunanKaryawan + JHT;
+
+   //       payroll.TotalPotongan = (pensiunanKaryawan + JHT) + potBPJSKes + nominalTdkHadir;
+   //       payroll.PotLain2 = 0;
+
+   //       //payroll.TotalPendapatan = Math.Round((jmlUpah + nominalLemburKe1 + nominalLemburKe2 + nominalLemburKe3 + nominalLemburKe4) - (potBPJSKes + pensiunanKaryawan + JHT), 2);
+
+   //       payroll.TotalPendapatan = Math.Round(((decimal)jmlUpah + (decimal)sumNominalOT1 + (decimal)sumNominalOT2 + (decimal)sumNominalOT3 + (decimal)sumNominalOT4) - ((decimal)nominalTdkHadir + (decimal)potBPJSKes + (decimal)pensiunanKaryawan + (decimal)JHT), 2);
+
+   //       if (!payrollPreviewDTOs.Any(x => x.NIK == payroll.NIK)) {
+   //          // Console.WriteLine($"Nama: {payroll.Nama}, NIK: {payroll.NIK}, TotalPendapatan: {payroll.TotalPendapatan}");
+   //          payrollPreviewDTOs.Add(payroll);
+   //       }
+
+   //       tdkHadirCount = 0;
+   //       nominalTdkHadir = 0;
+   //       hadirCount = 0;
+
+   //       upah = 0;
+   //       tunjJabatan = 0;
+   //       tunjKeterampilan = 0;
+   //       tunjMasaKerja = 0;
+   //       tunjLain = 0;
+
+   //       sumNominalOT1 = 0;
+   //       sumNominalOT2 = 0;
+   //       sumNominalOT3 = 0;
+   //       sumNominalOT4 = 0;
+   //       OTPNominal1 = 0;
+   //       OTPNominal2 = 0;
+   //       OTPNominal3 = 0;
+   //       OTPNominal4 = 0;
+
+   //       // Console.WriteLine($"payroll: {payroll}");
+   //    }
+   //       return payrollPreviewDTOs;
+   //    // }
+   //    // catch (Exception) {
+   //    //    throw;
+   //    // }
+   //    // }
+}

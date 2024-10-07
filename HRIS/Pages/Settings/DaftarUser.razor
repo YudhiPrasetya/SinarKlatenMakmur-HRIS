@@ -1,0 +1,283 @@
+﻿@page "/users"
+@using HRIS.Components
+@using HRIS.Contracts
+@using HRIS.Pages.SharedModal;
+@using HRIS.Services
+@using SKM.Shared.Dtos
+@using System.Text.RegularExpressions;
+@using HRIS.Models;
+
+<style>
+	.selected {
+		background-color: #1E88E5 !important;
+	}
+
+	.selected > td {
+		color: white !important;
+	}
+
+	.selected > td .mud-input {
+		color: white !important;
+	}
+
+	.AddUserDialogClass {
+		backdrop-filter: blur(5px);
+	}
+</style>
+
+<MudGrid>
+	<MudItem xs="12" sm="4">
+		<MudCard Elevation="2">
+			<MudCardHeader>
+				<CardHeaderContent>
+					<MudChip Variant="Variant.Text" Color="Color.Secondary" Class="block">Form Edit User</MudChip>
+				</CardHeaderContent>
+				<CardHeaderActions>
+					<MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="Edit" Disabled="@DisabledEdit"></MudIconButton>
+				</CardHeaderActions>
+			</MudCardHeader>
+			<MudCardContent>
+				<MudForm @ref="userForm" @bind-IsValid="@success">
+					<MudTextField T="int?" @ref="userId" Disabled="true" Label="Id" @bind-Value="userDTO.UserId" ></MudTextField>
+
+					<MudTextField T="string" @ref="userName" Disabled="@Disabled" @bind-Value="userDTO.UserName" Label="User Name" Required="true" RequiredError="User name is required!"></MudTextField>
+
+					<MudSelect @ref="role" Placeholder="Please select a role" T="string" @bind-Value="userDTO.Role" Disabled="@Disabled" Required="true" RequiredError="Role is required!">
+						<MudSelectItem Value="@("Administrator")">Administrator</MudSelectItem>
+						<MudSelectItem Value="@("User")">User</MudSelectItem>
+						<MudSelectItem Value="@("Manager")">Manager</MudSelectItem>
+					</MudSelect>
+
+					<MudCheckBox @bind-Checked="userDTO.IsActive" T="bool?" Color="Color.Tertiary" Label="Active" Size="Size.Large" @ref="isActive" Disabled="@Disabled" Required="true" RequiredError="IsActive is required!"></MudCheckBox>
+
+					<MudDivider DividerType="DividerType.FullWidth" Class="mb-4" />
+					@* <div class="d-flex align-center justify-space-between"> *@
+						<MudButton Variant="Variant.Filled" Color="Color.Default" Class="ml-auto" StartIcon="@Icons.Material.Filled.Cancel" OnClick="Cancel">Cancel</MudButton>
+						<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Disabled="@(!success)">Submit</MudButton>
+					@* </div> *@
+				</MudForm>
+			</MudCardContent>
+		</MudCard>
+			
+	</MudItem>
+
+	<MudItem xs="12" sm="8">
+		<MudTable ServerData="@(new Func<TableState, Task<TableData<UserDTO>>>(ServerReload))" Dense="true" T="UserDTO" Hover="true" @ref="userTable" FixedHeader="true" FixedFooter="true" Bordered="true" Class="cursor-pointer" Striped="true" Breakpoint="Breakpoint.Sm" CustomHeader="true" CustomFooter="true" HeaderClass="table-head-bordered" FooterClass="table-foot-bordered" RowClassFunc="@SelectedRowClassFunc" OnRowClick="RowClickEvent">
+			<ToolBarContent>
+				<MudText Typo="Typo.h6">Daftar User</MudText>
+				<MudSpacer />
+				<MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search..." Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+				<MudSpacer />
+				<MudFab StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" Label="Add New User" Size="Size.Small" OnClick="AddNewUser"></MudFab>
+			</ToolBarContent>
+			<HeaderContent>
+				<MudTh Class="mud-theme-info">
+					<MudTableSortLabel SortLabel="id_field" T="UserDTO">ID</MudTableSortLabel>
+				</MudTh>
+				<MudTh Class="mud-theme-info">
+					<MudTableSortLabel SortLabel="username_field" T="UserDTO">User Name</MudTableSortLabel>
+				</MudTh>
+				<MudTh Class="mud-theme-info">
+					<MudTableSortLabel SortLabel="role_field" T="UserDTO">Role</MudTableSortLabel>
+				</MudTh>
+				<MudTh Class="mud-theme-info">
+					<MudTableSortLabel SortLabel="isactive_field" T="UserDTO">Active</MudTableSortLabel>
+				</MudTh>
+
+				<MudTh Class="mud-theme-info"></MudTh>
+			</HeaderContent>
+			<RowTemplate>
+				<MudTd DataLabel="Id">
+					@context.UserId
+				</MudTd>
+				<MudTd DataLabel="User Name">
+					@context.UserName
+				</MudTd>
+				<MudTd DataLabel="Role">
+					@context.Role
+				</MudTd>
+				<MudTd DataLabel="Aktif">
+					@context.IsActive
+				</MudTd>
+				<MudTd Class="pa-1">
+					<MudStack Row="true">
+						<MudIconButton Size="Size.Small" Title="Hapus Data" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="((e) => HapusUser(context.UserId))"></MudIconButton>
+					</MudStack>
+				</MudTd>
+			</RowTemplate>
+			<NoRecordsContent>
+				<MudText>No records found</MudText>
+			</NoRecordsContent>
+			<LoadingContent>
+				<MudText>Loading ...</MudText>
+			</LoadingContent>
+			<PagerContent>
+				<MudTablePager />
+			</PagerContent>
+		</MudTable>
+	</MudItem>
+</MudGrid>
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject ITokenService TokenService
+
+@code {
+   [Inject]ITokenService tokenService { get; set; }
+   [Inject]IUserService userService { get; set; }
+   [Inject]NavigationManager navManager { get; set; }
+   [Inject]public HttpInterceptorService Interceptor { get; set; }
+
+   private string? searchString;
+   private int totalItems;
+   private bool Disabled = true;
+   private bool DisabledEdit = true;
+   private bool DisabledSubmitButton = true;
+   private bool PasswordVisible;
+   private bool success;
+   private IEnumerable<UserDTO> pagedData;
+   private MudTable<UserDTO> userTable;
+
+   private UserDTO userDTO { get; set; } = new();
+   private MudForm? userForm;
+   private MudTextField<int?> userId;
+   private MudTextField<string> userName;
+   private MudTextField<string> password;
+   private MudTextField<string> confirmPassword;
+   private MudSelect<string> role;
+   private MudCheckBox<bool?> isActive;
+   private int selectedRowNumber = -1;
+   private TokenDTO tokenDTO {get; set;}
+
+   protected override async Task OnInitializedAsync() {
+      // bool tokenIsValid = await tokenService.IsTokenNotExpired();
+      // if (!tokenIsValid) navManager.NavigateTo("/login", true);
+
+      // tokenDTO = await TokenService.GetToken();
+      // if (tokenDTO.Role != "Admin") {
+      //    var dialogOptions1 = new DialogOptions {
+      //          Position = DialogPosition.Center,
+      //          ClassBackground = "AddUserDialogClass",
+      //          CloseButton = false,
+      //          DisableBackdropClick = true,
+      //          CloseOnEscapeKey = false
+      //     };
+      //    await DialogService.ShowAsync<ForbidenModal>("Forbiden", dialogOptions1);
+      // }
+
+      Interceptor.RegisterEvent();
+
+      // return base.OnInitializedAsync();
+   }
+
+   public void Dispose() => Interceptor.DisposeEvent();
+
+   private async Task<TableData<UserDTO>> ServerReload(TableState state) {
+      // IEnumerable<UserDTO> data = await userService.GetUsers();
+      var response = await userService.GetUsers();
+      if (response?.StatusCode == System.Net.HttpStatusCode.OK) {
+         await Task.Delay(300);
+         var data = await response.Content.ReadFromJsonAsync<IEnumerable<UserDTO>>();
+         data = data?.Where(el => {
+            if (string.IsNullOrWhiteSpace(searchString)) return true;
+            if (el.UserId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+            if (el.UserName.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+            if (el.Role.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+            if (el.IsActive.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+
+            if ($"{el.UserId}{el.UserName}{el.Role}{el.IsActive.ToString()}".Contains(searchString)) return true;
+            return false;
+         }).ToArray();
+         totalItems = data.Count();
+         switch (state.SortLabel) {
+            case "id_field":
+            data = data.OrderByDirection(state.SortDirection, o => o.UserId);
+            break;
+            case "username_field":
+            data = data.OrderByDirection(state.SortDirection, o => o.UserName);
+            break;
+            case "role_field":
+            data = data.OrderByDirection(state.SortDirection, o => o.Role);
+            break;
+            case "isactive_field":
+            data = data.OrderByDirection(state.SortDirection, o => o.IsActive);
+            break;
+         }
+         pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+         return new TableData<UserDTO>() { TotalItems = totalItems, Items = pagedData };
+      }
+      return null;
+   }
+
+   private void RowClickEvent(TableRowClickEventArgs<UserDTO> args) {
+      // clickedEvents.Add("Row has been clicked");
+
+      userDTO.UserId = args.Item.UserId;
+      userDTO.UserName = args.Item.UserName;
+      userDTO.Password = args.Item.Password;
+      userDTO.Role = args.Item.Role;
+      userDTO.IsActive = args.Item.IsActive;
+      DisabledEdit = false;
+      Disabled = true;
+   }
+
+   private string SelectedRowClassFunc(UserDTO userDTO, int rowNumber) {
+      if (selectedRowNumber == rowNumber) {
+         selectedRowNumber = -1;
+         // clickedEvents.Add("Selected Row: None");
+         return string.Empty;
+      }
+      else if (userTable.SelectedItem != null && userTable.SelectedItem.Equals(userDTO)) {
+         selectedRowNumber = rowNumber;
+         // clickedEvents.Add($"Selected Row: {rowNumber}");
+         return "selected";
+      }
+      else {
+         return string.Empty;
+      }
+   }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      userTable.ReloadServerData();
+   }
+
+   private void Edit() {
+      Disabled = false;
+   }
+
+   private async void Cancel() {
+      await userForm!.ResetAsync();
+   }
+
+   private void EditUser(UserDTO userDTO) { }
+
+   private void HapusUser(int? id) {
+
+   }
+
+   private async void AddNewUser() {
+      TokenDTO tokenDTO = await TokenService.GetToken();
+      if(tokenDTO.Role != "Admin") {
+         // Snackbar.Add("Anda tidak berhak mengakses!", Severity.Warning);
+         var dialogOptions1 = new DialogOptions {
+               Position = DialogPosition.TopCenter,
+               FullWidth = true,
+               ClassBackground = "AddUserDialogClass",
+               MaxWidth = MaxWidth.Small,
+               CloseButton = true,
+               DisableBackdropClick = true,
+               CloseOnEscapeKey = false
+         };
+         await DialogService.ShowAsync<ForbidenModal>("Forbiden", dialogOptions1);
+      }
+      var dialogOptions2 = new DialogOptions {
+			Position = DialogPosition.TopCenter,
+			FullWidth = true,			ClassBackground = "AddUserDialogClass",
+			MaxWidth = MaxWidth.Small,
+			CloseButton = true		};
+
+		await DialogService.ShowAsync<AddUserDialog>("Add New User", dialogOptions2);
+
+	}
+}

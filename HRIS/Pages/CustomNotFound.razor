@@ -1,0 +1,17 @@
+﻿@page "/404"
+@inject NavigationManager navManager
+
+<MudCard>
+	<MudCardContent>
+		<MudText>Page Not Found!!</MudText>
+	</MudCardContent>
+	<MudCardActions>
+		<MudButton Variant="Variant.Text" Color="Color.Secondary" @onclick="goToHome">Go To Home</MudButton>
+	</MudCardActions>
+</MudCard>
+
+@code {
+	void goToHome() {
+		navManager.NavigateTo("");
+	}
+}

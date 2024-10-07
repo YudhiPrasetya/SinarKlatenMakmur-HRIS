@@ -1,0 +1,348 @@
+﻿@page "/gaji"
+
+@using SKM.Shared.Dtos
+@using HRIS.Contracts
+@using HRIS.Services
+@using HRIS.Components
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IGajiDanTunjanganService gajiService
+
+@* @if(IsFormSingleShow == true){
+	<FormGajiDanTunjangan IsShow="IsFormSingleShow" />
+} *@
+
+
+<MudCard Class="mt-4" Elevation="2">
+	@if (!dataLoaded) {
+		<MudCardHeader>
+			<CardHeaderAvatar>
+				<MudSkeleton SkeletonType="SkeletonType.Circle" Height="40px" Width="40px" Animation="Animation.Wave"></MudSkeleton>
+			</CardHeaderAvatar>
+			<CardHeaderContent>
+				<MudSkeleton SkeletonType="SkeletonType.Text" Height="40px" Width="100px" Animation="Animation.Wave"></MudSkeleton>
+				<MudSkeleton SkeletonType="SkeletonType.Text" Height="40px" Width="200px" Animation="Animation.Wave"></MudSkeleton>
+			</CardHeaderContent>
+			<CardHeaderActions>
+				<MudSkeleton Animation="Animation.Wave" Width="250px" Height="37px" />
+			</CardHeaderActions>
+		</MudCardHeader>
+		<MudCardContent>
+			<MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Width="1038px" Height="257px" />
+		</MudCardContent>
+		<MudOverlay Visible="overlayVisible" DarkBackground="false" Absolute="true">
+			<MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+		</MudOverlay>
+	}
+	else {
+		<MudCardHeader>
+			<CardHeaderAvatar>
+				<MudAvatar Color="Color.Secondary">G</MudAvatar>
+			</CardHeaderAvatar>
+			<CardHeaderContent>
+				<MudText Typo="Typo.body1"><strong>Gaji dan Tunjangan</strong></MudText>
+				<MudText Typo="Typo.body2">Daftar Gaji dan Tunjangan Karyawan</MudText>
+			</CardHeaderContent>
+			<CardHeaderActions>
+				<MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+					<MudButton StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Success" OnClick="ShowSingleForm">Tambah Satu-persatu</MudButton>
+					<MudButton StartIcon="@Icons.Material.Filled.AddToQueue" IconColor="Color.Secondary" OnClick="ShowMultiForm">Tambah Sekaligus</MudButton>
+				</MudButtonGroup>
+			</CardHeaderActions>
+		</MudCardHeader>
+		<MudCardContent>
+			<MudTable ServerData="@(new Func<TableState, Task<TableData<GajiDanTunjanganDTO>>>(ServerReload))" Dense="true" T="GajiDanTunjanganDTO" Hover="true" @ref="gajiTable" FixedHeader="true" FixedFooter="true" Bordered="true" Class="cursor-pointer" Striped="true" Breakpoint="Breakpoint.Sm" CustomHeader="true" CustomFooter="true" HeaderClass="table-head-bordered" FooterClass="table-foot-bordered">
+				<ToolBarContent>
+					<MudText Typo="Typo.h6">Daftar Gaji Dan Tunjangan</MudText>
+					<MudSpacer />
+					<MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search..." Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+				</ToolBarContent>
+				<HeaderContent>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel SortLabel="id_field" T="GajiDanTunjanganDTO">ID</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel SortLabel="group_field" T="GajiDanTunjanganDTO">Grup</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel SortLabel="nik_field" T="GajiDanTunjanganDTO">NIK</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel SortLabel="namaKaryawan_field" T="GajiDanTunjanganDTO">Nama</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel SortLabel="upah_field" T="GajiDanTunjanganDTO">Upah</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel SortLabel="ptkp_field" T="GajiDanTunjanganDTO">Keterangan</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel SortLabel="ptkpRP_field" T="GajiDanTunjanganDTO">Jumlah</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel SortLabel="tunjJabatan_field" T="GajiDanTunjanganDTO">Jabatan</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel SortLabel="tunjKeterampilan_field" T="GajiDanTunjanganDTO">Keterampilan</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel T="GajiDanTunjanganDTO" SortLabel="tunjMasaKerja_field">Masa Kerja</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info">
+						<MudTableSortLabel SortLabel="tunjLain_field" T="GajiDanTunjanganDTO">Lain2</MudTableSortLabel>
+					</MudTh>
+					<MudTh Class="mud-theme-info"></MudTh>
+				</HeaderContent>
+				<RowTemplate>
+					<MudTd DataLabel="ID">
+						@context.Id
+					</MudTd>
+					<MudTd DataLabel="Grup Kerja">
+						@context.GrupKerja
+					</MudTd>
+					<MudTd DataLabel="NIK">
+						@context.NIK
+					</MudTd>
+					<MudTd DataLabel="Nama Karyawan">
+						@context.NamaKaryawan
+					</MudTd>
+					<MudTd DataLabel="Upah">
+						@context.Upah
+					</MudTd>
+					<MudTd DataLabel="PTKP">
+						@context.PTKP
+					</MudTd>
+					<MudTd DataLabel="PTKP (Rp.)">
+						@context.PTKP_Jumlah
+					</MudTd>
+					<MudTd DataLabel="Tunj.Jabatan">
+						@context.TunjJabatan
+					</MudTd>
+					<MudTd DataLabel="Tunj.Keterampilan">
+						@context.TunjKeterampilan
+					</MudTd>
+					<MudTd DataLabel="Tunj.Masa Kerja">
+						@context.TunjMasaKerja
+					</MudTd>
+					<MudTd DataLabel="Tunj.Lain2">
+						@context.TunjLain
+					</MudTd>
+					<MudTd Class="pa-1">
+						<MudStack Row="true">
+							<MudIconButton Size="Size.Small" Title="Edit Data" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="((e) => EditGajiDanTunjangan(context))"></MudIconButton>
+							<MudIconButton Size="Size.Small" Title="Hapus Data" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="((e) => HapusGajiDanTunjangan(context.Id))"></MudIconButton>
+						</MudStack>
+					</MudTd>
+				</RowTemplate>
+				<NoRecordsContent>
+					<MudText>No records found</MudText>
+				</NoRecordsContent>
+				<LoadingContent>
+					<MudText>Loading ...</MudText>
+				</LoadingContent>
+				<PagerContent>
+					<MudTablePager />
+				</PagerContent>
+			</MudTable>
+		</MudCardContent>
+		@* <FormGajiSingleModal OnGajiAdded="@GajiAdded" /> *@
+	}
+
+</MudCard>
+
+@code {
+	// [Inject]IGajiDanTunjanganService gajiService { get; set; }
+	[Inject]IEmployeeService empService { get; set; }
+	[Inject]IUMPService umpService { get; set; }
+	[Inject]IPTKPService ptkpService { get; set; }
+
+	private IEnumerable<GajiDanTunjanganDTO> gajiDTOs { get; set; } = new List<GajiDanTunjanganDTO>();
+	// private IEnumerable<GajiDanTunjanganDTO> data { get; set; } = new List<GajiDanTunjanganDTO>();
+	private IEnumerable<EmployeeDTO> empDTOs { get; set; } = new List<EmployeeDTO>();
+	private IEnumerable<UpahMinimumProvinsiDTO> umpDTOs { get; set; } = new List<UpahMinimumProvinsiDTO>();
+	private IEnumerable<PenghasilanTidakKenaPajakDTO> ptkpDTOs { get; set; } = new List<PenghasilanTidakKenaPajakDTO>();
+	[Parameter]public MudTable<GajiDanTunjanganDTO> gajiTable { get; set; }
+	private IEnumerable<GajiDanTunjanganDTO> pagedData;
+	private string searchString;
+	private int totalItems;
+
+	private bool dataLoaded = false;
+	private bool overlayVisible;
+	private bool IsFormSingleShow = false;
+	private string Mode = "Tambah";
+
+	protected override async Task OnInitializedAsync() {
+		// return base.OnInitializedAsync();
+		await Task.Delay(50);
+		dataLoaded = false;
+		overlayVisible = true;
+		// gajiDTOs = await gajiService.GetGajiListAsync();
+		// data = await gajiService.GetGajiListAsync();
+		empDTOs = await empService.GetListEmployeesAsync();
+		umpDTOs = await umpService.GetUMP();
+		ptkpDTOs = await ptkpService.GetPTKPAsync();
+		dataLoaded = true;
+		overlayVisible = false;
+		StateHasChanged();
+	}
+
+	private async Task<TableData<GajiDanTunjanganDTO>> ServerReload(TableState state) {
+		IEnumerable<GajiDanTunjanganDTO> data = await gajiService.GetGajiListAsync();
+		// data = await gajiService.GetGajiListAsync();
+		await Task.Delay(300);
+		data = data.Where(el => {
+			if (string.IsNullOrWhiteSpace(searchString)) return true;
+			if (el.GrupKerja.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if (el.NamaKaryawan.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+			if ($"{el.GrupKerja}{el.NIK}{el.NamaKaryawan}".Contains(searchString)) return true;
+			return false;
+		}).ToArray();
+		totalItems = data.Count();
+		switch (state.SortLabel) {
+			case "id_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.Id);
+			break;
+			case "group_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.GrupKerja);
+			break;
+			case "nik_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+			break;
+			case "namaKaryawan_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.NamaKaryawan);
+			break;
+		}
+
+		// pagedData = gajiDTOs.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+		pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+		return new TableData<GajiDanTunjanganDTO>() { TotalItems = totalItems, Items = pagedData };
+	}
+
+	private void OnSearch(string text) {
+		searchString = text;
+		gajiTable.ReloadServerData();
+	}
+	async Task EditGajiDanTunjangan(GajiDanTunjanganDTO gaji) {
+		Mode = "Edit";
+		var parameters = new DialogParameters
+		{
+			["ModalLabel"] = $"{Mode} Data Gaji dan Tunjangan",
+			["gajiDTO"] = gaji,
+			["ptkpDTOs"] = ptkpDTOs,
+			["umpDTOs"] = umpDTOs,
+			["empDTOs"] = empDTOs,
+			["Mode"] = Mode,
+			["OnGajiUpdate"] = EventCallback.Factory.Create<GajiDanTunjanganDTO>(this, OnGajiUpdate)
+		};
+		var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+		var dialog = await DialogService.ShowAsync<FormGajiSingleModal>("", parameters, options);
+		var result = await dialog.Result;
+		if (!result.Canceled) {
+			Mode = "Add";
+		}
+	}
+
+	async Task HapusGajiDanTunjangan(int Id) {
+		// await DeleteGaji.InvokeAsync(Id);
+		var rst = await DialogService.ShowMessageBox("Konfirmasi Hapus", "Yakin Akan Menghapus?","Ya", "Tidak");
+		if(rst == true) {
+			var deleted = await gajiService.DeleteGajiAsync(Id);
+			await gajiTable.ReloadServerData();
+			Snackbar.Add($"Data Gaji Tunjangan atas nama <strong>{deleted.NamaKaryawan}</strong> berhasil dihapus!", Severity.Error);
+		}
+
+	}
+
+	private async void ShowSingleForm() {
+		// IsFormSingleShow = true;
+		var parameters = new DialogParameters
+		{
+				["ModalLabel"] = $"{Mode} Data Gaji dan Tunjangan",
+				["ptkpDTOs"] = ptkpDTOs,
+				["umpDTOs"] = umpDTOs,
+				["empDTOs"] = empDTOs,
+				["Mode"] = Mode,
+				["OnGajiAdded"] = EventCallback.Factory.Create<GajiDanTunjanganDTO>(this, OnGajiAdded)
+		};
+		// parameters.Add("ModalLabel", $"{Mode} Data Gaji dan Tunjangan");
+		// parameters.Add("ptkpDTOs", ptkpDTOs);
+		// parameters.Add("umpDTOs", umpDTOs);
+		// parameters.Add("empDTOs", empDTOs);
+		// parameters.Add("Mode", Mode);
+
+		var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+		// var dialog = await DialogService.ShowAsync<FormGajiSingleModal>("", parameters, options);
+		var dialog = await DialogService.ShowAsync<FormGajiSingleModal>("", parameters, options);
+		// var result = await dialog.Result;
+		// if (!result.Canceled) {
+		// EmployeeDTO empDTO = new EmployeeDTO();
+		// empDTO = result.Data as EmployeeDTO;
+
+		// gajiDTO.GrupKerja = empDTO.GroupName;
+		// gajiDTO.NIK = empDTO.NIK;
+		// gajiDTO.NamaKaryawan = empDTO.Name;
+		// gajiDTO.GrupKerja = empDTO.GroupName;
+		//IdEmployee.Value = empDTO.EmployeeId;
+		//NIK.Value = empDTO.NIK;
+		//Nama.Value = empDTO.Name;
+		// }
+	}
+
+	private async void ShowMultiForm() {
+		var parameters = new DialogParameters {
+			["ModalLabel"] = $"{Mode} Data Gaji dan Tunjangan",
+			["ptkpDTOs"] = ptkpDTOs,
+			["umpDTOs"] = umpDTOs,
+			["empDTOs"] = empDTOs,
+			["Mode"] = Mode
+			// ["OnGajiAddedRange"] = EventCallback.Factory.Create<IEnumerable<GajiDanTunjanganDTO>>(this, OnGajiAddedRange)
+		};
+		var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+		// var dialog = await DialogService.ShowAsync<FormGajiSingleModal>("", parameters, options);
+		var dialog = await DialogService.ShowAsync<FormGajiMultiModal>("", parameters, options);
+		var rst = await dialog.Result;
+		if (!rst.Canceled) {
+			var dataGajiDTOs = rst.Data as List<GajiDanTunjanganDTO>;
+			await gajiService.AddGajiRangeAsync(dataGajiDTOs);
+			await gajiTable.ReloadServerData();
+			await Task.Delay(100);
+			Snackbar.Add("Data gaji dan tunjangan berhasil di-TAMBAHKAN sekaligus", Severity.Success, cfg =>
+			{
+				cfg.HideTransitionDuration = 50;
+			});
+			// StateHasChanged();
+		}
+	}
+
+	private async void OnGajiAdded(GajiDanTunjanganDTO dtGaji) {
+		await gajiService.AddGajiAsync(dtGaji);
+		await gajiTable.ReloadServerData();
+		StateHasChanged();
+		Snackbar.Add($"Data gaji dan tunjangan karyawan berhasil di-TAMBAHKAN", Severity.Success, config => {
+			config.HideTransitionDuration = 50;
+		});
+	}
+
+	// private async void OnGajiAddedRange(IEnumerable<GajiDanTunjanganDTO> dtGaji) {
+	// 	await gajiService.AddGajiRangeAsync(dtGaji);
+	// 	await gajiTable.ReloadServerData();
+	// 	StateHasChanged();
+	// 	Snackbar.Add($"Data gaji dan tunjangan karyawan berhasil di-TAMBAHKAN sekaligus", Severity.Success, config => {
+	// 		config.HideTransitionDuration = 50;
+	// 	});
+	// }
+
+	private async void OnGajiUpdate(GajiDanTunjanganDTO dtGaji) {
+		// Console.WriteLine($"dataGaji.Id: {dtGaji.Id}, dtGaji.NIK: {dtGaji.NIK}, dtGaji.NamaKaryawan: {dtGaji.NamaKaryawan}, dtGaji.PTKP: {dtGaji.PTKP}, dtGaji.PTKP_Jumlah: {dtGaji.PTKP_Jumlah}");
+
+		await gajiService.UpdateGajiAsync(dtGaji);
+		await gajiTable.ReloadServerData();
+		StateHasChanged();
+		Snackbar.Add($"Data gaji dan tunjangan karyawan berhasil di-UPDATE", Severity.Info, config => {
+			config.HideTransitionDuration = 50;
+		});
+	}
+}
+

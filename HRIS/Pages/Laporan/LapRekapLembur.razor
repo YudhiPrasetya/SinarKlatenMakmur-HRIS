@@ -1,0 +1,392 @@
+﻿@page "/lapRekapLembur"
+
+@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+@* @using Append.Blazor.Printing; *@
+
+@inject IJSRuntime JSRuntime
+@inject HttpClient httpClient
+@* @inject IPrintingService PrintingService *@
+
+<style type="text/css" media="screen">
+   .mud-table-head .header-centered th {
+      text-align: center;
+      font-size: 1.2em;
+   }
+
+   .mud-table-foot .bold-text .mud-table-cell {
+      font-weight: 500;
+   }
+
+   #lembur {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+   }
+
+   #lembur td, #lembur th {
+      border: 1px solid black;
+      padding: 8px;
+   }
+
+   #lembur tr:nth-child(even) {
+      background-color: #f2f2f2;
+   }
+
+   #lembur tr:hover {
+      background-color: #ddd;
+   }
+
+   #lembur th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #04AA6D;
+      color: white;
+   }
+</style>
+
+<style type="text/css" media="print">
+   table, th, td{
+      border: solid 1px black;
+      width: 100%;
+   }
+</style>
+
+
+<MudPaper Class="mb-4">
+   <MudGrid Class="d-flex justify-center">
+      <MudItem xs="3">
+         <MudDateRangePicker DateFormat="dd-MM-yyyy" @ref="tglPeriode" @bind-DateRange="_dateRange" Margin="Margin.Dense" PlaceholderStart="Dari" PlaceholderEnd="Sampai" Variant="Variant.Outlined" DisableToolbar="true" Label="Periode"></MudDateRangePicker>
+      </MudItem>
+      <MudItem xs="3">
+         <MudSelect T="string" @ref="selectGroup" Variant="Variant.Outlined" Margin="Margin.Dense">
+            <MudSelectItem Value="@("All")">Semua</MudSelectItem>
+            @foreach (var g in groupDTOs) {
+               <MudSelectItem Value="@g.GroupDesc">@g.GroupDesc</MudSelectItem>
+            }
+         </MudSelect>
+      </MudItem>
+      <MudItem xs="4" Class="align-center d-flex justify-center">
+         <MudButtonGroup Variant="Variant.Filled" Color="Color.Success">
+            <MudButton Disabled="@_processing" StartIcon="@Icons.Material.Filled.Preview" OnClick="PrintPreview" Size="Size.Small">
+               @if (_processing) {
+                  <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                  <MudText Class="ms-2">...Processing</MudText>
+               }
+               else {
+                  <MudText>Preview</MudText>
+               }
+            </MudButton>
+
+            <MudButton Target="_blank" StartIcon="@Icons.Material.Filled.ImportExport" Size="Size.Small" OnClick="@(async() =>  await ExportToPDF())">
+               @if (_printProcessing) {
+                  <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                  <MudText Class="ms-2">...Processing</MudText>
+               }
+               else {
+                  <MudText>To PDF</MudText>
+               }
+               
+            </MudButton>
+
+@*             <MudButton Href="@($"{BaseUrl.LocalBaseUrl}/ReportRekapLembur/{group}/{startDate}/{endDate}")" Target="_blank" StartIcon="@Icons.Material.Filled.Print" Size="Size.Small">Print</MudButton> *@
+
+            <MudButton StartIcon="@Icons.Material.Filled.ImportExport" Size="Size.Small" OnClick="@(async() => await ExportToExcel())">
+               @if (_exportProcessing) {
+                  <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                  <MudText Class="ms-2">...Processing</MudText>
+               }
+               else {
+                  <MudText>To Excel</MudText>
+               }
+            </MudButton>
+
+         </MudButtonGroup>
+
+      </MudItem>
+   </MudGrid>
+</MudPaper>
+
+<div id="printable">
+<MudTable CustomHeader="true" ServerData="@(new Func<TableState, Task<TableData<LemburPivotDTO>>>(ServerReload))" Hover="true" Dense="true" Striped="true" Bordered="true" T="LemburPivotDTO" HeaderClass="table-head-bordered" @ref="LemburPivotTable">
+   <ToolBarContent>
+      <MudText Typo="Typo.h6">Laporan Rekap Lembur</MudText>
+      <MudSpacer />
+
+   </ToolBarContent>
+   <HeaderContent>
+      <MudTHeadRow Class="header-centered">
+         <MudTh colspan="14">Rekap Lembur</MudTh>
+      </MudTHeadRow>
+      <MudTHeadRow Class="header-centered">
+         <MudTh colspan="5">Data</MudTh>
+         <MudTh colspan="9">Hitungan Lembur (Jam Ke-)</MudTh>
+      </MudTHeadRow>
+      <MudTHeadRow>
+         <MudTh>
+            <MudTableSortLabel SortLabel="grup_field" T="LemburPivotDTO">Grup</MudTableSortLabel>
+         </MudTh>
+         <MudTh >
+            <MudTableSortLabel SortLabel="nik_field" T="LemburPivotDTO">NIK</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="nama_field" T="LemburPivotDTO">Nama</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="tanggal_field" T="LemburPivotDTO">Tanggal</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="jenis_field" T="LemburPivotDTO">Jenis</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="ke1_field" T="LemburPivotDTO">1</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="ke2_field" T="LemburPivotDTO">2</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="ke3_field" T="LemburPivotDTO">3</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="ke4_field" T="LemburPivotDTO">4</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="ke5_field" T="LemburPivotDTO">5</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="ke6_field" T="LemburPivotDTO">6</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="ke7_field" T="LemburPivotDTO">7</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="ke8_field" T="LemburPivotDTO">8</MudTableSortLabel>
+         </MudTh>
+         <MudTh>
+            <MudTableSortLabel SortLabel="total_field" T="LemburPivotDTO">Total</MudTableSortLabel>
+         </MudTh>
+      </MudTHeadRow>
+
+   </HeaderContent>
+   <RowTemplate>
+      <MudTd DataLabel="Grup Kerja">@context.GrupKerja</MudTd>
+      <MudTd DataLabel="NIK">@context.NIK</MudTd>
+      <MudTd DataLabel="Nama">@context.Nama</MudTd>
+      <MudTd DataLabel="Tanggal">@context.Tanggal.Value.Date.ToString("dd-MM-yyyy")</MudTd>
+      <MudTd DataLabel="Jenis Lembur">@context.JenisLembur</MudTd>
+      <MudTd DataLabel="Ke-1">@context.Ke1</MudTd>
+      <MudTd DataLabel="Ke-2">@context.Ke2</MudTd>
+      <MudTd DataLabel="Ke-3">@context.Ke3</MudTd>
+      <MudTd DataLabel="Ke-4">@context.Ke4</MudTd>
+      <MudTd DataLabel="Ke-5">@context.Ke5</MudTd>
+      <MudTd DataLabel="Ke-6">@context.Ke6</MudTd>
+      <MudTd DataLabel="Ke-7">@context.Ke7.</MudTd>
+      <MudTd DataLabel="Ke-8">@context.Ke8</MudTd>
+      <MudTd DataLabel="Total Lembur">@context.Total</MudTd>
+   </RowTemplate>
+   <NoRecordsContent><MudText>No Data</MudText></NoRecordsContent>
+   <LoadingContent>Loading...</LoadingContent>
+   <PagerContent>
+      <MudTablePager PageSizeOptions="new int[] {5,10,25,75,100,int.MaxValue}" />
+   </PagerContent>
+</MudTable>
+</div>
+
+@if (printing == true) {
+   <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Close" OnClick="CloseReport" Size="Size.Small" Class="mt-4">Close</MudButton>
+   <div id="printable">
+      <table style="width: 100%;" id="lembur">
+         <thead>
+            <tr>
+               <th rowspan="2">Grup Kerja</th>
+               <th rowspan="2">NIK</th>
+               <th rowspan="2">Nama</th>
+               <th rowspan="2">Tanggal</th>
+               <th rowspan="2">Jenis</th>
+               <th colspan="9">Hitungan Lembur</th>
+            </tr>
+            <tr>
+               <th>Ke-1</th>
+               <th>Ke-2</th>
+               <th>Ke-3</th>
+               <th>Ke-4</th>
+               <th>Ke-5</th>
+               <th>Ke-6</th>
+               <th>Ke-7</th>
+               <th>Ke-8</th>
+               <th>Total</th>
+            </tr>
+         </thead>
+         <tbody>
+            @foreach (var lpv in listLemburPivot) {
+               <tr>
+                  <td>@lpv.GrupKerja</td>
+                  <td>@lpv.NIK</td>
+                  <td>@lpv.Nama</td>
+                  <td>@lpv.Tanggal.Value.Date.ToString("dd-MM-yyyy")</td>
+                  <td>@lpv.JenisLembur</td>
+                  <td>@lpv.Ke1</td>
+                  <td>@lpv.Ke2</td>
+                  <td>@lpv.Ke3</td>
+                  <td>@lpv.Ke4</td>
+                  <td>@lpv.Ke5</td>
+                  <td>@lpv.Ke6</td>
+                  <td>@lpv.Ke7</td>
+                  <td>@lpv.Ke8</td>
+                  <td>@lpv.Total</td>
+               </tr>
+            }
+         </tbody>
+      </table>
+   </div>
+}
+
+@code {
+   [Inject] ISuratPerintahLemburService splService { get; set; }
+   [Inject] IGroupService groupService { get; set; }
+
+   private MudTable<LemburPivotDTO> LemburPivotTable;
+   private List<GroupDTO> groupDTOs { get; set; } = new();
+
+   private MudTable<ExceptionDTO> tableTidakHadir;
+   private MudDateRangePicker tglPeriode;
+   private DateRange _dateRange;
+   private MudSelect<string> selectGroup;
+   private bool _processing = false;
+   private bool _exportProcessing = false;
+   private bool _printProcessing = false;
+   private string searchString = null;
+   private int totalItems;
+   string group = "SK-STAFF";
+   string startDate = DateConversions.DateToString(DateTime.Now.Date);
+   string endDate = DateConversions.DateToString(DateTime.Now.Date);
+
+   private RenderFragment html;
+   private bool printing = false;
+   private List<SuratPerintahLemburDTO> listSPL= new();
+
+   public RekapLemburData rekapLemburData;
+   private List<string> columns = new();
+   private List<string> rows = new();
+   private List<LemburPivotDTO> lemburPivotDTOs = new();
+
+   private IEnumerable<LemburPivotDTO> listLemburPivot = new List<LemburPivotDTO>();
+   private IEnumerable<LemburPivotDTO> pagedData;
+
+   protected override async Task OnInitializedAsync() {
+      // return base.OnInitializedAsync();
+      groupDTOs = await groupService.GetListGroupsAsync();
+   }
+
+   async Task PrintPreview() {
+      _processing = true;
+      string strGroup = selectGroup.Value;
+      group = strGroup.Replace("/", "-");
+
+      DateTime date1 = _dateRange.Start.Value.Date;
+      startDate = DateConversions.DateToString(date1.Date);
+
+      DateTime date2 = _dateRange.End.Value.Date;
+      endDate = DateConversions.DateToString(date2.Date);
+      //await tableTidakHadir.ReloadServerData();
+
+      // var dataLembur = await splService.GetByGroupAndDate(group, startDate, endDate);
+      // lemburPivotDTOs = await CreateLemburPivot(group, startDate, endDate);
+      await LemburPivotTable.ReloadServerData();
+
+      await Task.Delay(300);
+      _processing = false;
+   }
+
+   async Task ExportToPDF() {
+      // var dataLembur  = await splService.GetByGroupAndDate(group, startDate, endDate);
+      // listLemburPivot = await PivotTable.CreateLemburPivot(dataLembur);
+      // printing = true;
+      // StateHasChanged();
+      // await JSRuntime.InvokeVoidAsync("Print");
+
+      _printProcessing = true;
+      string strGroup = selectGroup.Value;
+      group = strGroup.Replace("/", "-");
+
+      DateTime date1 = _dateRange.Start.Value.Date;
+      startDate = DateConversions.DateToString(date1.Date);
+
+      DateTime date2 = _dateRange.End.Value.Date;
+      endDate = DateConversions.DateToString(date2.Date);
+      // await splService.ReportRekapLembur(group, startDate, endDate);
+      var response = await httpClient.GetAsync($"{BaseUrl.ServerBaseUrl}/SPL/ReportRekapLembur/{group}/{startDate}/{endDate}");
+      if(response.IsSuccessStatusCode){
+         var fileBytes = response.Content.ReadAsByteArrayAsync().Result.ToArray();
+         await JSRuntime.InvokeVoidAsync("openPDFInNewTab", fileBytes);
+
+         await Task.Delay(300);
+         _printProcessing = false;
+      }
+
+
+   }
+
+   async Task ExportToExcel() {
+      _exportProcessing = true;
+      var response = await httpClient.GetAsync($"{BaseUrl.ServerBaseUrl}/SPL/ExportToExcel/{group}/{startDate}/{endDate}");
+      // response.EnsureSuccessStatusCode();
+      if (response.IsSuccessStatusCode) {
+         var fileBytes = await response.Content.ReadAsByteArrayAsync();
+         var fileName = "RekapLembur.xlsx";
+         await JSRuntime.InvokeAsync<object>("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+
+      }
+      await Task.Delay(300);
+      _exportProcessing = false;
+   }
+
+   private void CloseReport() {
+      printing = false;
+      StateHasChanged();
+   }
+
+   private async Task<TableData<LemburPivotDTO>> ServerReload(TableState state) {
+      var dtLembur = await splService.GetByGroupAndDate(group, startDate, endDate);
+      IEnumerable<LemburPivotDTO> data = await PivotTable.CreateLemburPivot(dtLembur);
+      await Task.Delay(300);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.GrupKerja.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.Nama.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.JenisLembur.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if ($"{element.GrupKerja} {element.NIK} {element.Nama} {element.JenisLembur}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "grup_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.GrupKerja);
+         break;
+         case "nik_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+         break;
+         case "nama_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Nama);
+         break;
+         case "jenis_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.JenisLembur);
+         break;
+         case "tanggal_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Tanggal);
+         break;
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<LemburPivotDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+}

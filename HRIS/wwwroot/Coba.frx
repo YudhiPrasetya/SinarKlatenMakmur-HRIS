@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="01/17/2024 09:13:59" ReportInfo.Modified="01/17/2024 14:44:30" ReportInfo.CreatorVersion="2024.1.0.0">
+  <Dictionary>
+    <XmlDataConnection Name="Connection" ConnectionString="rijcmlq40fX5pwR7QeQr7CyeN1Cyd2CK5QDfP8BLyaMdChHGMcsNH2kcnrZyLEjbQTUxAEADXf4mHHglzgjOfKjVmhBZUtDa/h6OzH5kTbBUENujX0C1uShT79MAdIBh3v72QSIZ+ABPSe2Tzdzi7mPBReDmBJMVT0ghzr+6FkqGaj/G1zp3WQSIpWENBLGgBcJ8yy0">
+      <TableDataSource Name="Coba" DataType="System.Int32" Enabled="true" TableName="Coba">
+        <Column Name="NIK" DataType="System.String"/>
+        <Column Name="Nama" DataType="System.String"/>
+        <Column Name="GrupKerja" DataType="System.String"/>
+      </TableDataSource>
+    </XmlDataConnection>
+  </Dictionary>
+  <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="37.8"/>
+    <PageHeaderBand Name="PageHeader1" Top="40.66" Width="718.2" Height="28.35">
+      <TextObject Name="Text2" Left="37.8" Width="94.5" Height="18.9" Text="NIK" Font="Arial, 10pt"/>
+      <TextObject Name="Text4" Left="160.65" Width="94.5" Height="18.9" Text="Nama" Font="Arial, 10pt"/>
+      <TextObject Name="Text6" Left="274.05" Width="94.5" Height="18.9" Text="GrupKerja" Font="Arial, 10pt"/>
+    </PageHeaderBand>
+    <DataBand Name="Data1" Top="71.86" Width="718.2" Height="75.6" DataSource="Coba">
+      <TextObject Name="Text1" Left="37.8" Top="9.45" Width="94.5" Height="18.9" Text="[Coba.NIK]" Font="Arial, 10pt"/>
+      <TextObject Name="Text3" Left="160.65" Top="9.45" Width="94.5" Height="18.9" Text="[Coba.Nama]" Font="Arial, 10pt"/>
+      <TextObject Name="Text5" Left="274.05" Top="9.45" Width="94.5" Height="18.9" Text="[Coba.GrupKerja]" Font="Arial, 10pt"/>
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Top="150.32" Width="718.2" Height="18.9"/>
+  </ReportPage>
+</Report>

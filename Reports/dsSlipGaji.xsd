@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="dsSlipGaji" targetNamespace="http://tempuri.org/dsSlipGaji.xsd" xmlns:mstns="http://tempuri.org/dsSlipGaji.xsd" xmlns="http://tempuri.org/dsSlipGaji.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="dsSlipGaji" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_UserDSName="dsSlipGaji" msprop:Generator_DataSetName="dsSlipGaji">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="dtSlipGaji" msprop:Generator_RowEvHandlerName="dtSlipGajiRowChangeEventHandler" msprop:Generator_RowDeletedName="dtSlipGajiRowDeleted" msprop:Generator_RowDeletingName="dtSlipGajiRowDeleting" msprop:Generator_RowEvArgName="dtSlipGajiRowChangeEvent" msprop:Generator_TablePropName="dtSlipGaji" msprop:Generator_RowChangedName="dtSlipGajiRowChanged" msprop:Generator_RowChangingName="dtSlipGajiRowChanging" msprop:Generator_TableClassName="dtSlipGajiDataTable" msprop:Generator_RowClassName="dtSlipGajiRow" msprop:Generator_TableVarName="tabledtSlipGaji" msprop:Generator_UserTableName="dtSlipGaji">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="NIK" msprop:Generator_ColumnPropNameInRow="NIK" msprop:Generator_ColumnPropNameInTable="NIKColumn" msprop:Generator_ColumnVarNameInTable="columnNIK" msprop:Generator_UserColumnName="NIK" type="xs:string" minOccurs="0" />
+              <xs:element name="Nama" msprop:Generator_ColumnPropNameInRow="Nama" msprop:Generator_ColumnPropNameInTable="NamaColumn" msprop:Generator_ColumnVarNameInTable="columnNama" msprop:Generator_UserColumnName="Nama" type="xs:string" minOccurs="0" />
+              <xs:element name="GrupKerja" msprop:Generator_ColumnPropNameInRow="GrupKerja" msprop:Generator_ColumnPropNameInTable="GrupKerjaColumn" msprop:Generator_ColumnVarNameInTable="columnGrupKerja" msprop:Generator_UserColumnName="GrupKerja" type="xs:string" minOccurs="0" />
+              <xs:element name="Hadir" msprop:Generator_ColumnPropNameInRow="Hadir" msprop:Generator_ColumnPropNameInTable="HadirColumn" msprop:Generator_ColumnVarNameInTable="columnHadir" msprop:Generator_UserColumnName="Hadir" type="xs:int" minOccurs="0" />
+              <xs:element name="TidakHadir" msprop:Generator_ColumnPropNameInRow="TidakHadir" msprop:Generator_ColumnPropNameInTable="TidakHadirColumn" msprop:Generator_ColumnVarNameInTable="columnTidakHadir" msprop:Generator_UserColumnName="TidakHadir" type="xs:int" minOccurs="0" />
+              <xs:element name="TidakHadirNominal" msprop:Generator_ColumnPropNameInRow="TidakHadirNominal" msprop:Generator_ColumnPropNameInTable="TidakHadirNominalColumn" msprop:Generator_ColumnVarNameInTable="columnTidakHadirNominal" msprop:Generator_UserColumnName="TidakHadirNominal" type="xs:decimal" minOccurs="0" />
+              <xs:element name="TunjKeterampilan" msprop:Generator_ColumnPropNameInRow="TunjKeterampilan" msprop:Generator_ColumnPropNameInTable="TunjKeterampilanColumn" msprop:Generator_ColumnVarNameInTable="columnTunjKeterampilan" msprop:Generator_UserColumnName="TunjKeterampilan" type="xs:int" minOccurs="0" />
+              <xs:element name="TunjJabatan" msprop:Generator_ColumnPropNameInRow="TunjJabatan" msprop:Generator_ColumnPropNameInTable="TunjJabatanColumn" msprop:Generator_ColumnVarNameInTable="columnTunjJabatan" msprop:Generator_UserColumnName="TunjJabatan" type="xs:int" minOccurs="0" />
+              <xs:element name="TunjMasaKerja" msprop:Generator_ColumnPropNameInRow="TunjMasaKerja" msprop:Generator_ColumnPropNameInTable="TunjMasaKerjaColumn" msprop:Generator_ColumnVarNameInTable="columnTunjMasaKerja" msprop:Generator_UserColumnName="TunjMasaKerja" type="xs:int" minOccurs="0" />
+              <xs:element name="TunjLain2" msprop:Generator_ColumnPropNameInRow="TunjLain2" msprop:Generator_ColumnPropNameInTable="TunjLain2Column" msprop:Generator_ColumnVarNameInTable="columnTunjLain2" msprop:Generator_UserColumnName="TunjLain2" type="xs:int" minOccurs="0" />
+              <xs:element name="JmlUpah" msprop:Generator_ColumnPropNameInRow="JmlUpah" msprop:Generator_ColumnPropNameInTable="JmlUpahColumn" msprop:Generator_ColumnVarNameInTable="columnJmlUpah" msprop:Generator_UserColumnName="JmlUpah" type="xs:decimal" minOccurs="0" />
+              <xs:element name="JamLemburKe1" msprop:Generator_ColumnPropNameInRow="JamLemburKe1" msprop:Generator_ColumnPropNameInTable="JamLemburKe1Column" msprop:Generator_ColumnVarNameInTable="columnJamLemburKe1" msprop:Generator_UserColumnName="JamLemburKe1" type="xs:int" minOccurs="0" />
+              <xs:element name="JamLemburKe2" msprop:Generator_ColumnPropNameInRow="JamLemburKe2" msprop:Generator_ColumnPropNameInTable="JamLemburKe2Column" msprop:Generator_ColumnVarNameInTable="columnJamLemburKe2" msprop:Generator_UserColumnName="JamLemburKe2" type="xs:int" minOccurs="0" />
+              <xs:element name="JamLemburKe3" msprop:Generator_ColumnPropNameInRow="JamLemburKe3" msprop:Generator_ColumnPropNameInTable="JamLemburKe3Column" msprop:Generator_ColumnVarNameInTable="columnJamLemburKe3" msprop:Generator_UserColumnName="JamLemburKe3" type="xs:int" minOccurs="0" />
+              <xs:element name="JamLemburKe4" msprop:Generator_ColumnPropNameInRow="JamLemburKe4" msprop:Generator_ColumnPropNameInTable="JamLemburKe4Column" msprop:Generator_ColumnVarNameInTable="columnJamLemburKe4" msprop:Generator_UserColumnName="JamLemburKe4" type="xs:int" minOccurs="0" />
+              <xs:element name="NominalLemburKe1" msprop:Generator_ColumnPropNameInRow="NominalLemburKe1" msprop:Generator_ColumnPropNameInTable="NominalLemburKe1Column" msprop:Generator_ColumnVarNameInTable="columnNominalLemburKe1" msprop:Generator_UserColumnName="NominalLemburKe1" type="xs:decimal" minOccurs="0" />
+              <xs:element name="NominalLemburKe2" msprop:Generator_ColumnPropNameInRow="NominalLemburKe2" msprop:Generator_ColumnPropNameInTable="NominalLemburKe2Column" msprop:Generator_ColumnVarNameInTable="columnNominalLemburKe2" msprop:Generator_UserColumnName="NominalLemburKe2" type="xs:decimal" minOccurs="0" />
+              <xs:element name="NominalLemburKe3" msprop:Generator_ColumnPropNameInRow="NominalLemburKe3" msprop:Generator_ColumnPropNameInTable="NominalLemburKe3Column" msprop:Generator_ColumnVarNameInTable="columnNominalLemburKe3" msprop:Generator_UserColumnName="NominalLemburKe3" type="xs:decimal" minOccurs="0" />
+              <xs:element name="NominalLemburKe4" msprop:Generator_ColumnPropNameInRow="NominalLemburKe4" msprop:Generator_ColumnPropNameInTable="NominalLemburKe4Column" msprop:Generator_ColumnVarNameInTable="columnNominalLemburKe4" msprop:Generator_UserColumnName="NominalLemburKe4" type="xs:decimal" minOccurs="0" />
+              <xs:element name="PotBPJSTK" msprop:Generator_ColumnPropNameInRow="PotBPJSTK" msprop:Generator_ColumnPropNameInTable="PotBPJSTKColumn" msprop:Generator_ColumnVarNameInTable="columnPotBPJSTK" msprop:Generator_UserColumnName="PotBPJSTK" type="xs:decimal" minOccurs="0" />
+              <xs:element name="PotBPJSKes" msprop:Generator_ColumnPropNameInRow="PotBPJSKes" msprop:Generator_ColumnPropNameInTable="PotBPJSKesColumn" msprop:Generator_ColumnVarNameInTable="columnPotBPJSKes" msprop:Generator_UserColumnName="PotBPJSKes" type="xs:decimal" minOccurs="0" />
+              <xs:element name="PotLain2" msprop:Generator_ColumnPropNameInRow="PotLain2" msprop:Generator_ColumnPropNameInTable="PotLain2Column" msprop:Generator_ColumnVarNameInTable="columnPotLain2" msprop:Generator_UserColumnName="PotLain2" type="xs:decimal" minOccurs="0" />
+              <xs:element name="Total" msprop:Generator_ColumnPropNameInRow="Total" msprop:Generator_ColumnPropNameInTable="TotalColumn" msprop:Generator_ColumnVarNameInTable="columnTotal" msprop:Generator_UserColumnName="Total" type="xs:decimal" minOccurs="0" />
+              <xs:element name="Upah" msprop:Generator_ColumnPropNameInRow="Upah" msprop:Generator_ColumnPropNameInTable="UpahColumn" msprop:Generator_ColumnVarNameInTable="columnUpah" msprop:Generator_UserColumnName="Upah" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

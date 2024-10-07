@@ -1,0 +1,292 @@
+﻿@page "/jadwalkerjakaryawan"
+
+@using HRIS.Contracts
+@using SKM.Shared.Dtos
+@using SKM.Shared.Helpers;
+
+@inject IDialogService DialogService
+@inject ISnackbar SnackBar
+
+<MudTable Class="mt-5 cursor-pointer" ServerData="@(new Func<TableState, Task<TableData<JadwalKehadiranDTO>>>(ServerReload))"
+          Dense="true" Hover="true" @ref="tableJadwalKerjaKaryawan" Elevation="4" FixedHeader="true" FixedFooter="true" Striped="true" Bordered="false" CanCancelEdit="true" @bind-SelectedItem="jadwalKerjaKaryawan" RowEditPreview="BackupJadwal" RowEditCommit="CommitJadwal" IsEditRowSwitchingBlocked="true" RowEditCancel="CancelEdit" >
+   <ToolBarContent>
+      <MudText Typo="Typo.h6">Daftar Jadwal Kerja Karyawan</MudText>
+      <MudFab Class="ma-2" OnClick="ShowFormJadwalKerjaKaryawan" Icon="@Icons.Material.Filled.Add" Color="Color.Secondary" Size="Size.Small"></MudFab>
+      <MudFab Class="ma-2" OnClick="ShowFormEditJadwalKerjaKaryawan" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small"></MudFab>
+      <MudFab Class="ma-2" Icon="@Icons.Material.Filled.CancelScheduleSend" Color="MudBlazor.Color.Info" Size="Size.Small" OnClick="ShowFormGantiHariKaryawan"></MudFab>
+      <MudSpacer />
+      <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+   </ToolBarContent>
+
+@*    <ColGroup>
+      @if (GroupDefinition.Expandable) {
+         <col style="width: 60px;" />
+      }
+      <col />
+      <col />
+      <col />
+      <col />
+      <col />
+      <col />
+      <col />
+      <col />
+      <col />
+   </ColGroup> *@
+
+   <HeaderContent>
+      <MudTh><MudTableSortLabel SortLabel="grup_field" T="JadwalKehadiranDTO">Grup Kerja</MudTableSortLabel> </MudTh>
+      <MudTh><MudTableSortLabel SortLabel="id_field" T="JadwalKehadiranDTO">Id</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="nik_field" T="JadwalKehadiranDTO">NIK</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="nama_field" T="JadwalKehadiranDTO">Nama</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="jadwalMasuk_field" T="JadwalKehadiranDTO">Jadwal Masuk</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="jadwalPulang_field" T="JadwalKehadiranDTO">Jadwal Pulang</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="jamMasuk_field" T="JadwalKehadiranDTO">Jam Masuk</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="jamPulang_field" T="JadwalKehadiranDTO">Jam Pulang</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel T="JadwalKehadiranDTO">Keterangan</MudTableSortLabel></MudTh>
+   </HeaderContent>
+@*    <GroupHeaderTemplate>
+      <MudTh colspan="8">
+         @($"{context.GroupName}: {context.Key}")
+      </MudTh>
+   </GroupHeaderTemplate> *@
+   <RowTemplate>
+      <MudTd DataLabel="Grup Kerja">@context?.GrupKerja</MudTd>
+      <MudTd DataLabel="Id">@context?.Id</MudTd>
+      <MudTd DataLabel="NIK">@context?.NIK</MudTd>
+      <MudTd DataLabel="Nama">@context?.Nama</MudTd>
+      <MudTd DataLabel="Jadwal Masuk">@context?.JadwalMasuk!.Value.ToString("dd/MM/yyyy HH:mm:ss")</MudTd>
+      <MudTd DataLabel="Jadwal Pulang">@context?.JadwalPulang!.Value.ToString("dd/MM/yyyy HH:mm:ss")</MudTd>
+      <MudTd DataLabel="Jam Masuk">@context?.JamMasuk.Value.ToString("dd/MM/yyyy HH:mm:ss")</MudTd>
+      <MudTd DataLabel="Jam Pulang">@context?.JamPulang.Value.ToString("dd/MM/yyyy HH:mm:ss")</MudTd>
+      <MudTd DataLabel="Keterangan">@context?.Keterangan</MudTd>
+   </RowTemplate>
+   <RowEditingTemplate>
+      <MudTd DataLabel="Grup Kerja">@context?.GrupKerja</MudTd>
+      <MudTd DataLabel="Id">@context?.Id</MudTd>
+      <MudTd DataLabel="NIK">@context?.NIK</MudTd>
+      <MudTd DataLabel="Nama">@context?.Nama</MudTd>
+      <MudTd DataLabel="Jadwal Masuk">
+         <MudElement HtmlTag="input" type="datetime-local" value="@(context?.JadwalMasuk!.Value.ToString("yyyy-MM-dd hh:mm:ss"))"></MudElement>
+      </MudTd>
+      <MudTd DataLabel="Jadwal Pulang">
+         <MudElement HtmlTag="input" type="datetime-local" value="@(context?.JadwalPulang!.Value.ToString("yyyy-MM-dd hh:mm:ss"))"></MudElement>
+      </MudTd>
+      <MudTd DataLabel="Jam Masuk">@context?.JamMasuk!.Value.ToString("dd/MM/yyyy hh:mm:ss")</MudTd>
+      <MudTd DataLabel="Jam Pulang">@context?.JamPulang!.Value.ToString("dd/MM/yyyy hh:mm:ss")</MudTd>
+      <MudTd DataLabel="Keterangan">@context?.Keterangan</MudTd>
+   </RowEditingTemplate>
+   <NoRecordsContent>
+      <MudText>No matching records found</MudText>
+   </NoRecordsContent>
+   <LoadingContent>
+      <MudText>Loading...</MudText>
+   </LoadingContent>
+   <PagerContent>
+      <MudTablePager />
+   </PagerContent>
+</MudTable>
+
+@inject IDialogService DialogService
+
+@code {
+   // [Inject]IJadwalKerjaKaryawanService jadwalKerjaKaryawanService { get; set; }
+   [Inject]IJadwalKehadiranService jadwalKehadiranService { get; set; }
+   [Inject]IEmployeeService employeeService { get; set; }
+   [Inject]IGroupService groupService { get; set; }
+   [Inject]IJadwalShiftKaryawanService jadwalShiftKaryawanService { get; set; }
+   // [Inject]IJadwalShiftDepartemenService jadwalShiftDepartemenService { get; set; }
+
+   private IEnumerable<JadwalKehadiranDTO>? jadwalDTOs = new List<JadwalKehadiranDTO>();
+   private IEnumerable<EmployeeDTO> employeeDTOs = new List<EmployeeDTO>();
+   private IEnumerable<GroupDTO> groupDTOs = new List<GroupDTO>();
+   private IEnumerable<JadwalShiftKaryawanDTO> jadwalShiftKaryawanDTOs = new List<JadwalShiftKaryawanDTO>();
+   private IEnumerable<JadwalShiftDepartemenDTO> jadwalShiftDepartemenDTOs = new List<JadwalShiftDepartemenDTO>();
+   private List<JadwalKerjaKaryawanDTO> jadwalKerjaKaryawanDetail = new();
+   private IEnumerable<JadwalKehadiranDTO> pagedData = new List<JadwalKehadiranDTO>();
+   private string? searchString;
+   private int totalItems;
+   private string Mode = "Tambah";
+   private List<NamaHari> listNamaHari = new();
+
+   private MudTable<JadwalKehadiranDTO?>? tableJadwalKerjaKaryawan;
+
+   private JadwalKehadiranDTO? jadwalKerjaKaryawan;
+   private JadwalKehadiranDTO? jadwalBeforeEdit;
+
+   // private TableGroupDefinition<JadwalKerjaKaryawanDTO> GroupDefinition = new() {
+   //    GroupName = "Grup Kerja",
+   //    Indentation = false,
+   //    Expandable = true,
+   //    Selector = (e) => e.GroupName
+   // };
+
+   private async Task<TableData<JadwalKehadiranDTO>> ServerReload(TableState state) {
+      // jadwalDTOs = await jadwalKerjaKaryawanService.GetAllJadwalKerjaKaryawan();
+      jadwalDTOs = await jadwalKehadiranService.GetListJadwalKehadiranAsync();
+      await Task.Delay(300);
+      jadwalDTOs = jadwalDTOs!.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.GrupKerja!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.Nama!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.NIK!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if ($"{element.GrupKerja} {element.NIK} {element.Nama}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = jadwalDTOs.Count();
+      switch (state.SortLabel) {
+         case "id_field":
+         jadwalDTOs = jadwalDTOs.OrderByDirection(state.SortDirection, o => o.Id);
+         break;
+         case "nik_field":
+         jadwalDTOs = jadwalDTOs.OrderByDirection(state.SortDirection, o => o.NIK);
+         break;
+         case "nama_field":
+         jadwalDTOs = jadwalDTOs.OrderByDirection(state.SortDirection, o => o.Nama);
+         break;
+         case "grup_field":
+         jadwalDTOs = jadwalDTOs.OrderByDirection(state.SortDirection, o => o.GrupKerja);
+         break;
+         case "jadwalMasuk_field":
+         jadwalDTOs = jadwalDTOs.OrderByDirection(state.SortDirection, o => o.JadwalMasuk);
+         break;
+         case "jadwalPulang_field":
+         jadwalDTOs = jadwalDTOs.OrderByDirection(state.SortDirection, o => o.JadwalPulang);
+         break;
+         case "jamMasuk_field":
+         jadwalDTOs = jadwalDTOs.OrderByDirection(state.SortDirection, o => o.JamMasuk);
+         break;
+         case "jamPulang_field":
+         jadwalDTOs = jadwalDTOs.OrderByDirection(state.SortDirection, o => o.JamPulang);
+         break;
+
+      }
+
+      pagedData = jadwalDTOs.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<JadwalKehadiranDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   protected override async Task OnInitializedAsync() {
+      // return base.OnInitializedAsync();
+      employeeDTOs = await employeeService.GetListEmployeesAsync();
+      groupDTOs = await groupService.GetListGroupsAsync();
+      jadwalShiftKaryawanDTOs = await jadwalShiftKaryawanService.GetJadwalShiftKaryawan();
+      // jadwalShiftDepartemenDTOs = await jadwalShiftDepartemenService.GetJadwalShiftDepartemen();
+      listNamaHari.Add(new NamaHari { HariNum = "1", HariName = "Senin" });
+      listNamaHari.Add(new NamaHari { HariNum = "2", HariName = "Selasa" });
+      listNamaHari.Add(new NamaHari { HariNum = "3", HariName = "Rabu" });
+      listNamaHari.Add(new NamaHari { HariNum = "4", HariName = "Kamis" });
+      listNamaHari.Add(new NamaHari { HariNum = "5", HariName = "Jumat" });
+      listNamaHari.Add(new NamaHari { HariNum = "6", HariName = "Sabtu" });
+   }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      tableJadwalKerjaKaryawan!.ReloadServerData();
+   }
+
+   private async void ShowFormJadwalKerjaKaryawan() {
+      Mode = "Tambah";
+      var parameters = new DialogParameters {
+            ["ModalLabel"] = $"{Mode} Data Jadwal Kerja Karyawan",
+            ["employeeDTOs"] = employeeDTOs,
+            ["groupDTOs"] = groupDTOs,
+            // ["jadwalShiftKaryawanDTOs"] = jadwalShiftKaryawanDTOs,
+            // ["jadwalShiftDepartemenDTOs"] = jadwalShiftDepartemenDTOs,
+            ["Mode"] = Mode,
+            ["listNamaHari"] = listNamaHari
+      };
+
+      var options = new DialogOptions() { 
+         CloseButton = false, 
+         MaxWidth = MaxWidth.Large, 
+         FullWidth = true, 
+         Position = DialogPosition.TopCenter, 
+         DisableBackdropClick = true,
+         FullScreen = true
+      };
+
+      var dialog = await DialogService.ShowAsync<FormJadwalKerjaKaryawanModal>($"{Mode} Data Jadwal Kerja Karyawan", parameters, options);
+      var result = await dialog.Result;
+      if (!result.Canceled) {
+         await tableJadwalKerjaKaryawan!.ReloadServerData();
+      }
+   }
+
+   private void BackupJadwal(object element) {
+      jadwalBeforeEdit = new() {
+            GrupKerja = ((JadwalKehadiranDTO)element).GrupKerja,
+            Id = ((JadwalKehadiranDTO)element).Id,
+            NIK = ((JadwalKehadiranDTO)element).NIK,
+            Nama = ((JadwalKehadiranDTO)element).Nama,
+            JadwalMasuk = ((JadwalKehadiranDTO)element).JadwalMasuk,
+            JadwalPulang = ((JadwalKehadiranDTO)element).JadwalPulang,
+            JamMasuk = ((JadwalKehadiranDTO)element).JamMasuk,
+            JamPulang = ((JadwalKehadiranDTO)element).JamPulang,
+            Keterangan = ((JadwalKehadiranDTO)element).Keterangan
+      };
+   }
+
+   private void CancelEdit(object element) {
+      ((JadwalKehadiranDTO)element).GrupKerja = jadwalBeforeEdit!.GrupKerja;
+      ((JadwalKehadiranDTO)element).Id = jadwalBeforeEdit.Id;
+      ((JadwalKehadiranDTO)element).NIK = jadwalBeforeEdit.NIK;
+      ((JadwalKehadiranDTO)element).Nama = jadwalBeforeEdit.Nama;
+      ((JadwalKehadiranDTO)element).JadwalMasuk = jadwalBeforeEdit.JadwalMasuk;
+      ((JadwalKehadiranDTO)element).JadwalPulang = jadwalBeforeEdit.JadwalPulang;
+      ((JadwalKehadiranDTO)element).JamMasuk = jadwalBeforeEdit.JamMasuk;
+      ((JadwalKehadiranDTO)element).JamPulang = jadwalBeforeEdit.JamPulang;
+      ((JadwalKehadiranDTO)element).Keterangan = jadwalBeforeEdit.Keterangan;
+   }
+
+   private void CommitJadwal(object el) {
+      UpdateJadwalKaryawan(((JadwalKehadiranDTO)el));
+   }
+
+   private async void UpdateJadwalKaryawan(JadwalKehadiranDTO jadwal) {
+
+      var jadwalUpdated = await jadwalKehadiranService.UpdateJadwalKehadiran(jadwal);
+      if (jadwalUpdated != null) {
+         SnackBar.Add("Update Jadwal Kerja Karyawan berhasil di updated", Severity.Success, config => {
+            config.HideTransitionDuration = 200;
+         });
+      }
+   }
+
+   private async void ShowFormEditJadwalKerjaKaryawan() {
+      Mode = "Edit";
+      var parameters = new DialogParameters {
+            ["ModalLabel"] = $"{Mode} Data Jadwal Kerja Karyawan",
+            ["groupDTOs"] = groupDTOs,
+         };
+
+      var options = new DialogOptions() { CloseButton = false, MaxWidth = MaxWidth.ExtraExtraLarge, FullWidth = true, Position = DialogPosition.Center, DisableBackdropClick = true};
+
+      var dialog = await DialogService.ShowAsync<FormEditJadwalKerjaKaryawanModal>($"{Mode} Data Jadwal Kerja Karyawan", parameters, options);
+      var result = await dialog.Result;
+      if (!result.Canceled) {
+         await tableJadwalKerjaKaryawan.ReloadServerData();
+      }
+   }
+
+   private async void ShowFormGantiHariKaryawan() {
+      var parameters = new DialogParameters {
+         // ["ModalLabel"] = $"Ganti Jadwal Kerja Karyawan",
+         ["groupDTOs"] = groupDTOs,
+      };
+
+      var options = new DialogOptions() { CloseButton = false, MaxWidth = MaxWidth.ExtraExtraLarge, FullWidth = true, Position = DialogPosition.Center, DisableBackdropClick = true };
+
+      var dialog = await DialogService.ShowAsync<FormGantiHariJadwalKaryawanModal>("Ganti Jadwal Kerja Karyawan", parameters, options);
+      var result = await dialog.Result;
+      if (!result.Canceled) {
+         await tableJadwalKerjaKaryawan.ReloadServerData();
+      }
+   }
+}

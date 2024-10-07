@@ -1,0 +1,95 @@
+﻿@using HRIS.Contracts;
+@using HRIS.Services;
+@using SKM.Shared.Dtos;
+
+@inject IDialogService DialogService;
+
+<style>
+   .selected {
+      background-color: #1E88E5 !important;
+   }
+
+      .selected > td {
+         color: white !important;
+      }
+
+         .selected > td .mud-input {
+            color: white !important;
+         }
+</style>
+
+<MudDialog>
+   <DialogContent>
+      <MudTable Dense="true" Class="cursor-pointer" Items="@Positions" Hover="true" Striped="true" Filter="new Func<PositionDTO, bool>(FilterFunc1)" T="PositionDTO" @ref="positionTable" OnRowClick="RowClickEvent" RowClassFunc="@SelectedRowClassFunc">
+         <ToolBarContent>
+            <MudText Typo="Typo.h6">@ModalLabel</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="strSearch" Placeholder="Search..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            <MudSpacer />
+            <MudButton Class="ml-2 mr-2" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Check" Disabled="@disable" Color="Color.Success" Size="Size.Small" IconSize="Size.Small" OnClick="SelectedEmployee">Pilih</MudButton>
+            <MudButton Class="ml-2 mr-2" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Secondary" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
+
+         </ToolBarContent>
+         <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Posisi/Jabatan</MudTh>
+         </HeaderContent>
+         <RowTemplate>
+            <MudTd DataLabel="ID">@context.PositionId</MudTd>
+            <MudTd DataLabel="Posisi/Jabatan">@context.PositionDesc</MudTd>
+         </RowTemplate>
+         <PagerContent>
+            <MudTablePager />
+         </PagerContent>
+      </MudTable>
+   </DialogContent>
+</MudDialog>
+
+@code {
+   [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+   private MudTable<PositionDTO> positionTable;
+   [Parameter] public string? ModalLabel { get; set; }
+   [Parameter] public IEnumerable<PositionDTO>? Positions { get; set; }
+   //[Parameter]public IEnumerable<GroupDTO>? GroupDTOS { get; set; }
+   private string strSearch = "";
+   private PositionDTO selectedItem = null;
+   private bool disable = true;
+   private bool FilterFunc1(PositionDTO positionDTO) => FilterFunc(positionDTO, strSearch);
+   private bool FilterFunc(PositionDTO positionDTO, string sSearch) {
+      if (string.IsNullOrWhiteSpace(sSearch)) return true;
+      if (positionDTO.PositionDesc.Contains(sSearch, StringComparison.OrdinalIgnoreCase)) return true;
+      if ($"{positionDTO.PositionDesc}".Contains(sSearch)) return true;
+      return false;
+   }
+   private int selectedRowNumber = -1;
+
+   private void RowClickEvent(TableRowClickEventArgs<PositionDTO> args) {
+      selectedItem = args.Item;
+      disable = false;
+      //Console.WriteLine(selectedItem.Name);
+   }
+
+   private void SelectedEmployee() {
+      //Console.WriteLine(selectedItem.Name);
+      MudDialog?.Close(DialogResult.Ok(selectedItem));
+   }
+
+   private void Cancel() {
+      MudDialog.Cancel();
+   }
+
+   private string SelectedRowClassFunc(PositionDTO positionDTO, int rowNumber) {
+      if (selectedRowNumber == rowNumber) {
+         selectedRowNumber = -1;
+         return string.Empty;
+      }
+      else if (positionTable.SelectedItem != null && positionTable.SelectedItem.Equals(positionDTO)) {
+         selectedRowNumber = rowNumber;
+         return "selected";
+      }
+      else {
+         return string.Empty;
+      }
+   }
+
+}

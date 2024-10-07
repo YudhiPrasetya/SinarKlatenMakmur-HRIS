@@ -1,0 +1,67 @@
+﻿@using HRIS.Components;
+@using HRIS.Services;
+
+
+<MudDrawer @bind-Open="SidebarOpen" Elevation="1">
+   <MudDrawerHeader>
+      <MudAvatar Class="my-auto" Color="Color.Transparent" Size="Size.Large" Image="assets/logogi.png" />
+      <MudText Class="my-auto" Typo="Typo.h6" Color="Color.Primary" Style="margin-top:5px; margin-left:5px;">HRIS <MudText Class="my-auto" Typo="Typo.subtitle2" Color="Color.Primary" Style="margin-top:5px; margin-left:5px;" Inline="false">GlobalindoIntimates2</MudText></MudText>
+      
+   </MudDrawerHeader>
+   <MudNavMenu Dense="true" Color="Color.Primary" Rounded="true">
+      <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Secondary" Class="my-2">Dashboard</MudNavLink>
+      <MudDivider DividerType="DividerType.Inset" />
+      <MudNavGroup Title="Settings" Expanded="false" Icon="@Icons.Material.Filled.Settings" IconColor="Color.Secondary">
+         <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ManageAccounts">Users</MudNavLink>
+         <MudNavLink Href="/absentmachines" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Fingerprint">Mesin Absen</MudNavLink>
+         <MudNavLink Href="/shiftdanjamkerja" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ScheduleSend">Jam Kerja Dan Shift</MudNavLink>
+      </MudNavGroup>
+
+      <MudNavGroup Title="Data" Expanded="false" Icon="@Icons.Material.Filled.Dataset" IconColor="Color.Secondary">
+         <MudNavLink Href="/workgroups" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.GroupWork">Group Kerja</MudNavLink>
+         <MudNavLink Href="/departments" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HomeWork">Departemen</MudNavLink>
+         <MudNavLink Href="/positions" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AccountTree">Jabatan</MudNavLink>
+         <MudNavLink Href="/employees" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.SupervisedUserCircle">Karyawan</MudNavLink>
+         <MudNavLink Href="/gaji" Icon="@Icons.Material.Filled.Money">Gaji Dan Tunjangan</MudNavLink>
+         @* <MudNavLink Href="/jadwalkerjakaryawan" Icon="@Icons.Material.Filled.Schedule">Jadwal Kerja Karyawan</MudNavLink> *@
+         <MudNavLink Href="/jadwalkerjakaryawan2" Icon="@Icons.Material.Filled.Schedule">Jadwal Kerja Karyawan</MudNavLink>
+         <MudNavLink Href="/jadwalkerjasecurity" Icon="@Icons.Material.Filled.Security">Jadwal Kerja Security</MudNavLink>
+
+      </MudNavGroup>
+
+      <MudNavGroup Title="Aktivitas" Expanded="false" Icon="@Icons.Material.Filled.PendingActions" IconColor="Color.Secondary">
+         <MudNavLink Href="/terlambat" Icon="@Icons.Material.Filled.StopCircle">Terlambat</MudNavLink>
+         <MudNavLink Href="/tidakhadir" Icon="@Icons.Material.Filled.PersonOff">Tidak Hadir</MudNavLink>
+         @* <MudNavLink Href="/hadir" Icon="@Icons.Material.Filled.PersonSearch">Kehadiran</MudNavLink> *@
+         <MudNavLink Href="/lupaabsenmasuk" Icon="@Icons.Material.Filled.LockPerson">Lupa Absen Masuk</MudNavLink>
+         <MudNavLink Href="/spl" Icon="@Icons.Material.Filled.Work">Surat Perintah Lembur</MudNavLink>
+      </MudNavGroup>
+
+      <MudNavGroup Title="Laporan" Expanded="false" Icon="@Icons.Material.Filled.Report" IconColor="Color.Secondary">
+         @* <MudNavLink Href="/lapLogMesin" Icon="@Icons.Material.Filled.BugReport">Log Mesin</MudNavLink> *@
+         <MudDivider Class="my-2" DividerType="DividerType.Inset" />
+         <MudNavLink Href="/lapKehadiranStaf" Icon="@Icons.Material.Filled.Person">Kehadiran</MudNavLink>
+         @* <MudNavLink Href="/lapKehadiran" Icon="@Icons.Material.Filled.Person2">Kehadiran</MudNavLink> *@
+         <MudNavLink Href="/lapKaryawanTidakHadir" Icon="@Icons.Material.Filled.Person3">Karyawan Tidak Hadir</MudNavLink>
+         <MudNavLink Href="/lapKaryawanLupaAbsen" Icon="@Icons.Material.Filled.Person4">Karyawan Lupa Absen</MudNavLink>
+         <MudNavLink Href="/lapAkhirKontrak" Icon="@Icons.Material.Filled.DocumentScanner">Akhir Kontrak</MudNavLink>
+         <MudDivider Class="my-2" DividerType="DividerType.Inset" />
+         <MudNavLink Href="/lapRekapLembur">Rekap Lembur</MudNavLink>
+         <MudNavLink Href="/payroll">Payroll</MudNavLink>
+         <MudDivider Class="my-2" DividerType="DividerType.Inset" />
+         <MudNavLink Href="/lapLogMesinAbsen">Log Mesin Absen</MudNavLink>
+         @* <MudNavLink Href="/lapLemburAll">LemburAll</MudNavLink> *@
+@*          <MudDivider Class="my-2" DividerType="DividerType.Inset" />
+         <MudNavLink>Rekap Lembur</MudNavLink>
+         <MudNavLink>Ringkasan Kehadiran</MudNavLink>
+         <MudNavLink>Man Power</MudNavLink>
+         <MudDivider Class="my-2" DividerType="DividerType.Inset" />
+         <MudNavLink>Payroll</MudNavLink>
+         <MudNavLink>Bank</MudNavLink> *@
+      </MudNavGroup>
+   </MudNavMenu>
+</MudDrawer>
+
+@code {
+   [Parameter] public bool SidebarOpen { get; set; }
+}

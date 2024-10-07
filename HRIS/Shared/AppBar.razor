@@ -1,0 +1,35 @@
+﻿@using HRIS.Components;
+@using HRIS.Contracts;
+@using HRIS.Models;
+@using HRIS.Services;
+@inject NavigationManager navigationManager
+
+<MudAppBar Elevation="3" Dense="true">
+	<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="async () => await OnSidebarToggled.InvokeAsync()" />
+		<MudSpacer />
+	@if (_isLightMode) {
+		<MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" OnClick="ToggleTheme" />
+	}
+
+	else {
+		<MudIconButton Icon="@Icons.Material.Filled.Brightness5" Color="Color.Inherit" OnClick="ToggleTheme" />
+	}
+	<MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(async () => await LogOut())" Title="LogOut" />
+</MudAppBar>
+@inject IDialogService DialogService
+@code {
+	[Inject] ITokenService? tokenService { get; set; }
+	[Inject]IAuthService? authService { get; set; }
+
+	async Task LogOut() {
+
+		TokenDTO tokenDTO = await tokenService!.GetToken();
+
+		await authService!.SetDeactiveUser(tokenDTO.UserName!);
+		await tokenService.RemoveToken();
+
+		navigationManager.NavigateTo("/login", true);
+	}
+
+}
+ 

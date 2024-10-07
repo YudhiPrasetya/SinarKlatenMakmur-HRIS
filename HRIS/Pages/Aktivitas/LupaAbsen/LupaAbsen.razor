@@ -1,0 +1,169 @@
+﻿@page "/lupaabsenmasuk"
+@using HRIS.Contracts;
+@using HRIS.Pages.SharedModal;
+@using HRIS.Services;
+@using SKM.Shared.Dtos;
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService;
+
+<MudCard Class="mt-5">
+	<MudCardHeader>
+		<CardHeaderContent>
+			<MudText Typo="Typo.h6">Data Lupa Absen</MudText>
+		</CardHeaderContent>
+		<CardHeaderActions>
+			@*<MudIconButton Icon="@Icons.Material.Filled.Add" Title="Tambah Data" Color="Color.Success"></MudIconButton>*@
+			<MudFab OnClick="FromLupaAbsenShow" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" />
+
+			@*         <MudButton Color="Color.Tertiary" OnClick="@((e) => addException())" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add">Tambah Data</MudButton>*@
+		</CardHeaderActions>
+	</MudCardHeader>
+	<MudCardContent>
+      <MudTable ServerData="@(new Func<TableState, Task<TableData<LupaAbsenDTO>>>(ServerReload))" Dense="true"
+                Hover="true" @ref="table" Elevation="4" FixedHeader="true" FixedFooter="true" Bordered="false" Breakpoint="Breakpoint.Sm" Class="cursor-pointer" T="LupaAbsenDTO">
+         <ToolBarContent>
+            <MudText Typo="Typo.h6">Daftar Lupa Absen</MudText>
+            <MudSpacer />
+            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+         </ToolBarContent>
+         <HeaderContent>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="id_field" T="LupaAbsenDTO">ID</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="id_grupkerja" T="LupaAbsenDTO">Grup Kerja</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="tanggal_field" T="LupaAbsenDTO">Tanggal</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="nik_field" T="LupaAbsenDTO">NIK</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="nama_field" T="LupaAbsenDTO">Nama</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="absen_field" T="LupaAbsenDTO">Absen</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="jam_field" T="LupaAbsenDTO">Jam</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="keterangan_field" T="LupaAbsenDTO">Keterangan</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"></MudTh>
+
+         </HeaderContent>
+         <RowTemplate>
+            <MudTd Class="pa-2" DataLabel="ID">@context.Id</MudTd>
+            <MudTd Class="pa-2" DataLabel="Grup Kerja">@context.GrupKerja</MudTd>
+            <MudTd Class="pa-1" DataLabel="Tanggal">@context.Tanggal.Value.ToString("dd-MM-yyyy")</MudTd>
+            <MudTd Class="pa-1" DataLabel="NIK">@context.NIK</MudTd>
+            <MudTd Class="pa-1" DataLabel="Nama">@context.NamaKaryawan</MudTd>
+            <MudTd Class="pa-1" DataLabel="Absen">@context.Absen</MudTd>
+            <MudTd Class="pa-1" DataLabel="Jam">@context.Jam</MudTd>
+            <MudTd Class="pa-1" DataLabel="Keterangan">@context.Keterangan</MudTd>
+@*             <MudTd Class="pa-1">
+               <MudGrid>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Edit Data" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="((e) =>EditLupaAbsen(context))"></MudIconButton>
+                  </MudItem>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Hapus Data" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="((e) => DeleteLupaAbsen(context.Id))"></MudIconButton>
+                  </MudItem>
+               </MudGrid>
+            </MudTd> *@
+
+         </RowTemplate>
+         <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+         </NoRecordsContent>
+         <LoadingContent>
+            <MudText>Loading...</MudText>
+         </LoadingContent>
+         <PagerContent>
+            <MudTablePager />
+         </PagerContent>
+      </MudTable>
+	</MudCardContent>
+</MudCard>
+
+@code {
+   [Parameter] public IEnumerable<EmployeeDTO> Employees { get; set; } = new List<EmployeeDTO>();
+   [Inject] ILupaAbsenService lupaAbsenService { get; set; }
+   [Inject] IEmployeeService employeeService { get; set; }
+
+   private string mode = "Add";
+   private IEnumerable<LupaAbsenDTO> LupaAbsens = new List<LupaAbsenDTO>();
+
+   private IEnumerable<LupaAbsenDTO> pagedData;
+   private MudTable<LupaAbsenDTO> table;
+
+   private int totalItems;
+   private string searchString = null;
+
+   private async Task<TableData<LupaAbsenDTO>> ServerReload(TableState state) {
+      IEnumerable<LupaAbsenDTO> data = await lupaAbsenService.GetListLupaAbsenAsync();
+      await Task.Delay(300);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.Tanggal.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.NamaKaryawan.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.Absen.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if ($"{element.Tanggal} {element.NIK} {element.NamaKaryawan} {element.Absen}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "id_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Id);
+         break;
+
+         case "tanggal_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Tanggal);
+         break;
+
+         case "nik_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+         break;
+
+         case "nama_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.NamaKaryawan);
+         break;
+
+         case "absen_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Absen);
+         break;
+
+         case "jam_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Jam);
+         break;
+
+         case "keterangan_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Keterangan);
+         break;
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<LupaAbsenDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      table.ReloadServerData();
+   }
+
+   private void EditLupaAbsen(LupaAbsenDTO lupaAbsenDTO) {
+
+   }
+
+   private void DeleteLupaAbsen(int Id){}
+
+   async Task FromLupaAbsenShow() {
+      var parameters = new DialogParameters<FormLupaAbsen>();
+      parameters.Add("ModalLabel", "Lupa Absen");
+      parameters.Add("EmployeeDTOS", Employees);
+      parameters.Add("Mode", mode);
+      //parameters.Add("GroupDTOS", Groups);
+      var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+      var dialog = await DialogService.ShowAsync<FormLupaAbsen>("Input Lupa Absen Masuk", parameters, options);
+      var result = await dialog.Result;
+      if (!result.Canceled) {
+         await table.ReloadServerData();
+      }
+   }
+  
+}

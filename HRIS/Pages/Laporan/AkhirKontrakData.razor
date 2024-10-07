@@ -1,0 +1,41 @@
+﻿@layout BlankLayout
+
+@page "/AkhirKontrakData"
+@using SKM.Shared.Dtos;
+
+<body onload="window.print()">
+	@* <MudDialog> *@
+	@* <DialogContent> *@
+	<table>
+		<thead>
+			<tr>
+				<th>Grup Kerja</th>
+				<th>NIK</th>
+				<th>Nama</th>
+				<th>Awal Kontrak</th>
+				<th>Akhir Kontrak</th>
+				<th>AKhir(hari)</th>
+			</tr>
+
+		</thead>
+		<tbody>
+			@foreach (var ak in listAkhirKontrak) {
+				<tr>
+					<td>@ak.GroupName</td>
+					<td>@ak.NIK</td>
+					<td>@ak.Name</td>
+					<td>@ak.ContractStartDate.Value.Date.ToString("dd-MM-yyyy")</td>
+					<td>@ak.ContractEndDate.Value.Date.ToString("dd-MM-yyyy")</td>
+					<td>@((ak.ContractEndDate.Value.Date - DateTime.Now.Date).Days)</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+	@* </DialogContent> *@
+	@* </MudDialog> *@
+
+</body>
+
+@code {
+	[Parameter] public List<EmployeeDTO>? listAkhirKontrak { get; set; } = new();
+}

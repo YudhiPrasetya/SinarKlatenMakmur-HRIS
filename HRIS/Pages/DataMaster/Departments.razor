@@ -1,0 +1,367 @@
+﻿@page "/departments"
+@* @attribute [Authorize("admin")] *@
+@attribute [Authorize]
+
+@using HRIS.Components;
+@using HRIS.Contracts;
+@using HRIS.Services;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+@using System.Collections.ObjectModel;
+@using System.Net.Http.Json
+@using System.Net.Http.Headers
+
+@inject ISnackbar Snackbar;
+@inject IDialogService DialogService;
+@inject HttpClient httpClient;
+@inject NavigationManager NavigationManager;
+
+<style>
+   .backdrops-style {
+      backdrop-filter: blur(5px);
+   }
+</style>
+
+<MudCard Class="mt-5" Elevation="1">
+   <MudCardHeader>
+      <CardHeaderContent>
+         <MudText Typo="Typo.h6">Data Departemen</MudText>
+      </CardHeaderContent>
+      <CardHeaderActions>
+         @*<MudIconButton Icon="@Icons.Material.Filled.Add" Title="Tambah Data" Color="Color.Success"></MudIconButton>*@
+         @*			<MudFab Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Label="Tambah Data" />*@
+
+         @*         <MudButton Color="Color.Tertiary" OnClick="@((e) => addException())" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add">Tambah Data</MudButton>*@
+      </CardHeaderActions>
+   </MudCardHeader>
+   <MudCardContent>
+      <MudExpansionPanels Elevation="3">
+         <MudExpansionPanel @bind-IsExpanded="isOpen" HideIcon="true">
+            <TitleContent>
+               <div class="d-flex">
+                  <MudText Color="@TitlePanelColor"><strong>@formCaption</strong></MudText>
+                  <MudIcon Icon="@(isOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Add)" class="ml-auto"></MudIcon>
+               </div>
+            </TitleContent>
+            <ChildContent>
+               <MudForm @ref="departmentForm" @bind-IsValid="@success" @bind-Errors="@errors">
+                  <MudGrid>
+                     <MudItem xs="1">
+                        <MudTextField @ref="Id" T="int" Label="Id" Required="true" Disabled="true" @bind-Value="@departmentDTO.DepartmentID"></MudTextField>
+                     </MudItem>
+                     <MudItem xs=4>
+                        <MudTextField @ref="DepartmentName" Label="Nama" Required="true" @bind-Value="@departmentDTO.DepartmentName"></MudTextField>
+                     </MudItem>
+                     <MudItem xs=4>
+                        <MudTextField @ref="DepartmentDescription" Label="Deskripsi" Required="false" @bind-Value="@departmentDTO.DepartmentDescription"></MudTextField>
+                     </MudItem>
+                     <MudItem xs=4>
+                        <MudNumericField @ref="Budget" Label="Budget" Required="false" @bind-Value="@departmentDTO.Budget"></MudNumericField>
+                     </MudItem>
+                     <MudItem xs="2">
+                        <MudSwitch @ref="IsActive" @bind-Checked="@departmentDTO.IsActive" Color="Color.Success" Label="Aktif" LabelPosition="MudBlazor.LabelPosition.End"></MudSwitch>
+@*                         <MudCheckBox  @bind-Checked="@departmentDTO.IsActive" Label="Aktif" Color="Color.Success" LabelPosition="MudBlazor.LabelPosition.Start"></MudCheckBox> *@
+                     </MudItem>
+                  </MudGrid>
+                  <MudDivider DividerType="DividerType.Inset" Class="my-4"></MudDivider>
+                  <MudPaper Class="d-flex flex-row-reverse flex-grow-1 gap-4" Elevation="0">
+                     <MudButton OnClick="SaveDepartment" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Update">Save</MudButton>
+                     <MudButton Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Cancel" OnClick="Cancel">Cancel</MudButton>
+                  </MudPaper>
+               </MudForm>
+            </ChildContent>
+
+         </MudExpansionPanel>
+      </MudExpansionPanels>
+
+      <MudTable ServerData="@(new Func<TableState, Task<TableData<DepartmentDTO>>>(ServerReload))" Dense="true" T="DepartmentDTO" Hover="true" @ref="departmentTable" Elevation="4" FixedHeader="true" FixedFooter="true" Bordered="false" Breakpoint="Breakpoint.Sm" Class="cursor-pointer">
+         <ToolBarContent>
+            <MudText Typo="Typo.h6">Daftar Departemen</MudText>
+            <MudSpacer />
+            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+         </ToolBarContent>
+         <HeaderContent>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="id_field" T="DepartmentDTO">ID</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="name_field" T="DepartmentDTO">Nama</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="desc_field" T="DepartmentDTO">Deskripsi</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="budget_field" T="DepartmentDTO">Budget</MudTableSortLabel></MudTh>
+            <MudTh Class="bg-opacity-25 mud-theme-info"><MudTableSortLabel SortLabel="active_field" T="DepartmentDTO">Aktif</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"></MudTh>
+         </HeaderContent>
+         <RowTemplate>
+            <MudTd Class="pa-2" DataLabel="ID">@context.DepartmentID</MudTd>
+            <MudTd Class="pa-1" DataLabel="Nama">@context.DepartmentName</MudTd>
+            <MudTd Class="pa-1" DataLabel="Deskripsi">@context.DepartmentDescription</MudTd>
+            <MudTd Class="pa-1" DataLabel="Budget">@context.Budget</MudTd>
+            <MudTd Class="pa-1" DataLabel="Aktif"><MudSwitch Label="Aktif" Color="Color.Success" @bind-Checked="context.IsActive" ReadOnly="true" LabelPosition="MudBlazor.LabelPosition.End"></MudSwitch></MudTd>
+            <MudTd Class="pa-1">
+               <MudGrid>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Edit Data" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="((e) =>EditDepartment(context))"></MudIconButton>
+                  </MudItem>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Hapus Data" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="((e) => DeleteDepartment(context.DepartmentID))"></MudIconButton>
+                  </MudItem>
+               </MudGrid>
+            </MudTd>
+
+         </RowTemplate>
+         <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+         </NoRecordsContent>
+         <LoadingContent>
+            <MudText>Loading...</MudText>
+         </LoadingContent>
+         <PagerContent>
+            <MudTablePager />
+         </PagerContent>
+      </MudTable>
+   </MudCardContent>
+</MudCard>
+
+@code {
+   // [CascadingParameter(Name ="MainLayout")]
+   // public MainLayout MainLayout { get; set; }
+   // async Task HandleException(Exception e) => await MainLayout.HandleException(e);
+
+   [Inject]IDepartmentService departmentService { get; set; }
+   [Inject]ITokenService tokenService { get; set; }
+   [Inject]IAuthenticationHttpClientService authenticationHttpClientService { get; set; }
+   [Inject]NavigationManager navManager { get; set; }
+   private List<DepartmentDTO> departmentDTOs {get;set;} = new List<DepartmentDTO>();
+   // private static IEnumerable<DepartmentDTO> ListDepartment { get; set; }
+   private IEnumerable<DepartmentDTO> pagedData;
+   private DepartmentDTO departmentDTO { get; set; } = new DepartmentDTO();
+   private bool isOpen;
+   private bool success;
+   private bool isEdit=false;
+   private MudBlazor.Color TitlePanelColor = Color.Tertiary;
+   private MudForm departmentForm;
+   private MudTable<DepartmentDTO> departmentTable;
+   private string formCaption = "Tambah Data Departemen";
+   private string TitlePanelCaption;
+   private string searchString = null;
+   private string[] errors = { };
+   private string Mode = "Add";
+   private int totalItems;
+   private MudTextField<int> Id;
+   private MudTextField<string> DepartmentName;
+   private MudTextField<string> DepartmentDescription;
+   private MudNumericField<int> Budget;
+   // private bool IsActive;
+   // private MudCheckBox<bool> IsActive;
+   private MudSwitch<bool> IsActive;
+
+   protected async override Task OnInitializedAsync() {
+      bool tokenIsValid = await tokenService.IsTokenNotExpired();
+      if (!tokenIsValid) navManager.NavigateTo("/login", true);
+   }
+
+   // protected override void OnInitialized() {
+   //    // base.OnInitialized();
+   //    GetDepartments().GetAwaiter().GetResult();
+   // }
+
+   // private List<DepartmentDTO> GetDepartments() {
+   //    // var task = departmentService.GetListDepartmentsAsync();
+   //    // task.Wait();
+
+
+   //    // return task.Result;
+   //    // await Task.Delay(100);
+   //    // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+
+   //    // return departmentDTOs;
+   //    departmentDTOs = departmentService.GetListDepartmentsAsync();
+   //    return departmentDTOs;
+
+   // }
+
+   // private async Task FillDepartments() {
+   //    IList<DepartmentDTO> departments = new List<DepartmentDTO>();
+   //    departments = await departmentService.GetListDepartmentsAsync();
+   //    ListDepartment = departments;
+   //    StateHasChanged();
+   //    await Task.Delay(200);
+   // }
+
+   // private async void GetDepartments() {
+   //    departmentDTOs = new List<DepartmentDTO>();
+   //    // departmentDTOs.Clear();
+   //    departmentDTOs = await departmentService.GetListDepartmentsAsync();
+   //    // await Task.Delay(200);
+   //    StateHasChanged();
+   //    // Task.Delay(100);
+
+   // }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      departmentTable.ReloadServerData();
+   }
+
+   private async Task<TableData<DepartmentDTO>> ServerReload(TableState state) {
+      try {
+         var tokenDTO = await tokenService.GetToken();
+         if(tokenDTO.Token != null) {
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenDTO.Token);
+
+            // try {
+               IEnumerable<DepartmentDTO> data = await departmentService.GetListDepartmentsAsync();
+               await Task.Delay(100);
+               data = data.Where(element => {
+                  if (string.IsNullOrWhiteSpace(searchString))
+                     return true;
+                  if (element.DepartmentName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                     return true;
+                  if (element.DepartmentDescription.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                     return true;
+                  if ($"{element.DepartmentName} {element.DepartmentDescription}".Contains(searchString))
+                     return true;
+                  return false;
+               }).ToArray();
+               totalItems = data.Count();
+               switch (state.SortLabel) {
+                  case "id_field":
+                  data = data.OrderByDirection(state.SortDirection, o => o.DepartmentID);
+                  break;
+
+                  case "name_field":
+                  data = data.OrderByDirection(state.SortDirection, o => o.DepartmentName);
+                  break;
+
+                  case "desc_field":
+                  data = data.OrderByDirection(state.SortDirection, o => o.DepartmentDescription);
+                  break;
+
+                  case "active_field":
+                  data = data.OrderByDirection(state.SortDirection, o => o.IsActive);
+                  break;
+
+               }
+
+               pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+               return new TableData<DepartmentDTO>() { TotalItems = totalItems, Items = pagedData };
+            // }
+            // catch (Exception e) {
+            //    await MainLayout.HandleException(e);
+            // }
+
+
+         }
+         else {
+            // await authenticationHttpClientService.LogoutUser();
+
+            // var dialogOptions = new DialogOptions { ClassBackground = "backdrops-style", DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Small, Position = DialogPosition.Center };
+            // var dialogParameters = new DialogParameters<LoginFormDialog>();
+            // dialogParameters.Add(f => f.Open, true);
+            // await DialogService.ShowAsync<LoginFormDialog>("Login Form", dialogParameters, dialogOptions);
+
+            // NavigationManager.NavigateTo("/auth/login");
+
+
+         }
+         return default;
+      }
+      catch (Exception e) {
+         Console.WriteLine(e.Message);
+         return null;
+      }
+
+
+   }
+
+   private bool FilterFunc(DepartmentDTO departmentDTO) {
+      if (string.IsNullOrWhiteSpace(searchString))
+         return true;
+      if (departmentDTO.DepartmentName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+         return true;
+      if (departmentDTO.DepartmentDescription.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+         return true;
+      if ($"{departmentDTO.DepartmentName} {departmentDTO.DepartmentDescription}".Contains(searchString))
+         return true;
+      return false;
+   }
+
+   private void Cancel() {
+      departmentForm.ResetAsync();
+      isEdit = false;
+      Mode = "Add";
+      TitlePanelColor = Color.Tertiary;
+      formCaption = "Tambah Data Departemen";
+   }
+
+   async Task EditDepartment(DepartmentDTO selectedDepartment) {
+      Mode = "Edit";
+      TitlePanelColor = Color.Warning;
+      formCaption = "Edit Data Departemen";
+      departmentDTO.DepartmentID = selectedDepartment.DepartmentID;
+      departmentDTO.DepartmentName = selectedDepartment.DepartmentName;
+      departmentDTO.DepartmentDescription = selectedDepartment.DepartmentDescription;
+      departmentDTO.IsActive = selectedDepartment.IsActive;
+      departmentDTO.Budget = selectedDepartment.Budget;
+      departmentDTO.UpdatedAt = DateTime.Now;
+      departmentDTO.UpdatedBy = 1;
+      isOpen = true;
+
+   }
+
+   // private void OnIsActiveChange(bool b) {
+   //    IsActive = b;
+   // }
+
+   private async void SaveDepartment() {
+
+      departmentDTO.DepartmentID = Id.Value;
+      departmentDTO.DepartmentName = DepartmentName.Value;
+      departmentDTO.DepartmentDescription = DepartmentDescription.Value;
+      departmentDTO.Budget = Budget.Value;
+      departmentDTO.IsActive = IsActive.Checked;
+      departmentDTO.CreatedAt = DateTime.Now;
+      departmentDTO.CreatedBy = 1;
+      departmentDTO.UpdatedAt = DateTime.Now;
+      departmentDTO.UpdatedBy = 1;
+      if(Mode == "Add") {
+         await departmentService.AddDepartmentAsync(departmentDTO);
+      }
+      else {
+         var depDTO = await departmentService.UpdateDepartmentAsync(departmentDTO);
+         // bool departmentOfferSend = await departmentService.SendDepartmentOffer(depDTO);
+         // Console.WriteLine(departmentOfferSend);
+         isOpen = false;
+         Mode="Add";
+         formCaption = "Tambah Data Departemen";
+      }
+
+      // departmentDTOs.Clear();
+      // departmentTable.Items = null;
+      // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+      // departmentTable.Items = departmentDTOs;
+      // StateHasChanged();
+      // await FillDepartments();
+      Snackbar.Add("Data departemen berhasil disimpan di database!", Severity.Success, config => {
+         config.HideTransitionDuration = 100;
+      });
+
+      // Task.Delay(100);
+      await departmentTable.ReloadServerData();
+      await departmentForm.ResetAsync();
+      // GetDepartments();
+   }
+
+   async Task DeleteDepartment(int Id) {
+      bool? deleteConfirmation = await DialogService.ShowMessageBox("Konfirmasi", "Yakin akan menghapus?", "Ya", "Tidak");
+      if (deleteConfirmation == true) {
+         var response = await departmentService.DeleteDepartmentAsync(Id);
+         if(response != null) {
+            await departmentTable.ReloadServerData();
+            Snackbar.Add("Data departemen berhasil dihapus.", Severity.Info, config => {
+               config.HideTransitionDuration = 100;
+            });
+         }
+
+      }
+   }
+
+}

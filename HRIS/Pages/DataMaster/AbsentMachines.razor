@@ -1,0 +1,287 @@
+﻿@page "/absentmachines"
+@using HRIS.Contracts;
+@using HRIS.Services;
+@using SKM.Shared.Dtos;
+@using System.Collections.ObjectModel;
+
+@inject ISnackbar Snackbar;
+@inject IDialogService DialogService;
+
+<MudCard Class="mt-5" Elevation="1">
+   <MudCardHeader>
+      <CardHeaderContent>
+         <MudText Typo="Typo.h6">Data Mesin Absen</MudText>
+      </CardHeaderContent>
+      <CardHeaderActions>
+         @*<MudIconButton Icon="@Icons.Material.Filled.Add" Title="Tambah Data" Color="Color.Success"></MudIconButton>*@
+         @*			<MudFab Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Label="Tambah Data" />*@
+
+         @*         <MudButton Color="Color.Tertiary" OnClick="@((e) => addException())" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add">Tambah Data</MudButton>*@
+      </CardHeaderActions>
+   </MudCardHeader>
+   <MudCardContent>
+      <MudExpansionPanels Elevation="3">
+         <MudExpansionPanel @bind-IsExpanded="isOpen" HideIcon="true">
+            <TitleContent>
+               <div class="d-flex">
+                  <MudText Color="@TitlePanelColor"><strong>@formCaption</strong></MudText>
+                  <MudIcon Icon="@(isOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Add)" class="ml-auto"></MudIcon>
+               </div>
+            </TitleContent>
+            <ChildContent>
+               <MudForm @ref="mesinAbsenForm" @bind-IsValid="@success" @bind-Errors="@errors">
+                  <MudGrid>
+                     <MudItem xs="1">
+                        <MudTextField @ref="Id" T="int" Label="Id" Required="true" Disabled="true" @bind-Value="@mesinAbsenDTO.DeviceID"></MudTextField>
+                     </MudItem>
+                     <MudItem xs=4>
+                        <MudTextField @ref="DeviceDesc" Label="Deskripsi" Required="true" @bind-Value="@mesinAbsenDTO.DeviceDesc"></MudTextField>
+                     </MudItem>
+                     <MudItem xs=4>
+                        <MudTextField @ref="DeviceIP" Label="IP Address" Required="false" @bind-Value="@mesinAbsenDTO.DeviceIP"></MudTextField>
+                     </MudItem>
+                     <MudItem xs="2">
+                        <MudSwitch @ref="IsActive" @bind-Checked="@mesinAbsenDTO.IsActive" Color="Color.Success" Label="Aktif" LabelPosition="MudBlazor.LabelPosition.End"></MudSwitch>
+                        @*                         <MudCheckBox  @bind-Checked="@departmentDTO.IsActive" Label="Aktif" Color="Color.Success" LabelPosition="MudBlazor.LabelPosition.Start"></MudCheckBox> *@
+                     </MudItem>
+                  </MudGrid>
+                  <MudDivider DividerType="DividerType.Inset" Class="my-4"></MudDivider>
+                  <MudPaper Class="d-flex flex-row-reverse flex-grow-1 gap-4" Elevation="0">
+                     <MudButton OnClick="SaveMesinAbsen" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Update">Save</MudButton>
+                     <MudButton Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Cancel" OnClick="Cancel">Cancel</MudButton>
+                  </MudPaper>
+               </MudForm>
+            </ChildContent>
+
+         </MudExpansionPanel>
+      </MudExpansionPanels>
+
+      <MudTable ServerData="@(new Func<TableState, Task<TableData<MesinAbsenDTO>>>(ServerReload))" Dense="true" T="MesinAbsenDTO" Hover="true" @ref="mesinAbsenTable" Elevation="4" FixedHeader="true" FixedFooter="true" Bordered="false" Breakpoint="Breakpoint.Sm" Class="cursor-pointer">
+         <ToolBarContent>
+            <MudText Typo="Typo.h6">Daftar Departemen</MudText>
+            <MudSpacer />
+            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+         </ToolBarContent>
+         <HeaderContent>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="id_field" T="MesinAbsenDTO">ID</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="desc_field" T="MesinAbsenDTO">Deskripsi</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="ip_field" T="MesinAbsenDTO">IP Address</MudTableSortLabel></MudTh>
+            <MudTh Class="bg-opacity-25 mud-theme-info"><MudTableSortLabel SortLabel="active_field" T="MesinAbsenDTO">Aktif</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"></MudTh>
+         </HeaderContent>
+         <RowTemplate>
+            <MudTd Class="pa-2" DataLabel="ID">@context.DeviceID</MudTd>
+            <MudTd Class="pa-1" DataLabel="Deskripsi">@context.DeviceDesc</MudTd>
+            <MudTd Class="pa-1" DataLabel="IP Address">@context.DeviceIP</MudTd>
+            <MudTd Class="pa-1" DataLabel="Aktif"><MudSwitch Label="Aktif" Color="Color.Success" @bind-Checked="context.IsActive" ReadOnly="true" LabelPosition="MudBlazor.LabelPosition.End"></MudSwitch></MudTd>
+            <MudTd Class="pa-1">
+               <MudGrid>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Edit Data" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="((e) =>EditMesinAbsen(context))"></MudIconButton>
+                  </MudItem>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Hapus Data" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="((e) => DeleteMesinAbsen(context.DeviceID))"></MudIconButton>
+                  </MudItem>
+               </MudGrid>
+            </MudTd>
+
+         </RowTemplate>
+         <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+         </NoRecordsContent>
+         <LoadingContent>
+            <MudText>Loading...</MudText>
+         </LoadingContent>
+         <PagerContent>
+            <MudTablePager />
+         </PagerContent>
+      </MudTable>
+   </MudCardContent>
+</MudCard>
+
+@code {
+   [Inject] IMesinAbsenService? mesinAbsenService { get; set; }
+   private List<MesinAbsenDTO> mesinAbsenDTOs { get; set; } = new List<MesinAbsenDTO>();
+   // private static IEnumerable<DepartmentDTO> ListDepartment { get; set; }
+   private IEnumerable<MesinAbsenDTO>? pagedData;
+   private MesinAbsenDTO mesinAbsenDTO { get; set; } = new MesinAbsenDTO();
+   private bool isOpen;
+   private bool success;
+   private bool isEdit = false;
+   private MudBlazor.Color TitlePanelColor = Color.Tertiary;
+   private MudForm? mesinAbsenForm;
+   private string formCaption = "Tambah Data Mesin Absen";
+   private string? TitlePanelCaption;
+   private string? searchString;
+   private string[] errors = { };
+   private string Mode = "Add";
+   private int totalItems;
+   private MudTable<MesinAbsenDTO>? mesinAbsenTable;
+   private MudTextField<int>? Id;
+   private MudTextField<string>? DeviceDesc;
+   private MudTextField<string>? DeviceIP;
+   private MudSwitch<bool>? IsActive;
+
+   // protected async override Task OnInitializedAsync() {
+   //    // return base.OnInitializedAsync();
+   //    // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+   //    GetDepartments();
+   //    // await FillDepartments();
+   // }
+
+   // protected override void OnInitialized() {
+   //    // base.OnInitialized();
+   //    GetDepartments().GetAwaiter().GetResult();
+   // }
+
+   // private List<DepartmentDTO> GetDepartments() {
+   //    // var task = departmentService.GetListDepartmentsAsync();
+   //    // task.Wait();
+
+
+   //    // return task.Result;
+   //    // await Task.Delay(100);
+   //    // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+
+   //    // return departmentDTOs;
+   //    departmentDTOs = departmentService.GetListDepartmentsAsync();
+   //    return departmentDTOs;
+
+   // }
+
+   // private async Task FillDepartments() {
+   //    IList<DepartmentDTO> departments = new List<DepartmentDTO>();
+   //    departments = await departmentService.GetListDepartmentsAsync();
+   //    ListDepartment = departments;
+   //    StateHasChanged();
+   //    await Task.Delay(200);
+   // }
+
+   // private async void GetDepartments() {
+   //    departmentDTOs = new List<DepartmentDTO>();
+   //    // departmentDTOs.Clear();
+   //    departmentDTOs = await departmentService.GetListDepartmentsAsync();
+   //    // await Task.Delay(200);
+   //    StateHasChanged();
+   //    // Task.Delay(100);
+
+   // }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      mesinAbsenTable!.ReloadServerData();
+   }
+
+   private async Task<TableData<MesinAbsenDTO>> ServerReload(TableState state) {
+      IEnumerable<MesinAbsenDTO> data = await mesinAbsenService!.GetListMesinAbsenAsync();
+      await Task.Delay(100);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.DeviceDesc.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.DeviceIP.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if ($"{element.DeviceDesc} {element.DeviceIP}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "id_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.DeviceID);
+         break;
+
+         case "desc_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.DeviceDesc);
+         break;
+
+         case "ip_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.DeviceIP);
+         break;
+
+         case "active_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.IsActive);
+         break;
+
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<MesinAbsenDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   private void Cancel() {
+      mesinAbsenForm!.ResetAsync();
+      isEdit = false;
+      Mode = "Add";
+      TitlePanelColor = Color.Tertiary;
+      formCaption = "Tambah Data Mesin Absen";
+   }
+
+   void EditMesinAbsen(MesinAbsenDTO selectedMesinAbsen) {
+      Mode = "Edit";
+      TitlePanelColor = Color.Warning;
+      formCaption = "Edit Data Mesin Absen";
+      mesinAbsenDTO.DeviceID = selectedMesinAbsen.DeviceID;
+      mesinAbsenDTO.DeviceDesc = selectedMesinAbsen.DeviceDesc;
+      mesinAbsenDTO.DeviceIP = selectedMesinAbsen.DeviceIP;
+      // mesinAbsenDTO.IsActive = selectedMesinAbsen.IsActive;
+      mesinAbsenDTO.IsActive = IsActive!.Checked;
+      mesinAbsenDTO.UpdatedAt = DateTime.Now;
+      mesinAbsenDTO.UpdatedBy = 1;
+      isOpen = true;
+
+   }
+
+   // private void OnIsActiveChange(bool b) {
+   //    IsActive = b;
+   // }
+
+   private async void SaveMesinAbsen() {
+      mesinAbsenDTO.DeviceID = Id!.Value;
+      mesinAbsenDTO.DeviceDesc = DeviceDesc!.Value;
+      mesinAbsenDTO.DeviceIP = DeviceIP!.Value;
+      mesinAbsenDTO.IsActive = IsActive!.Checked;
+      mesinAbsenDTO.CreatedAt = DateTime.Now;
+      mesinAbsenDTO.CreatedBy = 1;
+      mesinAbsenDTO.UpdatedAt = DateTime.Now;
+      mesinAbsenDTO.UpdatedBy = 1;
+      if (Mode == "Add") {
+         await mesinAbsenService!.AddMesinAbsenAsync(mesinAbsenDTO);
+      }
+      else {
+         var depDTO = await mesinAbsenService!.UpdateMesinAbsenAsync(mesinAbsenDTO);
+         // bool departmentOfferSend = await departmentService.SendDepartmentOffer(depDTO);
+         // Console.WriteLine(departmentOfferSend);
+         isOpen = false;
+         Mode = "Add";
+         formCaption = "Tambah Data Mesin Absen";
+      }
+
+      Snackbar.Add("Data mesin absen berhasil disimpan di database!", Severity.Success, config => {
+         config.HideTransitionDuration = 100;
+      });
+
+      // Task.Delay(100);
+      await mesinAbsenTable!.ReloadServerData();
+      await mesinAbsenForm!.ResetAsync();
+      // GetDepartments();
+   }
+
+   async Task DeleteMesinAbsen(int Id) {
+      bool? deleteConfirmation = await DialogService.ShowMessageBox("Konfirmasi", "Yakin akan menghapus?", "Ya", "Tidak");
+      if (deleteConfirmation == true) {
+         var response = await mesinAbsenService!.DeleteMesinAbsenAsync(Id);
+         if (response != null) {
+            await mesinAbsenTable!.ReloadServerData();
+            Snackbar.Add("Data mesin absen berhasil dihapus.", Severity.Info, config => {
+               config.HideTransitionDuration = 100;
+            });
+         }
+
+      }
+   }
+
+}

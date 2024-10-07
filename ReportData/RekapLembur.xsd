@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="RekapLembur" targetNamespace="http://tempuri.org/RekapLembur.xsd" xmlns:mstns="http://tempuri.org/RekapLembur.xsd" xmlns="http://tempuri.org/RekapLembur.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="RekapLembur" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_UserDSName="RekapLembur" msprop:Generator_DataSetName="RekapLembur">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="RekapLemburDataTable" msprop:Generator_RowEvHandlerName="RekapLemburDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="RekapLemburDataTableRowDeleted" msprop:Generator_RowDeletingName="RekapLemburDataTableRowDeleting" msprop:Generator_RowEvArgName="RekapLemburDataTableRowChangeEvent" msprop:Generator_TablePropName="RekapLemburDataTable" msprop:Generator_RowChangedName="RekapLemburDataTableRowChanged" msprop:Generator_RowChangingName="RekapLemburDataTableRowChanging" msprop:Generator_TableClassName="RekapLemburDataTableDataTable" msprop:Generator_RowClassName="RekapLemburDataTableRow" msprop:Generator_TableVarName="tableRekapLemburDataTable" msprop:Generator_UserTableName="RekapLemburDataTable">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="GrupKerja" msprop:Generator_ColumnPropNameInRow="GrupKerja" msprop:Generator_ColumnPropNameInTable="GrupKerjaColumn" msprop:Generator_ColumnVarNameInTable="columnGrupKerja" msprop:Generator_UserColumnName="GrupKerja" type="xs:string" minOccurs="0" />
+              <xs:element name="NIK" msprop:Generator_ColumnPropNameInRow="NIK" msprop:Generator_ColumnPropNameInTable="NIKColumn" msprop:Generator_ColumnVarNameInTable="columnNIK" msprop:Generator_UserColumnName="NIK" type="xs:string" minOccurs="0" />
+              <xs:element name="Nama" msprop:Generator_ColumnPropNameInRow="Nama" msprop:Generator_ColumnPropNameInTable="NamaColumn" msprop:Generator_ColumnVarNameInTable="columnNama" msprop:Generator_UserColumnName="Nama" type="xs:string" minOccurs="0" />
+              <xs:element name="Tanggal" msprop:Generator_ColumnPropNameInRow="Tanggal" msprop:Generator_ColumnPropNameInTable="TanggalColumn" msprop:Generator_ColumnVarNameInTable="columnTanggal" msprop:Generator_UserColumnName="Tanggal" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="JenisLembur" msprop:Generator_ColumnPropNameInRow="JenisLembur" msprop:Generator_ColumnPropNameInTable="JenisLemburColumn" msprop:Generator_ColumnVarNameInTable="columnJenisLembur" msprop:Generator_UserColumnName="JenisLembur" type="xs:string" minOccurs="0" />
+              <xs:element name="Ke-1" msprop:Generator_ColumnPropNameInRow="_Ke_1" msprop:Generator_ColumnPropNameInTable="_Ke_1Column" msprop:Generator_ColumnVarNameInTable="_columnKe_1" msprop:Generator_UserColumnName="Ke-1" type="xs:int" minOccurs="0" />
+              <xs:element name="Ke-2" msprop:Generator_ColumnPropNameInRow="_Ke_2" msprop:Generator_ColumnPropNameInTable="_Ke_2Column" msprop:Generator_ColumnVarNameInTable="_columnKe_2" msprop:Generator_UserColumnName="Ke-2" type="xs:int" minOccurs="0" />
+              <xs:element name="Ke-3" msprop:Generator_ColumnPropNameInRow="_Ke_3" msprop:Generator_ColumnPropNameInTable="_Ke_3Column" msprop:Generator_ColumnVarNameInTable="_columnKe_3" msprop:Generator_UserColumnName="Ke-3" type="xs:int" minOccurs="0" />
+              <xs:element name="Ke-4" msprop:Generator_ColumnPropNameInRow="_Ke_4" msprop:Generator_ColumnPropNameInTable="_Ke_4Column" msprop:Generator_ColumnVarNameInTable="_columnKe_4" msprop:Generator_UserColumnName="Ke-4" type="xs:int" minOccurs="0" />
+              <xs:element name="Ke-5" msprop:Generator_ColumnPropNameInRow="_Ke_5" msprop:Generator_ColumnPropNameInTable="_Ke_5Column" msprop:Generator_ColumnVarNameInTable="_columnKe_5" msprop:Generator_UserColumnName="Ke-5" type="xs:int" minOccurs="0" />
+              <xs:element name="Ke-6" msprop:Generator_ColumnPropNameInRow="_Ke_6" msprop:Generator_ColumnPropNameInTable="_Ke_6Column" msprop:Generator_ColumnVarNameInTable="_columnKe_6" msprop:Generator_UserColumnName="Ke-6" type="xs:int" minOccurs="0" />
+              <xs:element name="Ke-7" msprop:Generator_ColumnPropNameInRow="_Ke_7" msprop:Generator_ColumnPropNameInTable="_Ke_7Column" msprop:Generator_ColumnVarNameInTable="_columnKe_7" msprop:Generator_UserColumnName="Ke-7" type="xs:int" minOccurs="0" />
+              <xs:element name="Ke-8" msprop:Generator_ColumnPropNameInRow="_Ke_8" msprop:Generator_ColumnPropNameInTable="_Ke_8Column" msprop:Generator_ColumnVarNameInTable="_columnKe_8" msprop:Generator_UserColumnName="Ke-8" type="xs:int" minOccurs="0" />
+              <xs:element name="TotalLembur" msprop:Generator_ColumnPropNameInRow="TotalLembur" msprop:Generator_ColumnPropNameInTable="TotalLemburColumn" msprop:Generator_ColumnVarNameInTable="columnTotalLembur" msprop:Generator_UserColumnName="TotalLembur" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,38 @@
+﻿@using SKM.Shared.Dtos;
+<MudDialog>
+	<DialogContent>
+      <div id="printable">
+         <table>
+            <thead>
+               <tr>
+                  <th>Grup Kerja</th>
+                  <th>Tanggal</th>
+                  <th>NIK</th>
+                  <th>Nama</th>
+                  <th>Jam Masuk</th>
+                  <th>Jam Pulang</th>
+                  <th>Terlambat</th>
+               </tr>
+            </thead>
+            <tbody>
+               @foreach (var h in listKehadiran) {
+                  <tr>
+                     <td>@h.GrupKerja</td>
+                     <td>@h.Tanggal</td>
+                     <td>@h.NIK</td>
+                     <td>@h.Nama</td>
+                     <td>@h.JamMasuk</td>
+                     <td>@h.JamPulang</td>
+                     <td>@h.Terlambat</td>
+                  </tr>
+               }
+            </tbody>
+         </table>
+      </div>
+	</DialogContent>
+</MudDialog>
+
+
+@code {
+	[Parameter]public List<KehadiranDTO>? listKehadiran { get; set; }
+}

@@ -1,0 +1,548 @@
+﻿@page "/shiftdanjamkerja"
+@using HRIS.Components;
+@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudGrid>
+	<MudItem xs="10" sm="10">
+		<MudExpansionPanels>
+			<MudExpansionPanel>
+				<TitleContent>
+					<div class="d-flex">
+						<MudIcon Icon="@Icons.Material.Filled.HourglassTop" Class="mr-3" Color="Color.Secondary"></MudIcon>
+						<MudText><strong>Jam Kerja</strong></MudText>
+					</div>
+				</TitleContent>
+				<ChildContent>
+					<MudTextField @ref="jamKerja_Keterangan" @bind-Value="jamKerjaDTO.Deskripsi" T="string" Label="Keterangan" Class="mb-2"></MudTextField>
+					<MudTextField @ref="jamKerja_Durasi" T="int" Label="Durasi(Jam)" Class="mb-4" @bind-Value="jamKerjaDTO.DurasiPerHari"></MudTextField>
+					<MudNumericField @ref="pembagiPayroll" T="int" @bind-Value="jamKerjaDTO.PembagiPayroll" Label="Pembagi Payroll"></MudNumericField>
+					<MudButton StartIcon="@Icons.Material.Filled.Save" Variant="Variant.Outlined" Color="Color.Success" OnClick="UpdateJamKerja">Update</MudButton>
+				</ChildContent>
+			</MudExpansionPanel>
+
+			<MudExpansionPanel>
+				<TitleContent>
+					<div class="d-flex">
+						<MudIcon Icon="@Icons.Material.Filled.Person" Class="mr-3" Color="Color.Secondary"></MudIcon>
+						<MudText><strong>Jadwal Shift Karyawan</strong></MudText>
+					</div>
+				</TitleContent>
+				<ChildContent>
+					<MudTable @ref="jadwalShiftKaryawanTable" ServerData="@(new Func<TableState, Task<TableData<JadwalShiftKaryawanDTO>>>(JadwalShiftKaryawanReload))" T="JadwalShiftKaryawanDTO" Dense="true" Hover="true" CanCancelEdit="true" @bind-SelectedItem="selectedJadwalShiftKaryawan" RowEditCancel="ResetJSKItem" RowEditCommit="jskDTOCommitted" RowEditPreview="jskBackupItem" IsEditRowSwitchingBlocked="true" ApplyButtonPosition="TableApplyButtonPosition.End">
+						<ToolBarContent>
+							<MudText Typo="Typo.h6"><strong>Tabel Jadwal Shift Karyawan</strong></MudText>
+							<MudSpacer />
+							<MudFab StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" OnClick="AddNewJadwalShiftKaryawan" Size="Size.Small"></MudFab>
+						</ToolBarContent>
+						<HeaderContent>
+							<MudTh><MudTableSortLabel SortLabel="Id_Field" T="JadwalShiftKaryawanDTO">ID</MudTableSortLabel></MudTh>
+							<MudTh><MudTableSortLabel SortLabel="Deskripsi_Field" T="JadwalShiftKaryawanDTO">Deskripsi</MudTableSortLabel></MudTh>
+							<MudTh><MudTableSortLabel SortLabel="JadwalMasuk_Field" T="JadwalShiftKaryawanDTO">Jadwal Masuk</MudTableSortLabel></MudTh>
+							<MudTh><MudTableSortLabel SortLabel="JadwalPulang_Field" T="JadwalShiftKaryawanDTO">Jadwal Pulang</MudTableSortLabel></MudTh>
+							<MudTh><MudTableSortLabel SortLabel="Inisial_Field" T="JadwalShiftKaryawanDTO">Inisial</MudTableSortLabel></MudTh>
+						</HeaderContent>
+						<RowTemplate>
+							<MudTd DataLabel="ID">@context.Id</MudTd>
+							<MudTd DataLabel="Deskripsi">@context.Deskripsi</MudTd>
+							<MudTd DataLabel="Jadwal Masuk">@context.JadwalMasuk</MudTd>
+							<MudTd DataLabel="Jadwal Pulang">@context.JadwalPulang</MudTd>
+							<MudTd DataLabel="Inisial">@context.Initial</MudTd>
+						</RowTemplate>
+						<RowEditingTemplate>
+							<MudTd DataLabel="ID">@context.Id</MudTd>
+							<MudTd DataLabel="Deskripsi">
+								<MudTextField @bind-Value="@context.Deskripsi"></MudTextField>
+							</MudTd>
+							<MudTd DataLabel="Jadwal Masuk">
+								<MudTimePicker PickerVariant="PickerVariant.Dialog" @bind-Time="@context.JadwalMasuk"></MudTimePicker>
+							</MudTd>
+							<MudTd DataLabel="Jadwal Pulang">
+								<MudTimePicker PickerVariant="PickerVariant.Dialog" @bind-Time="@context.JadwalPulang"></MudTimePicker>
+							</MudTd>
+							<MudTd DataLabel="Inisial">
+								<MudTextField @bind-Value="@context.Initial"></MudTextField>
+							</MudTd>
+						</RowEditingTemplate>
+						<EditButtonContent Context="button">
+							<MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0"></MudIconButton>
+						</EditButtonContent>
+						<NoRecordsContent>
+							<MudText>No matching records found</MudText>
+						</NoRecordsContent>
+						<LoadingContent>
+							<MudText>Loading...</MudText>
+						</LoadingContent>
+					</MudTable>
+				</ChildContent>
+			</MudExpansionPanel>
+
+			<MudExpansionPanel>
+				<TitleContent>
+					<div class="d-flex">
+						<MudIcon Icon="@Icons.Material.Filled.Person" Class="mr-3" Color="Color.Secondary"></MudIcon>
+						<MudText><strong>Jadwal Shift Departemen</strong></MudText>
+					</div>
+				</TitleContent>
+				<ChildContent>
+					<MudTable @ref="jadwalShiftDepartemenTable" ServerData="@(new Func<TableState, Task<TableData<JadwalShiftDepartemenDTO>>>(JadwalShiftDepartemenReload))" T="JadwalShiftDepartemenDTO" Dense="true" Hover="true" CanCancelEdit="true" @bind-SelectedItem="selectedJadwalShiftDepartemen" RowEditCancel="ResetJSDItem" RowEditCommit="jsdDTOCommitted" RowEditPreview="jsdBackupItem" IsEditRowSwitchingBlocked="true" ApplyButtonPosition="TableApplyButtonPosition.End">
+						<ToolBarContent>
+							<MudText Typo="Typo.h6"><strong>Tabel Jadwal Shift Departemen</strong></MudText>
+							<MudSpacer />
+							<MudFab StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" OnClick="AddNewJadwalShiftDepartemen" Size="Size.Small"></MudFab>
+						</ToolBarContent>
+						<HeaderContent>
+							<MudTh><MudTableSortLabel SortLabel="Id_Field" T="JadwalShiftDepartemenDTO">ID</MudTableSortLabel></MudTh>
+
+							<MudTh><MudTableSortLabel SortLabel="Deskripsi_Field" T="JadwalShiftDepartemenDTO">Deskripsi</MudTableSortLabel></MudTh>
+
+							<MudTh><MudTableSortLabel SortLabel="GrupKerja_Field" T="JadwalShiftDepartemenDTO">Grup Kerja</MudTableSortLabel></MudTh>
+
+							<MudTh><MudTableSortLabel SortLabel="JadwalMasuk_Field" T="JadwalShiftDepartemenDTO">Jadwal Masuk</MudTableSortLabel></MudTh>
+
+							<MudTh><MudTableSortLabel SortLabel="JadwalPulang_Field" T="JadwalShiftDepartemenDTO">Jadwal Pulang</MudTableSortLabel></MudTh>
+						</HeaderContent>
+						<RowTemplate>
+							<MudTd DataLabel="ID">@context.Id</MudTd>
+							<MudTd DataLabel="Deskripsi">@context.Keterangan</MudTd>
+							<MudTd DataLabel="Grup Kerja">@context.GrupKerja</MudTd>
+							<MudTd DataLabel="Jadwal Masuk">@context.JadwalMasuk</MudTd>
+							<MudTd DataLabel="Jadwal Pulang">@context.JadwalPulang</MudTd>
+						</RowTemplate>
+						<RowEditingTemplate>
+							<MudTd DataLabel="ID">@context.Id</MudTd>
+							<MudTd DataLabel="Deskripsi">
+								<MudTextField @bind-Value="@context.Keterangan"></MudTextField>
+							</MudTd>
+							<MudTd DataLabel="Grup Kerja">
+								<MudTextField @bind-Value="@context.GrupKerja"></MudTextField>
+							</MudTd>
+							<MudTd DataLabel="Jadwal Masuk">
+								<MudTimePicker PickerVariant="PickerVariant.Dialog" @bind-Time="@context.JadwalMasuk"></MudTimePicker>
+							</MudTd>
+							<MudTd DataLabel="Jadwal Pulang">
+								<MudTimePicker PickerVariant="PickerVariant.Dialog" @bind-Time="@context.JadwalPulang"></MudTimePicker>
+							</MudTd>
+						</RowEditingTemplate>
+						<EditButtonContent Context="button">
+							<MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0"></MudIconButton>
+						</EditButtonContent>
+						<NoRecordsContent>
+							<MudText>No matching records found</MudText>
+						</NoRecordsContent>
+						<LoadingContent>
+							<MudText>Loading...</MudText>
+						</LoadingContent>
+						<PagerContent>
+							<MudTablePager />
+						</PagerContent>
+					</MudTable>
+				</ChildContent>
+			</MudExpansionPanel>
+
+			<MudExpansionPanel>
+				<TitleContent>
+					<div class="d-flex">
+						<MudIcon Icon="@Icons.Material.Filled.Security" Class="mr-3" Color="Color.Secondary"></MudIcon>
+						<MudText><strong>Jadwal Shift Security</strong></MudText>
+					</div>
+				</TitleContent>
+				<ChildContent>
+					<MudTable @ref="jadwalShiftSecurityTable" ServerData="@(new Func<TableState, Task<TableData<JadwalShiftSecurityDTO>>>(JadwalShiftSecurityReload))" T="JadwalShiftSecurityDTO" Dense="true" Hover="true" CanCancelEdit="true" @bind-SelectedItem="selectedJadwalShiftSecurity" RowEditCancel="ResetJSSItem" RowEditCommit="jssDTOCommitted" RowEditPreview="jssBackupItem" IsEditRowSwitchingBlocked="true" ApplyButtonPosition="TableApplyButtonPosition.End">
+						<ToolBarContent>
+							<MudText Typo="Typo.h6"><strong>Tabel Jadwal Shift Security</strong></MudText>
+							<MudSpacer />
+							<MudFab StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" OnClick="AddNewJadwalShiftSecurity" Size="Size.Small"></MudFab>
+						</ToolBarContent>
+						<HeaderContent>
+							<MudTh><MudTableSortLabel SortLabel="Id_Field" T="JadwalShiftSecurityDTO">ID</MudTableSortLabel></MudTh>
+							<MudTh><MudTableSortLabel SortLabel="Deskripsi_Field" T="JadwalShiftSecurityDTO">Deskripsi</MudTableSortLabel></MudTh>
+							<MudTh><MudTableSortLabel SortLabel="JadwalMasuk_Field" T="JadwalShiftSecurityDTO">Jadwal Masuk</MudTableSortLabel></MudTh>
+							<MudTh><MudTableSortLabel SortLabel="JadwalPulang_Field" T="JadwalShiftSecurityDTO">Jadwal Pulang</MudTableSortLabel></MudTh>
+							<MudTh><MudTableSortLabel SortLabel="Initial_Field" T="JadwalShiftSecurityDTO">Inisial</MudTableSortLabel></MudTh>
+						</HeaderContent>
+						<RowTemplate>
+							<MudTd DataLabel="ID">@context.Id</MudTd>
+							<MudTd DataLabel="Deskripsi">@context.Deskripsi</MudTd>
+							<MudTd DataLabel="Jadwal Masuk">@context.JadwalMasuk</MudTd>
+							<MudTd DataLabel="Jadwal Pulang">@context.JadwalPulang</MudTd>
+							<MudTd DataLabel="Inisial">@context.Initial</MudTd>
+						</RowTemplate>
+						<RowEditingTemplate>
+							<MudTd DataLabel="ID">@context.Id</MudTd>
+							<MudTd DataLabel="Deskripsi">
+								<MudTextField @bind-Value="@context.Deskripsi"></MudTextField>
+							</MudTd>
+							<MudTd DataLabel="Jadwal Masuk">
+								<MudTimePicker PickerVariant="PickerVariant.Dialog" @bind-Time="@context.JadwalMasuk"></MudTimePicker>
+							</MudTd>
+							<MudTd DataLabel="Jadwal Pulang">
+								<MudTimePicker PickerVariant="PickerVariant.Dialog" @bind-Time="@context.JadwalPulang"></MudTimePicker>
+							</MudTd>
+							<MudTd DataLabel="Inisial">
+								<MudTextField @bind-Value="@context.Initial"></MudTextField>
+							</MudTd>
+						</RowEditingTemplate>
+						<EditButtonContent Context="button">
+							<MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0"></MudIconButton>
+						</EditButtonContent>
+						<NoRecordsContent>
+							<MudText>No matching records found</MudText>
+						</NoRecordsContent>
+						<LoadingContent>
+							<MudText>Loading...</MudText>
+						</LoadingContent>
+					</MudTable>
+				</ChildContent>
+			</MudExpansionPanel>
+		</MudExpansionPanels>
+	</MudItem>
+</MudGrid>
+
+<style>
+	.backdrops-style {
+		backdrop-filter: blur(5px);
+	}
+</style>
+
+@code {
+	[Inject] IJamKerjaService? jamKerjaService { get; set; }
+	[Inject] IJadwalShiftKaryawanService? jadwalShiftKaryawanService { get; set; }
+	[Inject] IJadwalShiftDepartemenService? jadwalShiftDepartemenService { get; set; }
+	[Inject] IJadwalShiftSecurityServicecs? jadwalShiftSecurityService { get; set; }
+	[Inject] IGroupService? groupService { get; set; }
+
+	JamKerjaDTO jamKerjaDTO { get; set; } = new();
+	List<JadwalShiftKaryawanDTO> jadwalShiftKaryawanDTOs { get; set; } = new();
+	List<JadwalShiftSecurityDTO> jadwalShiftSecurityDTOs { get; set; } = new();
+	List<GroupDTO> groupDTOs { get; set; } = new();
+
+	MudTable<JadwalShiftKaryawanDTO>? jadwalShiftKaryawanTable;
+	MudTable<JadwalShiftDepartemenDTO>? jadwalShiftDepartemenTable;
+	MudTable<JadwalShiftSecurityDTO>? jadwalShiftSecurityTable;
+	MudTextField<string>? jamKerja_Keterangan;
+	MudTextField<int>? jamKerja_Durasi;
+	MudNumericField<int>? pembagiPayroll;
+
+	JadwalShiftKaryawanDTO? selectedJadwalShiftKaryawan;
+	JadwalShiftSecurityDTO? selectedJadwalShiftSecurity;
+	JadwalShiftDepartemenDTO? selectedJadwalShiftDepartemen;
+
+	JadwalShiftKaryawanDTO? jskDTOBeforeEdit;
+	JadwalShiftSecurityDTO? jssDTOBeforeEdit;
+	JadwalShiftDepartemenDTO? jsdDTOBeforeEdit;
+
+	string searchString = "";
+	string searchString1 = "";
+	string searchString2 = "";
+
+	int totalItems = 0;
+	int totalItems1 = 0;
+	int totalItems2 = 0;
+
+	IEnumerable<JadwalShiftKaryawanDTO>? pagedData;
+	IEnumerable<JadwalShiftDepartemenDTO>? pagedShiftDepartemenData;
+	IEnumerable<JadwalShiftSecurityDTO>? pagedData1;
+
+	private List<NamaHari> listNamaHari = new();
+
+	protected override async Task OnInitializedAsync() {
+		// return base.OnInitializedAsync();
+		jamKerjaDTO = await jamKerjaService!.GetJamKerja(1);
+		groupDTOs = await groupService!.GetListGroupsAsync();
+		// jadwalShiftKaryawanDTOs = await jadwalShiftKaryawanService.GetJadwalShiftKaryawan();
+		// jadwalShiftSecurityDTOs = await jadwalShiftSecurityServicecs.GetJadwalShiftSecurityAsync();
+		listNamaHari.Add(new NamaHari { HariNum = "1", HariName = "Senin" });
+		listNamaHari.Add(new NamaHari { HariNum = "2", HariName = "Selasa" });
+		listNamaHari.Add(new NamaHari { HariNum = "3", HariName = "Rabu" });
+		listNamaHari.Add(new NamaHari { HariNum = "4", HariName = "Kamis" });
+		listNamaHari.Add(new NamaHari { HariNum = "5", HariName = "Jumat" });
+		listNamaHari.Add(new NamaHari { HariNum = "6", HariName = "Sabtu" });
+	}
+
+	async Task UpdateJamKerja() {
+		JamKerjaDTO updatedData;
+		if(jamKerjaDTO == null) {
+			//add new
+			JamKerjaDTO jkDTO = new() {
+					Deskripsi = jamKerjaDTO!.Deskripsi,
+					DurasiPerHari = jamKerjaDTO.DurasiPerHari,
+					PembagiPayroll = jamKerjaDTO.PembagiPayroll
+				};
+			updatedData = await jamKerjaService!.AddJamKerja(jkDTO);
+
+		}
+		else {
+			updatedData = await jamKerjaService!.UpdateJamKerja(jamKerjaDTO);
+		}
+		Snackbar.Add("Data jam kerja berhasil di updated", Severity.Success, config =>
+		{
+			config.HideTransitionDuration = 500;
+		});
+	}
+
+	private void jskBackupItem(object el) {
+		jskDTOBeforeEdit = new()
+			{
+				Id = ((JadwalShiftKaryawanDTO)el).Id,
+				Deskripsi = ((JadwalShiftKaryawanDTO)el).Deskripsi,
+				JadwalMasuk = ((JadwalShiftKaryawanDTO)el).JadwalMasuk,
+				JadwalPulang = ((JadwalShiftKaryawanDTO)el).JadwalPulang
+			};
+	}
+
+	private void jsdBackupItem(object el) {
+		jsdDTOBeforeEdit = new() {
+				Id = ((JadwalShiftDepartemenDTO)el).Id,
+				Keterangan = ((JadwalShiftDepartemenDTO)el).Keterangan,
+				GrupKerja = ((JadwalShiftDepartemenDTO)el).GrupKerja,
+				JadwalMasuk = ((JadwalShiftDepartemenDTO)el).JadwalMasuk,
+				JadwalPulang = ((JadwalShiftDepartemenDTO)el).JadwalPulang
+			};
+	}
+
+	private void jssBackupItem(object el) {
+		jssDTOBeforeEdit = new() {
+				Id = ((JadwalShiftSecurityDTO)el).Id,
+				Deskripsi = ((JadwalShiftSecurityDTO)el).Deskripsi,
+				JadwalMasuk = ((JadwalShiftSecurityDTO)el).JadwalMasuk,
+				JadwalPulang = ((JadwalShiftSecurityDTO)el).JadwalPulang
+			};
+	}
+
+	private void ResetJSKItem(object el) {
+		((JadwalShiftKaryawanDTO)el).Id = jskDTOBeforeEdit!.Id;
+		((JadwalShiftKaryawanDTO)el).Deskripsi = jskDTOBeforeEdit.Deskripsi;
+		((JadwalShiftKaryawanDTO)el).JadwalMasuk = jskDTOBeforeEdit.JadwalMasuk;
+		((JadwalShiftKaryawanDTO)el).JadwalPulang = jskDTOBeforeEdit.JadwalPulang;
+	}
+
+	private void ResetJSDItem(object el) {
+		((JadwalShiftDepartemenDTO)el).Id = jsdDTOBeforeEdit!.Id;
+		((JadwalShiftDepartemenDTO)el).Keterangan = jsdDTOBeforeEdit.Keterangan;
+		((JadwalShiftDepartemenDTO)el).GrupKerja = jsdDTOBeforeEdit.GrupKerja;
+		((JadwalShiftDepartemenDTO)el).JadwalMasuk = jsdDTOBeforeEdit.JadwalMasuk;
+		((JadwalShiftDepartemenDTO)el).JadwalPulang = jsdDTOBeforeEdit.JadwalPulang;
+	}
+
+	private void ResetJSSItem(object el) {
+		((JadwalShiftSecurityDTO)el).Id = jssDTOBeforeEdit!.Id;
+		((JadwalShiftSecurityDTO)el).Deskripsi = jssDTOBeforeEdit.Deskripsi;
+		((JadwalShiftSecurityDTO)el).JadwalMasuk = jssDTOBeforeEdit.JadwalMasuk;
+		((JadwalShiftSecurityDTO)el).JadwalPulang = jssDTOBeforeEdit.JadwalPulang;
+	}
+
+	private async void jskDTOCommitted(object el) {
+		JadwalShiftKaryawanDTO jskDTOCommitted = new()
+			{
+				Id = ((JadwalShiftKaryawanDTO)el).Id,
+				Deskripsi = ((JadwalShiftKaryawanDTO)el).Deskripsi,
+				JadwalMasuk = ((JadwalShiftKaryawanDTO)el).JadwalMasuk,
+				JadwalPulang = ((JadwalShiftKaryawanDTO)el).JadwalPulang
+			};
+		var jadwal = await jadwalShiftKaryawanService!.UpdateJadwalShiftKaryawan(jskDTOCommitted);
+		if(jadwal != null) {
+			Snackbar.Add("Jadwal Shift Karyawan berhasil di update.", Severity.Success, c =>
+			{
+				c.HideTransitionDuration = 300;
+			});
+			await jadwalShiftKaryawanTable!.ReloadServerData();
+		}
+		// jskDTOCommitted.Id = ((JadwalShiftKaryawanDTO))
+	}
+
+	private async void jsdDTOCommitted(object el) {
+		JadwalShiftDepartemenDTO jsdDTOCommitted = new() {
+				Id = ((JadwalShiftDepartemenDTO)el).Id,
+				Keterangan = ((JadwalShiftDepartemenDTO)el).Keterangan,
+				GrupKerja = ((JadwalShiftDepartemenDTO)el).GrupKerja,
+				JadwalMasuk = ((JadwalShiftDepartemenDTO)el).JadwalMasuk,
+				JadwalPulang = ((JadwalShiftDepartemenDTO)el).JadwalPulang
+			};
+		var jadwal = await jadwalShiftDepartemenService!.UpdateJadwalShiftDepartemen(jsdDTOCommitted);
+		if (jadwal != null) {
+			Snackbar.Add("Jadwal Shift Karyawan berhasil di update.", Severity.Success, c => {
+				c.HideTransitionDuration = 300;
+			});
+			await jadwalShiftKaryawanTable!.ReloadServerData();
+		}
+		// jskDTOCommitted.Id = ((JadwalShiftKaryawanDTO))
+	}
+
+	private async void jssDTOCommitted(object el) {
+		JadwalShiftSecurityDTO jssDTOCommitted = new() {
+				Id = ((JadwalShiftSecurityDTO)el).Id,
+				Deskripsi = ((JadwalShiftSecurityDTO)el).Deskripsi,
+				JadwalMasuk = ((JadwalShiftSecurityDTO)el).JadwalMasuk,
+				JadwalPulang = ((JadwalShiftSecurityDTO)el).JadwalPulang,
+				Initial = ((JadwalShiftSecurityDTO)el).Initial
+			};
+		var jadwal = await jadwalShiftSecurityService!.UpdateJadwalShiftSecurity(jssDTOCommitted);
+		if (jadwal != null) {
+			Snackbar.Add("Jadwal Shift Security berhasil di update.", Severity.Success, c => {
+				c.HideTransitionDuration = 300;
+			});
+			await jadwalShiftSecurityTable!.ReloadServerData();
+		}
+		// jskDTOCommitted.Id = ((JadwalShiftKaryawanDTO))
+	}
+
+	async Task AddNewJadwalShiftDepartemen() {
+		var dialogOptions = new DialogOptions { ClassBackground = "backdrops-style", DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Small, Position = DialogPosition.Center };
+
+		var dialogParameters = new DialogParameters<AddJadwalShiftDepartemenDialog>();
+		dialogParameters.Add("groupDTOs", groupDTOs);
+
+		var dialog = await DialogService.ShowAsync<AddJadwalShiftDepartemenDialog>("Tambah Data Jadwal Shift Departemen", dialogParameters,dialogOptions);
+
+		var dialogResult = await dialog.Result;
+		if (!dialogResult.Canceled) {
+			await jadwalShiftDepartemenTable!.ReloadServerData();
+		}
+	}
+
+	async Task AddNewJadwalShiftKaryawan() {
+		var dialogOptions = new DialogOptions { ClassBackground = "backdrops-style", DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Small, Position = DialogPosition.Center };
+		var parameters = new DialogParameters {
+				["listNamaHari"] = listNamaHari
+			};
+		var dialog = await DialogService.ShowAsync<AddJadwalShiftKaryawanDialog>("Tambah Data Jadwal Shift Karyawan", parameters, dialogOptions);
+
+		var dialogResult = await dialog.Result;
+		if (!dialogResult.Canceled) {
+			await jadwalShiftKaryawanTable!.ReloadServerData();
+		}
+	}
+
+	async Task AddNewJadwalShiftSecurity() {
+		var dialogOptions = new DialogOptions { ClassBackground = "backdrops-style", DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Small, Position = DialogPosition.Center };
+		var dialog = await DialogService.ShowAsync<AddJadwalShiftSecurityDialog>("Tambah Data Jadwal Shift Security", dialogOptions);
+		var dialogResult = await dialog.Result;
+		if (!dialogResult.Canceled) {
+			await jadwalShiftSecurityTable!.ReloadServerData();
+		}
+	}
+
+	private async Task<TableData<JadwalShiftKaryawanDTO>> JadwalShiftKaryawanReload(TableState state) {
+		IEnumerable<JadwalShiftKaryawanDTO> data = await jadwalShiftKaryawanService!.GetJadwalShiftKaryawan();
+		await Task.Delay(300);
+		data = data.Where(element => {
+			if (string.IsNullOrWhiteSpace(searchString))
+				return true;
+			if (element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.Deskripsi!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.JadwalMasuk!.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.JadwalPulang!.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if ($"{element.Id.ToString()} {element.Deskripsi} {element.JadwalMasuk.ToString()} {element.JadwalPulang.ToString()}".Contains(searchString))
+				return true;
+			return false;
+		}).ToArray();
+		totalItems = data.Count();
+		switch (state.SortLabel) {
+			case "Id_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.Id);
+			break;
+			case "Deskripsi_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.Deskripsi);
+			break;
+			case "JadwalMasuk_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.JadwalMasuk);
+			break;
+			case "JadwalPulang_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.JadwalPulang);
+			break;
+		}
+
+		pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+		return new TableData<JadwalShiftKaryawanDTO>() { TotalItems = totalItems, Items = pagedData };
+	}
+
+	private async Task<TableData<JadwalShiftDepartemenDTO>> JadwalShiftDepartemenReload(TableState state) {
+		IEnumerable<JadwalShiftDepartemenDTO> data = await jadwalShiftDepartemenService!.GetJadwalShiftDepartemen();
+		await Task.Delay(300);
+		data = data.Where(element => {
+			if (string.IsNullOrWhiteSpace(searchString))
+				return true;
+			if (element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.Keterangan.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.GrupKerja.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.JadwalMasuk!.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.JadwalPulang!.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if ($"{element.Id.ToString()} {element.Keterangan} {element.GrupKerja} {element.JadwalMasuk.ToString()} {element.JadwalPulang.ToString()}".Contains(searchString))
+				return true;
+			return false;
+		}).ToArray();
+		totalItems2 = data.Count();
+		switch (state.SortLabel) {
+			case "Id_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.Id);
+			break;
+			case "Deskripsi_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.Keterangan);
+			break;
+			case "GroupKerja_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.GrupKerja);
+			break;
+			case "JadwalMasuk_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.JadwalMasuk);
+			break;
+			case "JadwalPulang_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.JadwalPulang);
+			break;
+		}
+
+		pagedShiftDepartemenData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+		return new TableData<JadwalShiftDepartemenDTO>() { TotalItems = totalItems2, Items = pagedShiftDepartemenData };
+	}
+
+	private async Task<TableData<JadwalShiftSecurityDTO>> JadwalShiftSecurityReload(TableState state) {
+		IEnumerable<JadwalShiftSecurityDTO> data = await jadwalShiftSecurityService!.GetJadwalShiftSecurityAsync();
+		await Task.Delay(300);
+		data = data.Where(element => {
+			if (string.IsNullOrWhiteSpace(searchString1))
+				return true;
+			if (element.Id.ToString().Contains(searchString1, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.Deskripsi.Contains(searchString1, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.JadwalMasuk!.Value.ToString().Contains(searchString1, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.JadwalPulang!.Value.ToString().Contains(searchString1, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if ($"{element.Id.ToString()} {element.Deskripsi} {element.JadwalMasuk.ToString()} {element.JadwalPulang.ToString()}".Contains(searchString1))
+				return true;
+			return false;
+		}).ToArray();
+		totalItems1 = data.Count();
+		switch (state.SortLabel) {
+			case "Id_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.Id);
+			break;
+			case "Deskripsi_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.Deskripsi);
+			break;
+			case "JadwalMasuk_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.JadwalMasuk);
+			break;
+			case "JadwalPulang_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.JadwalPulang);
+			break;
+		}
+
+		pagedData1 = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+		return new TableData<JadwalShiftSecurityDTO>() { TotalItems = totalItems1, Items = pagedData1 };
+	}
+}

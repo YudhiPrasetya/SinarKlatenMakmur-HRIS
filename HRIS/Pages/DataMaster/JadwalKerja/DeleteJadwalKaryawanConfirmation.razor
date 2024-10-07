@@ -1,0 +1,37 @@
+﻿@using HRIS.Contracts;
+@inject IDialogService ModalDialog
+@inject ISnackbar Snackbar
+
+<MudDialog>
+   <DialogContent>
+      <MudText>@ContentText</MudText>
+   </DialogContent>
+   <DialogActions>
+      <MudButton OnClick="Cancel">Batalkan</MudButton>
+      <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Submit">Hapus</MudButton>
+   </DialogActions>
+</MudDialog>
+
+
+@code {
+   [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+   [Parameter] public string ContentText { get; set; }
+   [Parameter] public int Id { get; set; }
+
+   [Inject] IJadwalKerjaKaryawanService jadwalKerjaKaryawanService { get; set; }
+
+   void Cancel() => MudDialog.Cancel();
+
+   async void Submit() {
+      var jadwal = await jadwalKerjaKaryawanService.DeleteJadwalKerjaKaryawan(Id);
+      if(jadwal != null) {
+         Snackbar.Add("Data jadwal kerja karyawan berhasil dihapus dari database", Severity.Success, config => {
+            config.HideTransitionDuration = 50;
+         });
+
+         MudDialog.Close(DialogResult.Ok(jadwal));
+      }
+
+   }
+}

@@ -1,0 +1,151 @@
+﻿@using HRIS.Components;
+@using HRIS.Contracts;
+
+@inherits LayoutComponentBase
+
+
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+@* <div class="page">
+   <div class="sidebar">
+      <NavMenu />
+   </div>
+
+   <div class="main">
+      <div class="top-row px-4">
+         @if (_isLightMode) {
+            <MudIconButton Icon="@Icons.Material.Filled.Brightness4" OnClick="@ToggleTheme" />
+         }
+         else {
+            <MudIconButton Icon="@Icons.Material.Filled.Brightness5" OnClick="@ToggleTheme" />
+         }
+      </div>
+
+      <div class="content px-4">
+         @Body
+      </div>
+   </div>
+</div> *@
+
+@* <MudLayout>
+    <MudAppBar Dense="true" Style="@($"background:{Colors.Green.Accent4}")">
+    <MudAppBar Dense="true" Color="Color.Inherit">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        HRIS
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" OnClick="@(() => LogOut())" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen">
+        <HRISNavMenu/>
+    </MudDrawer>
+    <MudMainContent>
+       <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+         @Body
+       </MudContainer>
+        
+    </MudMainContent>
+</MudLayout> *@
+
+
+
+@* <AuthorizeView> *@
+   @* <Authorized> *@
+      <MudLayout>
+         @* <AppBar OnSidebarToggled="ToggleSidebar" OnThemeToggled="ToggleTheme" /> *@
+         <AuthorizeView>
+            <Authorized>
+               <AppBar OnSidebarToggled="ToggleSidebar" OnThemeToggled="ToggleTheme" />
+               <HRISNavMenu SidebarOpen="_sidebarOpen" />
+               <MudMainContent Class="pt-14 px-2">
+                  <MudContainer Class="mt-6">
+                     <CascadingValue Value="this" Name="MainLayout">
+                        @Body
+                     </CascadingValue>
+                  </MudContainer>
+               </MudMainContent>
+            </Authorized>
+            <NotAuthorized>
+               <Login />
+            </NotAuthorized>
+         </AuthorizeView>
+      </MudLayout>
+   @* </Authorized> *@
+
+@*    <NotAuthorized>
+      <MudGrid Class="d-flex align-content-center">
+         <MudItem xs="6" Class="d-flex align-center">
+            <MudCard>
+               <MudCardContent>
+                  <MudText>Maaf Session sudah habis atau Anda tidak berhak mengakses halaman.</MudText>
+               </MudCardContent>
+               <MudCardActions>
+                  <MudButton Color="Color.Warning" StartIcon="@Icons.Material.Filled.Login" Variant="Variant.Filled" OnClick="Login">Login</MudButton>
+               </MudCardActions>
+            </MudCard>
+         </MudItem>
+      </MudGrid>
+   </NotAuthorized> *@
+
+@*    <NotAuthorized>
+      <Login />
+   </NotAuthorized> *@
+@* </AuthorizeView> *@
+
+<MudThemeProvider Theme="_currentTheme" />
+
+<style>
+   .backdrops-style{
+      backdrop-filter: blur(5px);
+   }
+</style>
+@inject IDialogService DialogService
+@inject IAuthenticationHttpClientService AuthenticationHttpClientService
+@inject NavigationManager navigationManager;
+
+@code {
+   // [CascadingParameter]
+   // public Task<AuthenticationState> AuthStat{ get; set; }
+   private MudTheme _currentTheme = new MudTheme();
+   private bool _sidebarOpen = true;
+
+   private void ToggleTheme(MudTheme changedTheme) => _currentTheme = changedTheme;
+   private void ToggleSidebar() => _sidebarOpen = !_sidebarOpen;
+
+   // void Login() {
+   //    // var dialogOptions = new DialogOptions { ClassBackground = "backdrops-style", DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Small, Position = DialogPosition.Center };
+   //    // var dialogParameters = new DialogParameters<LoginFormDialog>();
+   //    // dialogParameters.Add(f => f.Open, true);
+   //    // await DialogService.ShowAsync<LoginFormDialog>("Login Form", dialogParameters, dialogOptions);
+   //    navigationManager.NavigateTo("/auth/login");
+   // }
+
+   // protected override async Task OnInitializedAsync() {
+   //    // await base.OnInitializedAsync();
+   //    var user = (await AuthStat).User;
+   //    if (!user.Identity.IsAuthenticated) {
+   //       // var dialogOptions = new DialogOptions { ClassBackground = "backdrops-style", DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Small, Position = DialogPosition.Center };
+   //       // var dialogParameters = new DialogParameters<LoginFormDialog>();
+   //       // dialogParameters.Add(f => f.Open, true);
+   //       // await DialogService.ShowAsync<LoginFormDialog>("Login Form", dialogParameters, dialogOptions);
+   //       navigationManager.NavigateTo("/login);
+   //    }
+   // }
+
+   // public async Task HandleException(Exception exception) {
+   //    if (exception.Message.Contains("401")) {
+   //       await AuthenticationHttpClientService.LogoutUser();
+   //       navigationManager.NavigateTo("/login", true);
+   //       // var dialogOptions = new DialogOptions { ClassBackground = "backdrops-style", DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Small, Position = DialogPosition.Center };
+
+   //       // var dialogParameters = new DialogParameters<LoginFormDialog>();
+   //       // dialogParameters.Add(f => f.Open, true);
+
+   //       // await DialogService.ShowAsync<LoginFormDialog>("Login Form", dialogParameters, dialogOptions);
+   //       return;
+   //    }
+   // }
+}
+
+
+

@@ -1,0 +1,63 @@
+﻿@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+<MudDialog>
+	@* <MudForm @ref="modalTerlambatForm" @bind-IsValid="@success"> *@
+		<DialogContent>
+			<MudAutocomplete T="EmployeeDTO" Label="Karyawan" ResetValueOnEmptyText="true" @bind-Value="selectedEmp" ToStringFunc="@(e => e == null ? null : $"Nama: {e.Name} - NIK: {e.NIK}")" SearchFunc="@CariKaryawan"  Margin="Margin.Dense" Dense="true" />
+			<MudSpacer />
+			<MudDateRangePicker Class="ma-2" Label="Durasi terlambat" HelperText="Durasi untuk terlambat" DateFormat="dd/MM/yyyy" @bind-DateRange="_dateRange" />
+			<MudSpacer />
+			<MudTextField Label="Alasan Terlambat" @ref="alasanTerlambat" T="string" />
+			<MudSpacer />
+		</DialogContent>
+		<DialogActions>
+			<MudButton>Cancel</MudButton>
+			<MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="SaveKeterlambatan">Save</MudButton>
+		</DialogActions>
+	@* </MudForm> *@
+</MudDialog>
+
+@code {
+	#region injects
+	[Inject] IJadwalKehadiranService? jadwalKehadiranService { get; set; }
+	[Inject] IEmployeeService? employeeService { get; set; }
+	[CascadingParameter]MudDialogInstance? MudDialog { get; set; }
+	[Parameter]public string[]? listKaryawan { get; set; }
+	#endregion
+
+	#region variables
+	private MudForm? modalTerlambatForm;
+	private bool success;
+	private DateRange _dateRange = new(DateTime.Now.Date, DateTime.Now.Date);
+	private EmployeeDTO? selectedEmp;
+	private MudTextField<string>? alasanTerlambat { get; set; }
+	#endregion
+
+	#region functions/methods
+	private async Task<IEnumerable<EmployeeDTO>?> CariKaryawan(string value) {
+		await Task.Delay(5);
+		if (string.IsNullOrEmpty(value)) 
+			return await employeeService!.GetListEmployeesAsync();
+		return await employeeService!.GetByNameContains(value);
+	}
+
+	private async Task SaveKeterlambatan() {
+		int days = _dateRange.End!.Value.Day - _dateRange.Start!.Value.Day;
+		List<JadwalKehadiranDTO> jadwalKehadiranDTOs = new();
+		for(int d = 0; d < days+1; d++) {
+			JadwalKehadiranDTO jadwalKehadiranDTO = new()
+			{
+				NIK = selectedEmp!.NIK,
+				Nama = selectedEmp.Name,
+				JadwalMasuk = _dateRange.Start.Value.Date.AddDays(d),
+				AlasanTerlambat = alasanTerlambat!.Value
+			};
+			jadwalKehadiranDTOs.Add(jadwalKehadiranDTO);
+		}
+		await jadwalKehadiranService!.PatchMultiKeterlambatan(jadwalKehadiranDTOs);
+
+	}
+
+	#endregion
+
+}

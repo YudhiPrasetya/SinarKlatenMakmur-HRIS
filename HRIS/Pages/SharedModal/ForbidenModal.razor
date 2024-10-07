@@ -1,0 +1,18 @@
+﻿<MudDialog>
+   <TitleContent>
+      Forbiden
+   </TitleContent>
+   <DialogContent>
+      <MudText Typo="Typo.h6">Access Denied!</MudText>
+   </DialogContent>
+   <DialogActions>
+      <MudButton Variant="Variant.Text" Color="Color.Warning" OnClick="BackToHome">Back to home</MudButton>
+   </DialogActions>
+</MudDialog>
+@inject NavigationManager navManager;
+
+@code {
+   private void BackToHome() {
+      navManager.NavigateTo("", true);
+   }
+}

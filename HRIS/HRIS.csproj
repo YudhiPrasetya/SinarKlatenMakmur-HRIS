@@ -1,0 +1,123 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<GenerateRuntimeConfigDevFile>true</GenerateRuntimeConfigDevFile>
+	<ReferencePath>C:\Program Files (x86)\SAP BusinessObjects\Crystal Reports for .NET Framework 4.0\Common\SAP BusinessObjects Enterprise XI 4.0\win64_x64\dotnet\</ReferencePath>
+  </PropertyGroup>
+
+	<!--<PropertyGroup>
+		<RunAOTCompilation>true</RunAOTCompilation>
+	</PropertyGroup>-->
+
+  <ItemGroup>
+    <Content Remove="Pages\RedirectToLogin.razor" />
+    <Content Remove="wwwroot\Coba.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Coba.xml" />
+    <None Include="wwwroot\css\bootstrap\bootstrap.min.css.map" />
+    <None Include="wwwroot\JS\download.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.Reporting" Version="2.1.0" />
+    <PackageReference Include="Blazor-ApexCharts" Version="3.1.0" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.1.5" />
+    <PackageReference Include="ClosedXML" Version="0.102.1" />
+    <PackageReference Include="FluentValidation" Version="11.5.1" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" Version="7.3.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.24" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.24" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.25" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+    <PackageReference Include="MudBlazor" Version="6.9.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" Version="2.88.7" />
+    <PackageReference Include="System.CodeDom" Version="6.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.33.0" />
+    <PackageReference Include="Toolbelt.Blazor.HttpClientInterceptor" Version="9.2.1" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\SKM.Shared\SKM.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{c0c07587-41a7-46c8-8fbd-3f9c8ebe2ddc}" />
+  </ItemGroup>
+	
+	<PropertyGroup>
+      <PublishTrimmed>false</PublishTrimmed>
+   </PropertyGroup>
+	
+	<!--<ItemGroup>
+    <NativeFileReference Include="$(HarfBuzzSharpStaticLibraryPath)\2.0.23\*.a" />
+    <NativeFileReference Include="$(SkiaSharpStaticLibraryPath)\2.0.23\*.a" />
+   </ItemGroup>-->
+
+	<ItemGroup>
+		<NativeFileReference Include="$(HarfBuzzSharpStaticLibraryPath)\2.0.23\*.a" />
+		<NativeFileReference Include="$(SkiaSharpStaticLibraryPath)\2.0.23\*.a" />
+	</ItemGroup>
+	
+	<!--<ItemGroup>
+    <EmbeddedResource Include="Fonts\**">
+    <Link>Fonts\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+   </ItemGroup>-->
+
+	<ItemGroup>
+		<EmbeddedResource Include="Fonts\**">
+			<Link>Fonts\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Remove="Fonts\ROBOTO-BLACK.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-BLACKITALIC.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-BOLD.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-BOLDCONDENSED.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-BOLDCONDENSEDITALIC.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-BOLDITALIC.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-CONDENSED.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-CONDENSEDITALIC.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-ITALIC.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-LIGHT.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-LIGHTITALIC.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-MEDIUM.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-MEDIUMITALIC.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-REGULAR.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-THIN.TTF" />
+	  <EmbeddedResource Remove="Fonts\ROBOTO-THINITALIC.TTF" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Fonts\ROBOTO-BLACK.TTF" />
+	  <None Remove="Fonts\ROBOTO-BLACKITALIC.TTF" />
+	  <None Remove="Fonts\ROBOTO-BOLD.TTF" />
+	  <None Remove="Fonts\ROBOTO-BOLDCONDENSED.TTF" />
+	  <None Remove="Fonts\ROBOTO-BOLDCONDENSEDITALIC.TTF" />
+	  <None Remove="Fonts\ROBOTO-BOLDITALIC.TTF" />
+	  <None Remove="Fonts\ROBOTO-CONDENSED.TTF" />
+	  <None Remove="Fonts\ROBOTO-CONDENSEDITALIC.TTF" />
+	  <None Remove="Fonts\ROBOTO-ITALIC.TTF" />
+	  <None Remove="Fonts\ROBOTO-LIGHT.TTF" />
+	  <None Remove="Fonts\ROBOTO-LIGHTITALIC.TTF" />
+	  <None Remove="Fonts\ROBOTO-MEDIUM.TTF" />
+	  <None Remove="Fonts\ROBOTO-MEDIUMITALIC.TTF" />
+	  <None Remove="Fonts\ROBOTO-REGULAR.TTF" />
+	  <None Remove="Fonts\ROBOTO-THIN.TTF" />
+	  <None Remove="Fonts\ROBOTO-THINITALIC.TTF" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,31 @@
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+namespace AuthenticationManager
+{
+	public static class CustomJwtAuthExtension
+	{
+		public static void AddCustomJwtAuthentication(this IServiceCollection services)
+		{
+			services.AddAuthentication(a =>
+			{
+				a.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				a.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			}).AddJwtBearer(a =>
+			{
+				a.RequireHttpsMetadata = false;
+				a.SaveToken = true;
+				a.TokenValidationParameters = new TokenValidationParameters
+				{
+					ValidateIssuerSigningKey = true,
+					ValidateIssuer = false,
+					ValidateAudience = false,
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(JwtTokenHandler.JWT_SECURITY_KEY))
+				};
+			});
+
+		}
+	}
+}

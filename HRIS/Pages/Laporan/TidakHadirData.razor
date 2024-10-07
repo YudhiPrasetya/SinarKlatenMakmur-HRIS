@@ -1,0 +1,41 @@
+﻿@layout BlankLayout
+
+@page "/TidakHadirData"
+@using SKM.Shared.Dtos;
+
+<body onload="window.print()">
+	@* <MudDialog> *@
+	@* <DialogContent> *@
+	<table>
+		<thead>
+			<tr>
+				<th>Grup Kerja</th>
+				<th>NIK</th>
+				<th>Nama</th>
+				<th>Keterangan Tidak Masuk</th>
+				<th>Dari</th>
+				<th>Sampai</th>
+			</tr>
+
+		</thead>
+		<tbody>
+			@foreach (var t in listTidakHadir) {
+				<tr>
+					<td>@t.GrupKerja</td>
+					<td>@t.NIK</td>
+					<td>@t.Nama</td>
+					<td>@t.ExceptionName</td>
+					<td>@t.StartDate.Value.Date.ToString("dd-MM-yyyy")</td>
+					<td>@t.EndDate.Value.Date.ToString("dd-MM-yyyy")</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+	@* </DialogContent> *@
+	@* </MudDialog> *@
+
+</body>
+
+@code {
+	[Parameter] public List<ExceptionDTO>? listTidakHadir { get; set; } = new();
+}

@@ -1,0 +1,17 @@
+﻿@inherits LayoutComponentBase
+
+@* <AuthorizeView> *@
+   @* <Authorized> *@
+      <MudLayout>
+         <MudMainContent Class="pt-2 px-2">
+            <MudContainer Class="mt-2">
+               @Body
+            </MudContainer>
+         </MudMainContent>
+      </MudLayout>
+   @* </Authorized> *@
+@* </AuthorizeView> *@
+
+<MudThemeProvider />
+
+

@@ -1,0 +1,8 @@
+C1.Win.C1InputPanel.C1InputPanel, C1.Win.C1InputPanel.4, Version=4.0.20132.166, Culture=neutral, PublicKeyToken=79882d576c6336da
+C1.Win.C1Command.C1CommandHolder, C1.Win.C1Command.4, Version=4.0.20132.19578, Culture=neutral, PublicKeyToken=e808566f358766d8
+C1.Win.C1Command.C1ToolBar, C1.Win.C1Command.4, Version=4.0.20132.19578, Culture=neutral, PublicKeyToken=e808566f358766d8
+C1.Win.C1Gauge.C1Gauge, C1.Win.C1Gauge.4, Version=4.0.20132.94, Culture=neutral, PublicKeyToken=79882d576c6336da
+C1.Win.C1Input.C1TextBox, C1.Win.C1Input.4, Version=4.0.20132.33305, Culture=neutral, PublicKeyToken=7e7ff60f0c214f9a
+C1.Win.C1Input.C1Button, C1.Win.C1Input.4, Version=4.0.20132.33305, Culture=neutral, PublicKeyToken=7e7ff60f0c214f9a
+C1.Win.C1Command.C1NavBar, C1.Win.C1Command.4, Version=4.0.20132.19578, Culture=neutral, PublicKeyToken=e808566f358766d8
+C1.Win.C1List.C1List, C1.Win.C1List.4, Version=4.1.20132.237, Culture=neutral, PublicKeyToken=6b24f8f981dbd7bc

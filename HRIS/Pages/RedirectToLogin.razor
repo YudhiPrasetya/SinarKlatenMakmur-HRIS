@@ -1,0 +1,29 @@
+﻿@inject NavigationManager Navigation
+@using HRIS.Contracts
+@code {
+	[Inject]
+	public IUserService UserService { get; set; }
+
+	[CascadingParameter]
+	private Task<AuthenticationState> AuthenticationStateTask	{ get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		//return base.OnInitializedAsync();
+		var authenticationState = await AuthenticationStateTask;
+		if(authenticationState?.User.Identity is null || !authenticationState.User.Identity.IsAuthenticated)
+		{
+			var returnUrl = Navigation.ToBaseRelativePath(Navigation.Uri);
+			if (string.IsNullOrWhiteSpace(returnUrl))
+			{
+				await UserService.GetUsers(); 
+
+				Navigation.NavigateTo("auth/login", true);
+			}
+			else
+			{
+				Navigation.NavigateTo($"auth/login?returnUrl={returnUrl}", true);
+			}
+		}
+	}
+}

@@ -1,0 +1,17 @@
+﻿@* @using HRIS.Components; *@
+@* @inject IDialogService DialogService; *@
+@inject NavigationManager navigationManager
+
+@code {
+   protected override void OnInitialized() {
+      // base.OnInitialized();
+
+      // var dialogOptions = new DialogOptions { ClassBackground = "backdrops-style", DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.Small, Position = DialogPosition.Center };
+      // var dialogParameters = new DialogParameters<LoginFormDialog>();
+      // dialogParameters.Add(f => f.Open, true);
+      // await DialogService.ShowAsync<LoginFormDialog>("Login Form", dialogParameters, dialogOptions);
+
+      navigationManager.NavigateTo("/login", true);
+
+   }
+}

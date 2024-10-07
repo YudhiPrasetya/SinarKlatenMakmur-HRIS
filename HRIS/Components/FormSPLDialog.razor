@@ -1,0 +1,223 @@
+﻿@using HRIS.Contracts;
+@using HRIS.Pages.Aktivitas.SPL;
+@using SKM.Shared.Dtos;
+@inject IDialogService ModalDialog
+@inject ISnackbar Snackbar
+
+<MudDialog>
+	<DialogContent>
+		<MudForm @ref="formSPL">
+			<MudField Variant="Variant.Outlined" Label="Jenis Lembur" Margin="Margin.Dense" Class="mb-4">
+				<MudRadioGroup @bind-SelectedOption="splDTO.OTType" @ref="jnsSPL">
+					<MudRadio Dense="true" Option="@("Lembur Awal")" >Lembur Awal</MudRadio>
+					<MudRadio Dense="true" Option="@("Lembur Akhir")" >Lembur Akhir</MudRadio>
+					<MudRadio Dense="true" Option="@("Lembur Hari Libur")" >Lembur Hari Libur</MudRadio>
+				</MudRadioGroup>
+			</MudField>
+
+			<MudGrid>
+				<MudItem xs="6">
+					<MudTextField @ref="Keterangan" Label="Keterangan" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="splDTO.Description"></MudTextField>
+				</MudItem>
+				<MudItem xs="6">
+					<MudDatePicker @ref="splDate" Variant="Variant.Outlined" Label="Tanggal" Class="mb-4" DisableToolbar="true" Margin="Margin.Dense" Mask="@(new DateMask("dd-MM-yyyy"))" DateFormat="dd-MM-yyyy"></MudDatePicker>
+				</MudItem>
+			</MudGrid>
+
+			<MudGrid>
+				<MudItem xs="3">
+					<MudNumericField @ref="OT1" OnBlur="OTBlur" @bind-Value="splDTO.OT1" Variant="Variant.Outlined" Label="OT 1" Margin="Margin.Dense"></MudNumericField>
+				</MudItem>
+				<MudItem xs="3">
+					<MudNumericField Margin="Margin.Dense" @ref="OT2" OnBlur="OTBlur" @bind-Value="splDTO.OT2" Variant="Variant.Outlined" Label="OT 2"></MudNumericField>
+				</MudItem>
+				<MudItem xs="3">
+					<MudNumericField @ref="OTBreak" Margin="Margin.Dense" @bind-Value="splDTO.OTBreak" Variant="Variant.Outlined" Label="OT Break"></MudNumericField>
+				</MudItem>
+				<MudItem xs="3">
+					<MudNumericField Disabled="true" Margin="Margin.Dense" @bind-Value="splDTO.OTTotal" Variant="Variant.Outlined" Label="OT Total" @ref="OTTotal"></MudNumericField>
+				</MudItem>
+			</MudGrid>
+
+			<MudGrid>
+				<MudItem xs="6">
+					<MudTextField @ref="Style" @bind-Value="splDTO.Style" Variant="Variant.Outlined" Margin="Margin.Dense" Label="Style"></MudTextField>
+				</MudItem>
+			</MudGrid>
+
+			<MudSwitch @bind-Checked="pilihKaryawan" Label="Pilih Karyawan" Color="Color.Success" />
+			@if(pilihKaryawan){
+				<MudField Variant="Variant.Outlined" Margin="Margin.Dense" Label="Data Karyawan">
+					<MudTable @ref="splTable" Items="dataGaji" Dense="true" MultiSelection="true" Hover="true" Striped="true" @bind-SelectedItems="selectedDataGaji" Filter="new Func<GajiDanTunjanganDTO,bool>(FilterFunc1)">
+						<ToolBarContent>
+							<MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Placeholder="Search" @bind-Value="searchString1"></MudTextField>
+						</ToolBarContent>
+						<HeaderContent>
+							<MudTh><MudTableSortLabel T="GajiDanTunjanganDTO" SortLabel="grup_field">Grup Kerja</MudTableSortLabel></MudTh>
+							<MudTh><MudTableSortLabel T="GajiDanTunjanganDTO" SortLabel="nik_field">NIK</MudTableSortLabel></MudTh>
+							<MudTh><MudTableSortLabel T="GajiDanTunjanganDTO" SortLabel="nama_field">Nama</MudTableSortLabel></MudTh>
+						</HeaderContent>
+						<RowTemplate>
+							<MudTd DataLabel="Grup Kerja">@context.GrupKerja</MudTd>
+							<MudTd DataLabel="Grup Kerja">@context.NIK</MudTd>
+							<MudTd DataLabel="Grup Kerja">@context.NamaKaryawan</MudTd>
+						</RowTemplate>
+						<NoRecordsContent>No record(s) found</NoRecordsContent>
+						<LoadingContent>...Loading</LoadingContent>
+						<PagerContent>
+							<MudTablePager PageSizeOptions="new int[] {10, 25, 50, 75, 100, int.MaxValue}" />
+						</PagerContent>
+					</MudTable>
+				</MudField>
+			}
+
+		</MudForm>
+	</DialogContent>
+	<DialogActions>
+		<MudButton Color="Color.Warning" StartIcon="@Icons.Material.Filled.Save" Variant="Variant.Filled" Size="Size.Small" OnClick="OnSPLSave">
+			@if (saveProcessing) {
+				<MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+				<MudText Class="ms-2">Processing...</MudText>
+			}
+			else {
+				<MudText>Save</MudText>
+			}
+		</MudButton>
+		<MudButton Color="Color.Transparent" StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Outlined" Size="Size.Small" OnClick="OnFormClose">
+			Close
+		</MudButton>
+	</DialogActions>
+</MudDialog>
+
+@code {
+	[CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+	[Parameter] public SuratPerintahLemburDTO splDTO { get; set; } = new();
+	[Parameter] public List<GajiDanTunjanganDTO> dataGaji { get; set; } = new();
+	[Parameter] public List<GroupDTO> dataGroup { get; set; } = new();
+	[Parameter]public string? Mode { get; set; } 
+
+	[Inject]public ISuratPerintahLemburService? splService { get; set; }
+
+	private SuratPerintahLemburDTO SPLdto = new();
+	private string? selectedJnsLembur { get; set; }
+	private bool pilihKaryawan { get; set; } = false;
+	private MudForm? formSPL;
+	private HashSet<GajiDanTunjanganDTO>? selectedDataGaji = new ();
+	private MudDatePicker? splDate { get; set; }
+	private MudRadioGroup<string?>? jnsSPL { get; set; }
+	private MudNumericField<int?>? OTTotal { get; set; }
+	private MudNumericField<int?>? OTBreak { get; set; }
+	private MudNumericField<int?>? OT1 { get; set; }
+	private MudNumericField<int?>? OT2 { get; set; }
+	private MudTextField<string?>? Keterangan { get; set; }
+	private MudTextField<string?>? Style { get; set; }
+	private MudTable<GajiDanTunjanganDTO>? splTable { get; set; }
+
+	private string searchString1 = "";
+	private bool saveProcessing = false;
+
+	private bool FilterFunc1(GajiDanTunjanganDTO element) => FilterFunc(element, searchString1);
+
+	private bool FilterFunc(GajiDanTunjanganDTO element, string searchString) {
+		if (string.IsNullOrWhiteSpace(searchString))
+			return true;
+		if (element.GrupKerja.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.NamaKaryawan.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if ($"{element.GrupKerja} {element.NIK} {element.NamaKaryawan}".Contains(searchString))
+			return true;
+		return false;
+	}
+
+	async Task OnSPLSave(){
+		saveProcessing = true;
+		await Task.Delay(50);
+		if(Mode == "Tambah") {
+
+			List<SuratPerintahLemburDTO> splDTOs = new List<SuratPerintahLemburDTO>();
+			SPLdto.OTDate = splDate?.Date;
+			foreach(var e in selectedDataGaji) {
+				Console.WriteLine($"e.NIK: {e.NIK}, e.Nama: {e.NamaKaryawan}");
+			}
+			foreach (var emp in selectedDataGaji) {
+				SuratPerintahLemburDTO SPLdto =  new SuratPerintahLemburDTO
+				{
+					Id = 0,
+					GroupId = emp.GroupId,
+					GroupName = emp.GrupKerja,
+					DepartmentId = emp.DepartmentId,
+					DepartmentName = emp.DepartmentName,
+					EmployeeId = emp.EmployeeId,
+					NIK = emp.NIK,
+					EmployeeName = emp.NamaKaryawan,
+					Description = Keterangan.Value,
+					Style = Style.Value,
+					OTType = jnsSPL.SelectedOption!,
+					OTDate = splDate?.Date,
+					OT1 = OT1.Value,
+					OT2 = OT2.Value,
+					OTBreak = OTBreak.Value,
+					OTTotal = OTTotal.Value,
+					Upah = emp.Upah,
+					TunjJabatan = emp.TunjJabatan,
+					TunjKeterampilan = emp.TunjKeterampilan,
+					TunjMasaKerja = emp.TunjMasaKerja,
+					TunjLain = emp.TunjLain
+				};
+				await splService.AddSPLAsync(SPLdto);
+			}
+			// foreach(var spl in splDTOs) {
+			// 	Console.WriteLine(spl.OTDate.Value.Date);
+			// }
+			// await splService.AddSPLAsync(splDTOs);
+			Snackbar.Add("Data SPL karyawan berhasil di-simpan di database", Severity.Info, config => {
+				config.HideTransitionDuration = 50;
+			});
+			await formSPL.ResetAsync();
+			splTable.SelectedItems.Clear();
+		}
+		saveProcessing = false;
+	}
+
+	private decimal HitungUpahLembur(decimal upah, int totalTunjangan, string JnsLembur) {
+		decimal upahLembur = 0.00M;
+		if (JnsLembur == "Lembur Awal" | JnsLembur == "Lembur Akhir") {
+			if (OTTotal.Value == 1) {
+				upahLembur = Math.Round((decimal)((int)(upah + totalTunjangan) / 173 * 1.5), 2);
+			}
+			if (OTTotal.Value == 2) {
+				upahLembur = Math.Round((decimal)((upah + totalTunjangan) / 173 * 2), 2);
+			}
+			if (OTTotal.Value == 3) {
+				upahLembur = Math.Round((decimal)((upah + totalTunjangan) / 173 * 3), 2);
+			}
+			if (OTTotal.Value == 4) {
+				upahLembur = Math.Round((decimal)((upah + totalTunjangan) / 173 * 4), 2);
+			}
+		}
+		else if (JnsLembur == "Lembur Hari Libur") {
+			if (OTTotal.Value <= 7) {
+				upahLembur = Math.Round((decimal)((upah + totalTunjangan) / 173 * 2), 2);
+			}
+			if (OTTotal.Value == 8) {
+				upahLembur = Math.Round((decimal)((upah + totalTunjangan) / 173 * 3), 2);
+			}
+			if (OTTotal.Value > 8) {
+				upahLembur = Math.Round((decimal)((upah + totalTunjangan) / 173 * 4), 2);
+			}
+		}
+		return upahLembur;
+	}
+
+	private void OnFormClose() {
+		MudDialog?.Close(DialogResult.Ok(true));
+	}
+
+	private void OTBlur() {
+		splDTO.OTTotal = splDTO.OT1 + splDTO.OT2;
+	}
+}

@@ -1,0 +1,290 @@
+﻿@using SKM.Shared.Dtos
+@using HRIS.Contracts
+@using SKM.Shared.Helpers;
+
+@inject IDialogService ModalDialog
+@inject ISnackbar Snackbar
+@inject HttpClient httpClient
+
+<MudDialog>
+	<DialogContent>
+		<MudGrid>
+@* 			<MudItem xs="4">
+				<MudAutocomplete T="GroupDTO" Label="Grup Kerja" @bind-Value="groupValue" Margin="Margin.Dense" Dense="true" SearchFunc="@GroupSearch" ToStringFunc="@(e => e == null ? null : $"{e.GroupDesc}")" />
+			</MudItem> *@
+
+			<MudItem xs="10">
+				<MudDateRangePicker @bind-DateRange= "_dateRange" Label="Durasi Tanggal" PlaceholderStart="Dari" PlaceholderEnd="Sampai" DateFormat="dd/MM/yyyy" TitleDateFormat="dddd, dd. MMMM" />
+			</MudItem>
+			<MudItem xs="2">
+				<MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Search" Size="Size.Medium" OnClick="SearchJadwal" Color="Color.Primary" Disabled="disableBtnCari" >
+					@if (prosesCari) {
+						<MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+						<MudText Class="ms-2">Proses....</MudText>
+					}else{
+						<MudText Class="ms-2">Cari</MudText>
+					}
+				</MudButton>
+			</MudItem>
+		</MudGrid>
+
+		<MudGrid>
+			<MudItem xs="12">
+				<MudField Class="ma-2" Variant="Variant.Outlined" Label="Data Karyawan">
+
+@* 					<MudButton StartIcon="@Icons.Material.Filled.Check" Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled" IconSize="Size.Small" OnClick="AddSelectedJadwal" FullWidth="true" Disabled="@(selectedItems.Count <=0 ? true : false)" EndIcon="@Icons.Material.Filled.ArrowCircleRight">OK</MudButton> *@
+
+					<MudTable Items="jadwalKerjaKaryawanDTOs" T="JadwalKerjaKaryawanDTO" Striped="true" RowClass="cursor-pointer" Dense="true" MultiSelection="true" Hover="true" @bind-SelectedItems="selectedItems" Filter="new Func<JadwalKerjaKaryawanDTO,bool>(FilterFunc1)" @bind-SelectOnRowClick="@_selectOnRowClick" Style="max-height: 800px; overflow: scroll" FixedHeader="true" FixedFooter="true" OnRowClick="OnRowClicked" >
+						<ToolBarContent>
+							<MudText Typo="Typo.h6" Color="Color.Warning">Daftar Jadwal Kerja Karyawan</MudText>
+							<MudSpacer />
+							<MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+						</ToolBarContent>
+						<HeaderContent>
+							@if(!_showColId){
+								<MudTh>Id</MudTh>
+							}
+							<MudTh>Grup</MudTh>
+							<MudTh>NIK</MudTh>
+							<MudTh>Nama</MudTh>
+							<MudTh>Tanggal</MudTh>
+							<MudTh>Jam Masuk</MudTh>
+							<MudTh>Jam Pulang</MudTh>
+						</HeaderContent>
+						<RowTemplate>
+							@if(!_showColId){
+								<MudTd>@context.Id</MudTd>
+							}
+							<MudTd>@context.GroupName</MudTd>
+							<MudTd>@context.NIK</MudTd>
+							<MudTd>@context.NamaKaryawan</MudTd>
+							<MudTd>@context?.Tgl?.Date.ToString("dd-MM-yyyy")</MudTd>
+							<MudTd>@context.JamMasuk</MudTd>
+							<MudTd>@context.JamPulang</MudTd>
+						</RowTemplate>
+						<NoRecordsContent>
+							<MudText>No Data</MudText>
+						</NoRecordsContent>
+						<PagerContent>
+@* 							<MudTablePager PageSizeOptions="new int[] {5, 10, 20, 25, 50, 75, 100, 150, int.MaxValue}" /> *@ 
+							<MudTablePager />
+						</PagerContent>
+					</MudTable>
+				</MudField>
+				<MudGrid>
+					<MudItem xs="12" sm="6">
+						<MudTimePicker Label="Jam Masuk" PickerVariant="PickerVariant.Dialog" @bind-Time="jamMasuk" />
+					</MudItem>
+					<MudItem xs="12" sm="6">
+						<MudTimePicker Label="Jam Pulang" PickerVariant="PickerVariant.Dialog" @bind-Time="jamPulang" />
+					</MudItem>
+				</MudGrid>
+			</MudItem>
+
+@* 			<MudItem xs="6">
+				<MudField Class="ma-2" Label="Data Karyawan Terpilih" Variant="Variant.Outlined">
+					<MudDataGrid Items="@selectedJadwalDTOs" Dense="true" Striped="true" Hover="true" RowClass="cursor-pointer" Class="ma-2" Style="max-height: 800px; overflow: scroll" FixedHeader="true" FixedFooter="true">
+						<Columns>
+							@if(!_showColId){
+								<PropertyColumn Property="x => x.Id" Title="Id" />
+							}
+							<PropertyColumn Property="x => x.GroupName" Title="Grup" />
+							<PropertyColumn Property="x => x.NIK" Title="NIK" />
+							<PropertyColumn Property="x => x.NamaKaryawan" Title="Nama" />
+							<PropertyColumn Format="dd-MM-yyyy" Property="x => x.Tgl" Title="Tgl" />
+							<PropertyColumn Property="x => x.JamMasuk" Title="Jam Masuk" />
+							<PropertyColumn Property="x => x.JamPulang" Title="Jam Pulang" />
+							<TemplateColumn CellClass="d-flex justify-end">
+								<CellTemplate>
+									<MudIconButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Error" Icon="@Icons.Material.Filled.Delete" OnClick="() => DelSelectedJadwal(context.Item.Id)" />
+								</CellTemplate>
+							</TemplateColumn>
+						</Columns>
+						<PagerContent>
+							<MudDataGridPager T="SelectedEmpTempDTO" />
+						</PagerContent>
+					</MudDataGrid>
+				</MudField>
+			</MudItem> *@
+
+		</MudGrid>
+
+
+	</DialogContent>
+	<DialogActions>
+		<MudButton Color="Color.Warning" StartIcon="@Icons.Material.Filled.Save" Variant="Variant.Filled" Size="Size.Small" OnClick="JadwalSave" Disabled="disableBtnSave">
+			@if (saveProcessing) {
+				<MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+				<MudText Class="ms-2">Processing...</MudText>
+			}
+			else {
+				<MudText>Save</MudText>
+			}
+		</MudButton>
+		<MudButton Color="Color.Transparent" StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Outlined" Size="Size.Small" OnClick="ModalClose">
+			Close
+		</MudButton>
+	</DialogActions>
+</MudDialog>
+
+@code {
+	[CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+	[Parameter] public string? ModalLabel { get; set; }
+	[Parameter] public List<GroupDTO> groupDTOs { get; set; }
+
+	private List<JadwalKerjaKaryawanDTO> jadwalKerjaKaryawanDTOs { get; set; } = new();
+	private GroupDTO groupValue;
+
+	[Inject]IJadwalKerjaKaryawanService jadwalKerjaKaryawanService { get; set; }
+
+	private MudForm formEditJadwalKerjaKaryawan;
+	private MudTimePicker JamMasuk;
+	private MudTimePicker JamPulang;
+	private MudTimePicker JamMasukLain;
+	private MudTimePicker JamPulangLain;
+	private bool datePickerDisabled = true;
+	private JadwalShiftKaryawanDTO jadwalShiftKaryawanDTO { get; set; }
+	private DateRange _dateRange = new();
+	private string? searchString1;
+	private HashSet<JadwalKerjaKaryawanDTO> selectedItems = new();
+	private TimeSpan? jamMasuk = new();
+	private TimeSpan? jamPulang = new();
+	private bool saveProcessing = false;
+	private bool disableBtnSave = true;
+	private bool prosesCari = false;
+	private bool disableBtnCari = false;
+	private bool disabledOKButton = true;
+	private List<JadwalKerjaKaryawanDTO> selectedJadwalDTOs = new();
+	private bool _selectOnRowClick = true;
+	private bool _showColId = true;
+
+	private void ModalClose() {
+		MudDialog?.Close(DialogResult.Ok(true));
+	}
+
+	private async Task<IEnumerable<GroupDTO>> GroupSearch(string val) {
+		await Task.Delay(5);
+		// if (string.IsNullOrEmpty(val)) return groupDTOs.Select(g => g.GroupDesc);
+
+		return groupDTOs.Where(g => g.GroupDesc.Contains(val)); 
+	}
+
+	private bool FilterFunc1(JadwalKerjaKaryawanDTO element) => FilterFunc(element, searchString1);
+
+	private bool FilterFunc(JadwalKerjaKaryawanDTO element, string searchString) {
+		if (string.IsNullOrWhiteSpace(searchString))
+			return true;
+		if (element.NamaKaryawan.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.Tgl.Value.Date.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.JamMasuk.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.JamPulang.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if ($"{element.NamaKaryawan} {element.NIK} {element.Tgl.Value.Date.ToString()} {element.JamMasuk.ToString()} {element.JamPulang.ToString()}".Contains(searchString))
+			return true;
+		return false;
+	}
+
+	private async void JadwalSave() {
+		saveProcessing = true;
+		// disableBtnSave = true;
+
+		List<JadwalKerjaKaryawanDTO> listUpdateJadwal = new();
+		// foreach (JadwalKerjaKaryawanDTO j in selectedJadwalDTOs) {
+		foreach (JadwalKerjaKaryawanDTO j in selectedItems) {
+			JadwalKerjaKaryawanDTO jadwal = new()
+			{
+				Id = j.Id,
+				GroupName = j.GroupName,
+				NIK = j.NIK,
+				NamaKaryawan = j.NamaKaryawan,
+				Tgl = j.Tgl,
+				JamMasuk = jamMasuk.Value,
+				JamPulang = jamPulang.Value
+			};
+			listUpdateJadwal.Add(jadwal);
+		}
+		selectedItems.Clear();
+		var jadwalUpdated = await jadwalKerjaKaryawanService.UpdateJadwalKerjaKaryawanRange(listUpdateJadwal);
+		Snackbar.Add("Jadwal Karyawan berhasil diubah!", Severity.Success, configure =>
+		{
+			configure.HideTransitionDuration = 200;
+		});
+		saveProcessing = false;
+		// disableBtnSave = false;
+	}
+
+	// void selectJadwalKaryawanTextHasChanged(string text) {
+	// 	Console.WriteLine(text);
+	// 	if(text != "Lainnya") {
+	// 		var jadwalShiftKaryawan = jadwalShiftKaryawanDTOs.Where(j => j.Deskripsi == text).SingleOrDefault();
+	// 		jadwalKerjaKaryawanDTO.JamMasuk = jadwalShiftKaryawan.JadwalMasuk.Value;
+	// 		jadwalKerjaKaryawanDTO.JamPulang = jadwalShiftKaryawan.JadwalPulang.Value;
+
+	// 		datePickerDisabled = true;
+	// 	}
+	// 	else {
+	// 		datePickerDisabled = false ;
+	// 	}
+	// 	// Console.WriteLine(selectShift.Text);
+	// }
+
+	private async void SearchJadwal() {
+		disableBtnCari = true;
+		prosesCari = true;
+
+		// string group = groupValue.GroupDesc;
+		// string strGroup = group.Replace("/", "-").Replace(" ", "_");
+		string strGroup = "All";
+		string startDate = DateConversions.DateToString(_dateRange.Start.Value.Date);
+		string endDate = DateConversions.DateToString(_dateRange.End.Value.Date);
+
+		jadwalKerjaKaryawanDTOs.Clear();
+
+		jadwalKerjaKaryawanDTOs = await jadwalKerjaKaryawanService.GetByGroupAndDate(strGroup, startDate, endDate);
+		disableBtnCari = false;
+		prosesCari = false;
+		StateHasChanged();
+
+	}
+
+	void AddSelectedJadwal() {
+		foreach (var i in selectedItems) {
+			JadwalKerjaKaryawanDTO jadwal = new()
+				{
+					Id = i.Id,
+					NIK = i.NIK,
+					GroupName = i.GroupName,
+					NamaKaryawan = i.NamaKaryawan,
+					Tgl = i.Tgl,
+					JamMasuk = i.JamMasuk,
+					JamPulang = i.JamPulang
+				};
+			selectedJadwalDTOs.Add(jadwal);
+		}
+		selectedItems.Clear();
+		disabledOKButton = true;
+		disableBtnSave = false;
+	}
+
+	bool DelSelectedJadwal(int id) {
+		JadwalKerjaKaryawanDTO? selectedJadwal = selectedJadwalDTOs.Where(e => e.Id == id).SingleOrDefault();
+		var del = selectedJadwalDTOs.Remove(selectedJadwal!);
+		return del;
+	}
+
+	void OnRowClicked(TableRowClickEventArgs<JadwalKerjaKaryawanDTO> args) {
+		if (selectedItems.Count <= 0) {
+			// disabledOKButton = true;
+			disableBtnSave = true;
+		}
+		else {
+			// disabledOKButton = false;
+			disableBtnSave = false;
+		}
+	}
+}

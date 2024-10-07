@@ -1,0 +1,230 @@
+﻿@page "/hadir"
+
+@inject ISnackbar Snackbar
+
+@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+
+<MudPaper Class="mb-4">
+	<MudGrid Class="align-center d-flex justify-center">
+		<MudItem xs="3">
+			<MudDateRangePicker @ref="tglPeriode" @bind-DateRange="_dateRange" Margin="Margin.Dense" PlaceholderStart="Dari" PlaceholderEnd="Sampai" Variant="Variant.Outlined" DisableToolbar="true" Label="Periode"></MudDateRangePicker>
+		</MudItem>
+		<MudItem xs="3">
+			<MudSelect T="string" @ref="selectGroup" Variant="Variant.Outlined" Margin="Margin.Dense">
+				<MudSelectItem Value="@("All")">Semua</MudSelectItem>
+				@foreach (var g in groupDTOs) {
+					<MudSelectItem Value="@g.GroupDesc">@g.GroupDesc</MudSelectItem>
+				}
+			</MudSelect>
+		</MudItem>
+		<MudItem xs="3">
+			<MudButton Disabled="@_processing" StartIcon="@Icons.Material.Filled.Search" OnClick="CariKehadiran" Size="Size.Small" Variant="Variant.Filled" Color="Color.Success">
+				@if (_processing) {
+					<MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+					<MudText Class="ms-2">...Processing</MudText>
+				}
+				else {
+					<MudText>Proses</MudText>
+				}
+			</MudButton>
+
+		</MudItem>
+	</MudGrid>
+</MudPaper>
+
+<MudTable @ref="hadirTable" ServerData="@(new Func<TableState, Task<TableData<JadwalKehadiranDTO>>>(JadwalKehadiranReload))" T="JadwalKehadiranDTO" Dense="true" Hover="true" CanCancelEdit="true" @bind-SelectedItem="selectedKehadiran" RowEditCancel="ResetKehadiranItem" RowEditCommit="kehadiranCommitted" RowEditPreview="kehadiranBackupItem" IsEditRowSwitchingBlocked="true" ApplyButtonPosition="TableApplyButtonPosition.End">
+	<ToolBarContent>
+		<MudText Typo="Typo.h6"><strong>Data Kehadiran</strong></MudText>
+		<MudSpacer />
+		<MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+						  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+	</ToolBarContent>
+	<HeaderContent>
+		<MudTh><MudTableSortLabel SortLabel="Id_Field" T="JadwalKehadiranDTO">ID</MudTableSortLabel></MudTh>
+
+		<MudTh><MudTableSortLabel SortLabel="GrupKerja_Field" T="JadwalKehadiranDTO">Grup Kerja</MudTableSortLabel></MudTh>
+
+		<MudTh><MudTableSortLabel SortLabel="NIK_Field" T="JadwalKehadiranDTO">NIK</MudTableSortLabel></MudTh>
+
+		<MudTh><MudTableSortLabel SortLabel="Nama_Field" T="JadwalKehadiranDTO">Nama</MudTableSortLabel></MudTh>
+		<MudTh><MudTableSortLabel SortLabel="JadwalMasuk_Field" T="JadwalKehadiranDTO">Jam Masuk</MudTableSortLabel></MudTh>
+		<MudTh><MudTableSortLabel SortLabel="JamdwalPulang_Field" T="JadwalKehadiranDTO">Jam Pulang</MudTableSortLabel></MudTh>
+	</HeaderContent>
+	<RowTemplate>
+		<MudTd DataLabel="ID">@context.Id</MudTd>
+		<MudTd DataLabel="Grup Kerja">@context.GrupKerja</MudTd>
+		<MudTd DataLabel="NIK">@context.NIK</MudTd>
+		<MudTd DataLabel="Nama">@context.Nama</MudTd>
+		<MudTd DataLabel="Jadwal Masuk">@context.JadwalMasuk</MudTd>
+		<MudTd DataLabel="Jadwal Pulang">@context.JadwalPulang</MudTd>
+	</RowTemplate>
+	<RowEditingTemplate>
+		<MudTd DataLabel="ID">
+			<MudTextField Disabled="true" @bind-Value="@context.Id"></MudTextField>
+		</MudTd>
+		<MudTd DataLabel="Grup Kerja">
+			<MudTextField Disabled="true" @bind-Value="@context.GrupKerja"></MudTextField>
+		</MudTd>
+		<MudTd DataLabel="NIK">
+			<MudTextField Disabled="true" @bind-Value="@context.NIK"></MudTextField>
+		</MudTd>
+		<MudTd DataLabel="Nama">
+			<MudTextField Disabled="true" @bind-Value="@context.Nama"></MudTextField>
+		</MudTd>
+		<MudTd DataLabel="Jadwal Masuk">
+			<MudDatePicker Disabled=true ref="jadwalMasukDateRef">@context.JadwalMasuk!.Value.Date</MudDatePicker>
+			<MudTimePicker ref="jadwalMasukTimeRef" PickerVariant="PickerVariant.Dialog">@context.JadwalMasuk!.Value.TimeOfDay</MudTimePicker>
+		</MudTd>
+		<MudTd DataLabel="Jadwal Pulang">
+			<MudDatePicker ref="jadwalPulangDateRef" Disabled=true>@context.JadwalPulang!.Value.Date</MudDatePicker>
+			<MudTimePicker ref="jadwalPulangTimeRef" PickerVariant="PickerVariant.Dialog">@context.JadwalPulang!.Value.TimeOfDay</MudTimePicker>
+		</MudTd>
+	</RowEditingTemplate>
+	<EditButtonContent Context="button">
+		<MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0"></MudIconButton>
+	</EditButtonContent>
+	<NoRecordsContent>
+		<MudText>No matching records found</MudText>
+	</NoRecordsContent>
+	<LoadingContent>
+		<MudText>Loading...</MudText>
+	</LoadingContent>
+	<PagerContent>
+		<MudTablePager />
+	</PagerContent>
+</MudTable>
+
+@code {
+	private MudTable<JadwalKehadiranDTO>? hadirTable;
+	private MudDateRangePicker? tglPeriode;
+	private DateRange? _dateRange;
+	private MudSelect<string>? selectGroup;
+	private MudDatePicker? jadwalMasukDateRef;
+	private MudTimePicker? jadwalMasukTimeRef;
+	private MudDatePicker? jadwalPulangDateRef;
+	private MudTimePicker? jadwalPulangTimeRef;
+
+	private List<GroupDTO>? groupDTOs { get; set; } = new();
+	IEnumerable<JadwalKehadiranDTO>? pagedData;
+	// [Inject]IKehadiranService kehadiranService { get; set; }
+	[Inject]IJadwalKehadiranService? jadwalKehadiranService { get; set; }
+	[Inject]IGroupService? groupService { get; set; }
+
+	private bool _processing = false;
+	private string searchString = null;
+	private int totalItems;
+	string group = "SK-STAFF";
+	string startDate = DateConversions.DateToString(DateTime.Now.Date);
+	string endDate = DateConversions.DateToString(DateTime.Now.Date);
+
+	private JadwalKehadiranDTO? selectedKehadiran;
+	private JadwalKehadiranDTO? kehadiranDTOBeforeEdit;
+
+	protected override async Task OnInitializedAsync() {
+		// return base.OnInitializedAsync();
+		groupDTOs = await groupService.GetListGroupsAsync();
+	}
+
+	async Task CariKehadiran() {
+		_processing = true;
+		string strGroup = selectGroup.Value;
+		group = strGroup.Replace("/", "-");
+
+		DateTime date1 = _dateRange.Start!.Value.Date;
+		startDate = DateConversions.DateToString(date1.Date);
+
+		DateTime date2 = _dateRange.End!.Value.Date;
+		endDate = DateConversions.DateToString(date2.Date);
+
+		await hadirTable!.ReloadServerData();
+		await Task.Delay(2000);
+		_processing = false;
+	}
+
+	private async Task<TableData<JadwalKehadiranDTO>> JadwalKehadiranReload(TableState state) {
+		// IEnumerable<KehadiranDTO> data = await kehadiranService.GetByGroupAndDate(group, startDate, endDate);
+		IEnumerable<JadwalKehadiranDTO>? data = await jadwalKehadiranService!.GetByGroupAndDateRange(group, startDate, endDate);
+		await Task.Delay(300);
+		data = data!.Where(element => {
+			if (string.IsNullOrWhiteSpace(searchString))
+				return true;
+			if (element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.GrupKerja!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.NIK!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.Nama!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.JadwalMasuk!.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.JadwalPulang!.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if ($"{element.Id.ToString()} {element.GrupKerja} {element.NIK} {element.Nama} {element.JadwalMasuk.ToString()} {element.JadwalPulang.ToString()}".Contains(searchString))
+				return true;
+			return false;
+		}).ToArray();
+		totalItems = data.Count();
+		switch (state.SortLabel) {
+			case "Id_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.Id);
+			break;
+			case "GrupKerja_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.GrupKerja);
+			break;
+			case "NIK_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+			break;
+			case "Nama_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.Nama);
+			break;
+			case "JadwalMasuk_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.JamMasuk);
+			break;
+			case "JadwalPulang_field":
+			data = data.OrderByDirection(state.SortDirection, o => o.JamPulang);
+			break;
+		}
+
+		pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+		return new TableData<JadwalKehadiranDTO>() { TotalItems = totalItems, Items = pagedData };
+	}
+
+	private void ResetKehadiranItem(object el) {
+		((JadwalKehadiranDTO)el).Id = kehadiranDTOBeforeEdit.Id;
+		((JadwalKehadiranDTO)el).JamMasuk = kehadiranDTOBeforeEdit.JamMasuk;
+		((JadwalKehadiranDTO)el).JadwalPulang = kehadiranDTOBeforeEdit.JamPulang;
+	}
+
+	private void kehadiranBackupItem(object el) {
+		kehadiranDTOBeforeEdit = new() {
+				Id = ((JadwalKehadiranDTO)el).Id,
+				JadwalMasuk = ((JadwalKehadiranDTO)el).JadwalMasuk,
+				JadwalPulang = ((JadwalKehadiranDTO)el).JadwalPulang
+			};
+	}
+
+	private async void kehadiranCommitted(object el) {
+		DateTime jadwalMasuk = Convert.ToDateTime($"{jadwalMasukDateRef} {jadwalMasukTimeRef}");
+		DateTime jadwalPulang = Convert.ToDateTime($"{jadwalPulangDateRef} {jadwalPulangTimeRef}");
+		JadwalKehadiranDTO kehadiranDTOCommitted = new() {
+				Id = ((JadwalKehadiranDTO)el).Id,
+				JadwalMasuk = jadwalMasuk,
+				JadwalPulang = jadwalPulang,
+			};
+		var jadwal = await jadwalKehadiranService!.UbahJam(kehadiranDTOCommitted);
+		if (jadwal != null) {
+			Snackbar.Add("Jadwal Kehadiran Karyawan berhasil di update.", Severity.Success, c => {
+				c.HideTransitionDuration = 50;
+			});
+			await hadirTable.ReloadServerData();
+		}
+	}
+
+	private void OnSearch(string text) {
+		searchString = text;
+		hadirTable.ReloadServerData();
+	}
+}

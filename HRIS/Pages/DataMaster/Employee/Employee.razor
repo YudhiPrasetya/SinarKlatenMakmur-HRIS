@@ -1,0 +1,619 @@
+﻿@page "/employees"
+
+
+@using HRIS.Contracts;
+@using HRIS.Pages.SharedModal;
+@using HRIS.Services;
+@using Microsoft.AspNetCore.Authorization;
+@using SKM.Shared.Dtos;
+
+@attribute [Authorize]
+
+@inject IDialogService DialogService;
+@inject ISnackbar Snackbar;
+
+<MudCard Class="mt-5" Elevation="1">
+	<MudCardHeader>
+		<CardHeaderContent>
+			<MudText Typo="Typo.h6">Data Karyawan</MudText>
+		</CardHeaderContent>
+		<CardHeaderActions>
+			@*<MudIconButton Icon="@Icons.Material.Filled.Add" Title="Tambah Data" Color="Color.Success"></MudIconButton>*@
+@*			<MudFab Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Label="Tambah Data" />*@
+@*         <MudButton Color="Color.Tertiary" Href="/addEmployee" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add">Tambah Data</MudButton>*@
+		</CardHeaderActions>
+	</MudCardHeader>
+	<MudCardContent>
+      <MudExpansionPanels Elevation="3">
+         <MudExpansionPanel @bind-IsExpanded="isOpen" HideIcon="true">
+            <TitleContent>
+               <div class="d-flex">
+                  <MudText Color="@TitlePanelColor">
+                     <strong>@formCaption</strong>
+                  </MudText>
+                  <MudIcon Icon="@(isOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Add)" Class="ml-auto"></MudIcon>
+               </div>
+            </TitleContent>
+            <ChildContent>
+               <MudForm @ref="employeeForm" @bind-IsValid="@success" Errors="@errors">
+                  <MudGrid>
+                     <MudItem xs="2">
+                        <MudTextField @ref="@Id" T="int" Label="Id" Required="true" Disabled="true" @bind-Value="@employeeDTO.EmployeeId">
+                        </MudTextField>
+                     </MudItem>
+                     <MudItem xs="3">
+                        <MudTextField @bind-Value="@employeeDTO.NIK" Label="NIK" T="string" Required="true" @ref="NIK">
+                        </MudTextField>
+                     </MudItem>
+                     <MudItem xs="3">
+                        <MudTextField @bind-Value="@employeeDTO.Name" Label="Nama" T="string" Required="true" @ref="Name"></MudTextField>
+                     </MudItem>
+                  </MudGrid>
+                  <MudGrid>
+                     <MudItem xs="1">
+@*                         <MudAutocomplete @ref="Department" T="DepartmentDTO" @bind-Value="departmentDTO" @bind-Text="@employeeDTO.DepartmentName"  Label="Departemen" SearchFunc="@DepartmentSearch" ToStringFunc="@(d => d == null ? null : $"{d.DepartmentID}-{d.DepartmentName}")">
+                           <BeforeItemsTemplate>
+                              <MudText Color="Color.Primary" Class="px-4 py-1">--Pilih Departemen--</MudText>
+                           </BeforeItemsTemplate>
+                        </MudAutocomplete> *@
+                        <MudTextField @ref="DepartmentID" @bind-Value="@employeeDTO.DepartmentId" Label="Dept.ID" Disabled="true" ></MudTextField>
+                     </MudItem>
+                     <MudItem xs="3">
+                        <MudTextField @ref="DepartmentName" @bind-Value="employeeDTO.DepartmentName" Label="Dept.Name" ReadOnly="true" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="SearchDepartment"></MudTextField>
+                     </MudItem>
+@*                      <MudItem xs="1">
+                        <MudFab Size="Size.Small" Icon="@Icons.Material.Filled.Search" Color="Color.Info" OnClick="SearchDepartment"></MudFab>
+                     </MudItem> *@
+
+@*                      <MudItem xs="4">
+                        <MudAutocomplete @ref="Position" T="PositionDTO" @bind-Text="employeeDTO.PositionName" @bind-Value="positionDTO" Label="Jabatan" SearchFunc="@PositionSearch" ToStringFunc="@(p => p == null ? null : $"{p.PositionId}-{p.PositionDesc}")">
+                           <BeforeItemsTemplate>
+                              <MudText Color="Color.Primary" Class="px-4 py-1">--Pilih Jabatan--</MudText>
+                           </BeforeItemsTemplate>
+                        </MudAutocomplete>
+                     </MudItem> *@
+
+                     <MudItem xs="1">
+                        <MudTextField @ref="PositionID" @bind-Value="@employeeDTO.PositionId" Disabled="true" Label="PositionID"></MudTextField>
+                     </MudItem>
+                     <MudItem xs="3">
+                        <MudTextField @ref="PositionName" @bind-Value="employeeDTO.PositionName" Label="Post.Name" ReadOnly="true" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="SearchPosition"></MudTextField>
+                     </MudItem>
+
+                     <MudItem xs="1">
+@*                         <MudAutocomplete @ref="Group" T="GroupDTO" @bind-Text="employeeDTO.GroupName" @bind-Value="groupDTO" Label="Grup Kerja" SearchFunc="@GroupSearch" ToStringFunc="@(g => g == null ? null : $"{g.GroupID}-{g.GroupDesc}")">
+                           <BeforeItemsTemplate>
+                              <MudText Color="Color.Primary" Class="px-4 py-1">--Pilih Grup Kerja--</MudText>
+                           </BeforeItemsTemplate>
+                        </MudAutocomplete>*@
+                        <MudTextField @ref="GroupID" @bind-Value="@employeeDTO.GroupID" Disabled="true" Label="Grup ID"></MudTextField>
+                     </MudItem>
+                     <MudItem xs="3">
+                        <MudTextField @ref="GroupName" @bind-Value="employeeDTO.GroupName" Label="Grup Name" ReadOnly="true" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="SearchGroup"></MudTextField>
+                     </MudItem>
+                  </MudGrid>
+
+                  <MudGrid>
+                     <MudItem xs="4">
+                        <MudTextField @ref="Pendidikan" @bind-Value="employeeDTO.Pendidikan" Label="Pendidikan" Required="false"></MudTextField>
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudField Variant="Variant.Outlined" Label="Jenis Kelamin">
+                        <MudRadioGroup T="bool?" @bind-SelectedOption="@employeeDTO.Gender" @ref="Gender">
+                           <MudRadio T="bool?" Option="@false">Perempuan</MudRadio>
+                           <MudRadio T="bool?" Option="@true">Laki-laki</MudRadio>
+                        </MudRadioGroup>
+                        </MudField>
+
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudTextField @ref="LocBirth" @bind-Value="@employeeDTO.LocBirth" Label="Tempat Lahir" Required="false"></MudTextField>
+                     </MudItem>
+                  </MudGrid>
+
+                  <MudGrid>
+                     <MudItem xs="4">
+                        <MudDatePicker @ref="DateBirth" Label="Tgl Lahir" T="DateTime" Required="true" @bind-Date="@employeeDTO.DateBirth"></MudDatePicker>
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudTextField @ref="KTP" @bind-Value="@employeeDTO.KTP" Label="KTP" Required="true"></MudTextField>
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudTextField Label="No.KK" @bind-Value="@employeeDTO.NoKK" Required="false" @ref="NoKK"></MudTextField>
+                     </MudItem>
+                  </MudGrid>
+
+                  <MudGrid>
+                     <MudItem xs="4">
+                        <MudTextField Lines="3" @ref="Address" Label="Alamat" @bind-Value="@employeeDTO.Address" Required="true"></MudTextField>
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudDatePicker Label="Awal Kerja" @ref="EmployeeDate" @bind-Date="@employeeDTO.EmployeeDate"></MudDatePicker>
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudDatePicker Label="Akhir Kerja" @ref="EndEmpDate" @bind-Date="@employeeDTO.EndEmpDate"></MudDatePicker>
+                     </MudItem>
+                  </MudGrid>
+
+                  <MudGrid>
+                     <MudItem xs="4">
+                        <MudSwitch T="bool?" @bind-Checked="@employeeDTO.IsActive" Label="Aktif" LabelPosition="MudBlazor.LabelPosition.Start" Color="Color.Success" @ref="IsActive"></MudSwitch>
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudSwitch Label="Staf" T="bool?" LabelPosition="MudBlazor.LabelPosition.Start" Color="Color.Success" @bind-Checked="@employeeDTO.IsStaff" @ref="IsStaf"></MudSwitch>
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudTextField Label="Nama Bank" @ref="BankName" @bind-Value="@employeeDTO.BankName" Required="true"></MudTextField>
+                     </MudItem>
+                  </MudGrid>
+
+                  <MudGrid>
+                     <MudItem xs="3">
+                        <MudTextField @ref="AccountBank" @bind-Value="@employeeDTO.AccountBank" Required="false" Label="No.Rekening"></MudTextField>
+                     </MudItem>
+
+                     <MudItem xs="3">
+                        <MudTextField @ref="NOBPJSTK" @bind-Value="@employeeDTO.NOBPJSTK" Required="false" Label="No.BPJS TK"></MudTextField>
+                     </MudItem>
+
+                     <MudItem xs="3">
+                        <MudTextField @ref="NOBPJSKS" @bind-Value="@employeeDTO.NOBPJSKS" Required="false" Label="No.BPJS KS"></MudTextField>
+                     </MudItem>
+
+                     <MudItem xs="3">
+                        <MudTextField @ref="NOBPJSPEN" @bind-Value="@employeeDTO.NOBPJSPEN" Required="false" Label="No.BPJS PEN"></MudTextField>
+                     </MudItem>
+                  </MudGrid>
+
+                  <MudGrid>
+                     <MudItem xs="4">
+                        <MudSelect @ref="MarriedStatus" Label="Status Pernikahan" @bind-Value="@employeeDTO.MarriedStatus">
+                           <MudSelectItem Value="false">Belum/Tidak Menikah</MudSelectItem>
+                           <MudSelectItem Value="true">Menikah</MudSelectItem>
+                        </MudSelect>
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudTextField @ref="EmployeeStatus" @bind-Value="@employeeDTO.EmployeeStatus" Label="Status Karyawan" Required="true"></MudTextField>
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudDatePicker @ref="StartActiveDate" Label="Mulai Aktif" @bind-Date="@employeeDTO.StartActiveDate" Required="true"></MudDatePicker>
+                     </MudItem>
+                  </MudGrid>
+
+                  <MudGrid>
+                     <MudItem xs="4">
+                        <MudDatePicker @ref="ContractStartDate" Label="Tgl Awal Kontrak" @bind-Date="@employeeDTO.ContractStartDate" Required="true"></MudDatePicker>
+                     </MudItem>
+
+                     <MudItem xs="4">
+                        <MudDatePicker @ref="ContractEndDate" Label="Tgl Akhir Kontrak" @bind-Date="@employeeDTO.ContractEndDate" Required="true"></MudDatePicker>
+                     </MudItem>
+
+                     <MudItem xs="2">
+                        <MudTextField @ref="MotherName" @bind-Value="employeeDTO.MotherName" Label="Nama Ibu" Required="false"></MudTextField>
+                     </MudItem>
+
+                     <MudItem xs="2">
+                        <MudTextField @ref="PhoneNumber" @bind-Value="employeeDTO.PhoneNumber" Label="Nomor Telp." Required="false"></MudTextField>
+                     </MudItem>
+                  </MudGrid>
+
+                  <MudPaper Class="d-flex flex-row-reverse flex-grow-1 gap-3 my-6" Elevation="0">
+                     <MudButton OnClick="SaveEmployee" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Update">Save</MudButton>
+
+                     <MudButton Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Cancel" OnClick="Cancel">Cancel</MudButton>
+                  </MudPaper>
+               </MudForm>
+            </ChildContent>
+         </MudExpansionPanel>
+      </MudExpansionPanels>
+      <MudTable ServerData="@(new Func<TableState, Task<TableData<EmployeeDTO>>>(ServerReload))"
+                Dense="true" Hover="true" @ref="employeeTable" Elevation="4" FixedHeader="true" FixedFooter="true" Striped="true" Bordered="false">
+         <ToolBarContent>
+            <MudText Typo="Typo.h6">Daftar Karyawan</MudText>
+            <MudSpacer />
+            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+         </ToolBarContent>
+         <HeaderContent>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="id_field" T="EmployeeDTO">ID</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="nik_field" T="EmployeeDTO">NIK</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="name_field" T="EmployeeDTO">Nama</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="gender_field" T="EmployeeDTO">Jns Kelamin</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="address_field" T="EmployeeDTO">Alamat</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="department_field" T="EmployeeDTO">Departemen</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="position_field" T="EmployeeDTO">Jabatan</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="group_field" T="EmployeeDTO">Group Kerja</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"></MudTh>
+         </HeaderContent>
+         <RowTemplate>
+            <MudTd Class="pa-2" DataLabel="ID">@context.EmployeeId</MudTd>
+            <MudTd Class="pa-1" DataLabel="NIK">@context.NIK</MudTd>
+            <MudTd Class="pa-1" DataLabel="Nama">@context.Name</MudTd>
+            <MudTd Class="pa-1" DataLabel="Jns Kelamin">@(context.Gender == true ? "Laki-laki" : "Perempuan")</MudTd>
+               <MudTd Class="pa-1" DataLabel="Alamat">
+               @(context.Address.Length > 15 ? context.Address.Substring(0, 15) + "..." : context.Address)
+             </MudTd>
+            <MudTd Class="pa-1" DataLabel="Departemen">@context.DepartmentName</MudTd>
+            <MudTd Class="pa-1" DataLabel="Jabatan">@context.PositionName</MudTd>
+            <MudTd Class="pa-1" DataLabel="Grup Kerja">@context.GroupName</MudTd>
+            <MudTd Class="pa-1">
+               <MudGrid>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Edit Data" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="((e) =>EditEmployee(context.EmployeeId))"></MudIconButton>
+                  </MudItem>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Hapus Data" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="((e) => DeleteEmployee(context.EmployeeId))"></MudIconButton>
+                  </MudItem>
+               </MudGrid>
+            </MudTd>
+         </RowTemplate>
+         <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+         </NoRecordsContent>
+         <LoadingContent>
+            <MudText>Loading...</MudText>
+         </LoadingContent>
+         <PagerContent>
+            <MudTablePager />
+         </PagerContent>
+      </MudTable>
+	</MudCardContent>
+</MudCard>
+@code {
+   private IEnumerable<EmployeeDTO> Employees = new List<EmployeeDTO>();
+   private IEnumerable<DepartmentDTO> Departments { get; set; } = new List<DepartmentDTO>();
+   private IEnumerable<PositionDTO> Positions { get; set; } = new List<PositionDTO>();
+   private IEnumerable<GroupDTO> Groups { get; set; } = new List<GroupDTO>();
+   private IEnumerable<EmployeeDTO> pagedData;
+   private MudTable<EmployeeDTO> employeeTable;
+
+   private EmployeeDTO? employeeDTO { get; set; } = new EmployeeDTO();
+   private PositionDTO positionDTO = new();
+   private DepartmentDTO departmentDTO = new();
+   private GroupDTO groupDTO = new();
+
+   private int totalItems;
+   private string? searchString = null;
+
+   [Inject]IEmployeeService employeeService { get; set; }
+   [Inject]IDepartmentService departmentService { get; set; }
+   [Inject]IPositionService positionService { get; set; }
+   [Inject]IGroupService groupService { get; set; }
+
+   [Inject]ITokenService tokenService { get; set; }
+
+   MudForm employeeForm;
+   MudTextField<int> Id;
+   MudTextField<string> NIK;
+   MudTextField<string> Name;
+   // MudAutocomplete<DepartmentDTO> Department;
+   MudTextField<int?>DepartmentID;
+   MudTextField<string> DepartmentName;
+   // MudAutocomplete<PositionDTO> Position;
+   MudTextField<int?>PositionID;
+   MudTextField<string>PositionName;
+
+   // MudAutocomplete<GroupDTO> Group;
+   MudTextField<int?> GroupID;
+   MudTextField<string> GroupName;
+   MudTextField<string> Pendidikan;
+   MudRadioGroup<bool?> Gender;
+   MudTextField<string> LocBirth;
+   MudDatePicker DateBirth;
+   MudTextField<string> KTP;
+   MudTextField<string> NoKK;
+   MudTextField<string> Address;
+   MudDatePicker EmployeeDate;
+   MudDatePicker EndEmpDate;
+   MudSwitch<bool?> IsActive;
+   MudSwitch<bool?> IsStaf;
+   MudTextField<string> BankName;
+   MudTextField<string> AccountBank;
+   MudTextField<string>NOBPJSTK;
+   MudTextField<string>NOBPJSKS;
+   MudTextField<string>NOBPJSPEN;
+   MudSelect<bool>MarriedStatus;
+   MudTextField<string>EmployeeStatus;
+   MudDatePicker StartActiveDate;
+   MudDatePicker ContractStartDate;
+   MudDatePicker ContractEndDate;
+   MudTextField<string>MotherName;
+   MudTextField<string> PhoneNumber;
+   private string Mode = "Add";
+   bool isOpen= false;
+   bool success;
+   string[] errors ={};
+   string formCaption = "Tambah Data Karyawan";
+
+   MudBlazor.Color TitlePanelColor;
+   string formAction;
+
+   private async Task<TableData<EmployeeDTO>> ServerReload(TableState state) {
+      IEnumerable<EmployeeDTO> data = await employeeService.GetListEmployeesAsync();
+      await Task.Delay(100);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         // if (element.Address.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+         //    return true;
+         // if (element.DepartmentName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+         //    return true;
+         // if (element.PositionName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+         //    return true;
+         if (element.GroupName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if ($"{element.NIK} {element.Name} {element.GroupName}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "id_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.EmployeeId);
+         break;
+         case "nik_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+         break;
+         case "name_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Name);
+         break;
+         case "gender_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Gender);
+         break;
+         case "address_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Address);
+         break;
+         case "department_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.DepartmentName);
+         break;
+         case "position_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.PositionName);
+         break;
+         case "group_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.GroupName);
+         break;
+
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<EmployeeDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   async Task EditEmployee(int Id) {
+      Mode = "Edit";
+      TitlePanelColor = Color.Warning;
+      formCaption = "Edit Data Karyawan";
+      EmployeeDTO empDTO = await employeeService.GetEmployeeAsync(Id);
+
+      employeeDTO.EmployeeId = empDTO.EmployeeId;
+      employeeDTO.Name = empDTO.Name;
+      employeeDTO.NIK = empDTO.NIK;
+      employeeDTO.Gender = empDTO.Gender;
+      employeeDTO.DepartmentId = empDTO.DepartmentId;
+      employeeDTO.DepartmentName = empDTO.DepartmentName;
+      employeeDTO.PositionId = empDTO.PositionId;
+      employeeDTO.PositionName = empDTO.PositionName;
+      employeeDTO.GroupID = empDTO.GroupID;
+      employeeDTO.GroupName = empDTO.GroupName;
+      employeeDTO.Pendidikan = empDTO.Pendidikan;
+      employeeDTO.LocBirth = empDTO.LocBirth;
+      employeeDTO.DateBirth = empDTO.DateBirth;
+      employeeDTO.KTP = empDTO.KTP;
+      employeeDTO.NoKK = empDTO.NoKK;
+      employeeDTO.Address = empDTO.Address;
+      employeeDTO.EmployeeDate = empDTO.EmployeeDate;
+      employeeDTO.EndEmpDate = empDTO.EndEmpDate;
+      employeeDTO.IsActive = empDTO.IsActive;
+      employeeDTO.IsStaff = empDTO.IsStaff;
+      employeeDTO.BankName = empDTO.BankName;
+      employeeDTO.AccountBank = empDTO.AccountBank;
+      employeeDTO.NOBPJSTK = empDTO.NOBPJSTK;
+      employeeDTO.NOBPJSKS = empDTO.NOBPJSKS;
+      employeeDTO.NOBPJSPEN = empDTO.NOBPJSPEN;
+      employeeDTO.MarriedStatus = empDTO.MarriedStatus;
+      employeeDTO.EmployeeStatus = empDTO.EmployeeStatus;
+      employeeDTO.StartActiveDate = empDTO.StartActiveDate;
+      employeeDTO.ContractStartDate = empDTO.ContractStartDate;
+      employeeDTO.ContractEndDate = empDTO.ContractEndDate;
+      employeeDTO.MotherName = empDTO.MotherName;
+      employeeDTO.PhoneNumber = empDTO.PhoneNumber;
+      isOpen = true;
+
+   }
+
+   private void Cancel() {
+      employeeForm.ResetAsync();
+      Mode = "Add";
+      TitlePanelColor = Color.Tertiary;
+      formCaption = "Tambah Data Karyawan";
+   }
+
+   protected async override Task OnInitializedAsync() {
+      // return base.OnInitializedAsync();
+      Departments = await departmentService.GetListDepartmentsAsync();
+      Positions = await positionService.GetListPositions();
+      Groups = await groupService.GetListGroupsAsync();
+      Employees = await employeeService.GetListEmployeesAsync();
+   }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      employeeTable.ReloadServerData();
+      StateHasChanged();
+   }
+
+   private async Task<IEnumerable<DepartmentDTO>> DepartmentSearch(string val) {
+      await Task.Delay(5);
+      if (string.IsNullOrEmpty(val)) return Departments;
+      return Departments.Where(x => x.DepartmentName.Contains(val, StringComparison.InvariantCultureIgnoreCase));
+      //return await exceptionTypeService.GetListExceptionTypeByValAsync(val);
+   }
+
+   private async Task<IEnumerable<PositionDTO>> PositionSearch(string val) {
+      await Task.Delay(5);
+      if (string.IsNullOrEmpty(val)) return Positions;
+      return Positions.Where(
+         p => p.PositionDesc.Contains(val, StringComparison.InvariantCultureIgnoreCase)
+      );
+      //return await exceptionTypeService.GetListExceptionTypeByValAsync(val);
+   }
+
+   private async Task<IEnumerable<GroupDTO>> GroupSearch(string val) {
+      await Task.Delay(5);
+      if (string.IsNullOrEmpty(val)) return Groups;
+      return Groups.Where(
+         g => g.GroupDesc.Contains(val, StringComparison.CurrentCultureIgnoreCase)
+      );
+      //return await exceptionTypeService.GetListExceptionTypeByValAsync(val);
+   }
+
+   private async void SaveEmployee(){
+      // string[] arrDepartment = Department.Text.Split("-");
+
+      // string[] arrPosition = Position.Text.Split("-");
+      // string[] arrGroup = Group.Text.Split("-");
+
+      employeeDTO.EmployeeId = Id.Value;
+      employeeDTO.Name = Name.Value;
+      employeeDTO.Gender = Gender.SelectedOption;
+      employeeDTO.NIK = NIK.Value;
+      // employeeDTO.DepartmentId = int.Parse(arrDepartment[0]);
+      // employeeDTO.DepartmentName = arrDepartment[1];
+      employeeDTO.DepartmentId = DepartmentID.Value;
+      employeeDTO.DepartmentName = DepartmentName.Value;
+      // employeeDTO.PositionId = int.Parse(arrPosition[0]);
+      // employeeDTO.PositionName = arrPosition[1];
+      employeeDTO.PositionId = PositionID.Value;
+      employeeDTO.PositionName = PositionName.Value;
+      // employeeDTO.GroupID = int.Parse(arrGroup[0]);
+      // employeeDTO.GroupName = arrGroup[1];
+      employeeDTO.GroupID = GroupID.Value;
+      employeeDTO.GroupName = GroupName.Value;
+      employeeDTO.Pendidikan = Pendidikan.Value;
+      employeeDTO.LocBirth = LocBirth.Value;
+      employeeDTO.DateBirth = DateBirth.Date.Value;
+      employeeDTO.KTP = KTP.Value;
+      employeeDTO.NoKK = NoKK.Value;
+      employeeDTO.Address = Address.Value;
+      employeeDTO.EmployeeDate = EmployeeDate.Date.Value;
+      employeeDTO.EndEmpDate = EndEmpDate.Date.Value;
+      employeeDTO.IsActive = IsActive.Checked;
+      employeeDTO.IsStaff = IsStaf.Checked;
+      employeeDTO.BankName = BankName.Value;
+      employeeDTO.AccountBank = AccountBank.Value;
+      employeeDTO.NOBPJSTK = NOBPJSTK.Value;
+      employeeDTO.NOBPJSKS = NOBPJSKS.Value;
+      employeeDTO.NOBPJSPEN = NOBPJSPEN.Value;
+      employeeDTO.MarriedStatus = MarriedStatus.Value;
+      employeeDTO.EmployeeStatus = EmployeeStatus.Value;
+      employeeDTO.StartActiveDate = StartActiveDate.Date.Value;
+      employeeDTO.ContractStartDate = ContractStartDate.Date.Value;
+      employeeDTO.ContractEndDate = ContractEndDate.Date.Value;
+      employeeDTO.MotherName = MotherName.Value;
+      employeeDTO.PhoneNumber = PhoneNumber.Value;
+      employeeDTO.CreatedAt = DateTime.Now;
+      employeeDTO.CreatedBy = 1;
+      employeeDTO.UpdatedAt = DateTime.Now;
+      employeeDTO.UpdatedBy = 1;
+      if (Mode == "Add") {
+         await employeeService.AddEmployeeAsync(employeeDTO);
+      }
+      else {
+         var empDTO = await employeeService.UpdateEmployeeAsync(employeeDTO);
+         // bool departmentOfferSend = await departmentService.SendDepartmentOffer(depDTO);
+         // Console.WriteLine(departmentOfferSend);
+         isOpen = false;
+         Mode = "Add";
+         formCaption = "Tambah Data Karyawan";
+      }
+
+      // departmentDTOs.Clear();
+      // departmentTable.Items = null;
+      // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+      // departmentTable.Items = departmentDTOs;
+      // StateHasChanged();
+      // await FillDepartments();
+      Snackbar.Add("Data Karyawan berhasil disimpan di database!", Severity.Success, config => {
+         config.HideTransitionDuration = 100;
+      });
+
+      // Task.Delay(100);
+      await employeeTable.ReloadServerData();
+      await employeeForm.ResetAsync();
+   }
+
+   async Task DeleteEmployee(int Id) {
+      bool? deleteConfirmation = await DialogService.ShowMessageBox("Konfirmasi", "Yakin akan menghapus?", "Ya", "Tidak");
+      if (deleteConfirmation == true) {
+         var response = await employeeService.DeleteEmployeeAsync(Id);
+         if (response != null) {
+            await employeeTable.ReloadServerData();
+            Snackbar.Add("Data karyawan berhasil dihapus.", Severity.Info, config => {
+               config.HideTransitionDuration = 100;
+            });
+         }
+
+      }
+   }
+
+   async Task SearchDepartment() {
+      var parameters = new DialogParameters<SearchDepartmentModal>();
+      parameters.Add("ModalLabel", "Cari Data Departemen");
+      parameters.Add("Departments", Departments);
+      var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+      var dialog = await DialogService.ShowAsync<SearchDepartmentModal>("Data Departemen", parameters, options);
+      var result = await dialog.Result;
+      if (!result.Canceled) {
+         DepartmentDTO depDTO = new DepartmentDTO();
+         depDTO = result.Data as DepartmentDTO;
+         employeeDTO.DepartmentId = depDTO.DepartmentID;
+         employeeDTO.DepartmentName = depDTO.DepartmentName;
+      }
+   }
+
+   async Task SearchPosition() {
+      var parameters = new DialogParameters<SearchPositionModal>();
+      parameters.Add("ModalLabel", "Cari Data Posisi/Jabatan");
+      parameters.Add("Positions", Positions);
+      var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+      var dialog = await DialogService.ShowAsync<SearchPositionModal>("Data Posisi/Jabatan", parameters, options);
+      var result = await dialog.Result;
+      if (!result.Canceled) {
+         PositionDTO posDTO = new PositionDTO();
+         posDTO = result.Data as PositionDTO;
+         employeeDTO.PositionId = posDTO.PositionId;
+         employeeDTO.PositionName = posDTO.PositionDesc;
+      }
+   }
+
+   async Task SearchGroup() {
+      var parameters = new DialogParameters<SearchGroupModal>();
+      parameters.Add("ModalLabel", "Cari Data Grup Kerja");
+      parameters.Add("Groups", Groups);
+      var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+      var dialog = await DialogService.ShowAsync<SearchGroupModal>("Data Grup Kerja", parameters, options);
+      var result = await dialog.Result;
+      if (!result.Canceled) {
+         GroupDTO gDTO = new GroupDTO();
+         gDTO = result.Data as GroupDTO;
+         employeeDTO.GroupID = gDTO.GroupID;
+         employeeDTO.GroupName = gDTO.GroupDesc;
+      }
+   }
+}

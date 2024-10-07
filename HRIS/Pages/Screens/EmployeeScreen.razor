@@ -1,0 +1,438 @@
+﻿@layout EmptyLayout
+@page "/display"
+
+@inject HttpClient httpClient;
+@using ApexCharts
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Newtonsoft.Json;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+@using System.Globalization;
+
+
+<MudGrid>
+   <MudItem xs="8">
+         <MudText Class="d-flex align-center" Typo="Typo.h5" Style="@($"color:{Colors.Indigo.Darken3};")"><strong>Selamat Datang di Dashboard Globalindo Intimates II</strong></MudText>
+   </MudItem>
+
+   <MudItem xs="4">
+      <MudCard Elevation="3" Class="mud-theme-primary">
+         <MudCardContent>
+            <div class="d-flex justify-space-around gap-4">
+               <div class="d-flex flex-column">
+                  <MudText Typo="Typo.subtitle2" Color="MudBlazor.Color.Surface">Masuk Tepat Waktu</MudText>
+                  <MudText Class="d-flex justify-center" Typo="Typo.subtitle1" Color="MudBlazor.Color.Success"><strong>@tepatWaktu</strong></MudText>
+               </div>
+               <div class="d-flex flex-column">
+                  <MudText Typo="Typo.subtitle2">Terlambat</MudText>
+                  <MudText Class="d-flex justify-center" Typo="Typo.subtitle1" Color="MudBlazor.Color.Warning"><strong>@terlambat</strong></MudText>
+               </div>
+               <div class="d-flex flex-column">
+                  <MudText Typo="Typo.subtitle2">Total</MudText>
+                  <MudText Class="d-flex justify-center" Typo="Typo.subtitle1" Color="MudBlazor.Color.Error"><strong>@total</strong></MudText>
+               </div>
+
+            </div>
+         </MudCardContent>
+      </MudCard>
+   </MudItem>
+</MudGrid>
+
+<MudGrid Spacing="2">
+   <MudItem xs="4">
+      @* Total Karyawan Aktif *@
+      <MudCard Elevation="3" Class="mb-2">
+         <MudCardContent>
+            <div class="d-flex flex-grow-1 gap-4">
+               <MudText Class="flex-grow-1" Style="@($"color:{Colors.Indigo.Darken3};")" Typo="Typo.h6">Total Karyawan Aktif</MudText>
+               <MudText Typo="Typo.h6" Style="@($"color:{Colors.Indigo.Darken3};")"><MudIcon Icon="@Icons.Material.Filled.ThumbUp" Size="MudBlazor.Size.Small" Style="@($"color:{Colors.Indigo.Darken3};")" />@total</MudText>
+            </div>
+            <div>
+               @if (komposisiKaryawans != null) {
+                  <ApexChart TItem="KomposisiKaryawan" Title="Komposisi Karyawan" @ref="chart" Options="options">
+                     <ApexPointSeries TItem="KomposisiKaryawan"
+                                      Items="komposisiKaryawans"
+                                      SeriesType="SeriesType.Bar"
+                                      Name="Komposisi Karyawan"
+                                      XValue="@(e => e.Gender)"
+                                      YAggregate="@(e => e.Sum(e => e.Jumlah))"
+                                      Color="#005ba3"
+                                      PointColor="e => GetColor(e)" ShowDataLabels />
+                   </ApexChart>
+               }
+
+            </div>
+         </MudCardContent>
+      </MudCard>
+
+      @* Karyawan Tidak Masuk *@
+      <MudCard Elevation="3">
+         <MudCardContent>
+            <div class="d-flex flex-grow-1 gap-4 pb-2">
+               <MudText Class="flex-grow-1" Typo="Typo.h6" Style="@($"color:{Colors.Indigo.Darken3};")">Karyawan Tidak Masuk</MudText>
+               <MudText Typo="Typo.h6" Style="@($"color:{Colors.Indigo.Darken3};")">@DateTime.Now.Date.ToString("dd-MMM")</MudText>
+            </div>
+         </MudCardContent>
+      </MudCard>
+   </MudItem>
+
+   <MudItem xs="8">
+      @* Karyawan Terlambat *@
+      <MudCard Elevation="3" Class="mb-2">
+         <MudCardContent>
+            <div class="d-flex flex-grow-1 gap-4 pb-2">
+               <MudBadge Icon="@Icons.Material.Filled.ThumbDown" Color="MudBlazor.Color.Error" Overlap="true" Bordered="true" Class="flex-grow-1 mx-6 my-4">
+                  <MudText Typo="Typo.h6" Style="@($"color:{Colors.Indigo.Darken3};")">Karyawan Terlambat</MudText>
+               </MudBadge>
+
+               <MudText Typo="Typo.h6" Style="@($"color:{Colors.Indigo.Darken3};")">@DateTime.Now.Date.ToString("dd-MMM")</MudText>
+            </div>
+            <MudSimpleTable Dense="true">
+               <thead>
+                  <tr>
+                     <th>Nama</th>
+                     <th>Jadwal</th>
+                     <th>Jam Masuk</th>
+                     <th>Grup</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  @foreach (var e in terlambatDTOs) {
+                     <tr>
+                        <td>
+                           <MudText Color="MudBlazor.Color.Error" Typo="Typo.subtitle2">@e.Nama</MudText>
+                        </td>
+                        <td>
+                           <MudText Color="MudBlazor.Color.Error" Typo="Typo.subtitle2">@e.JadwalMasuk?.ToString(@"hh\:mm\:ss")</MudText>
+                        </td>
+                        <td>
+                           <MudText Class="flex-grow-1" Color="MudBlazor.Color.Error" Typo="Typo.subtitle2">@e.JamMasuk.Value.ToString(@"hh\:mm\:ss")</MudText>
+                        </td>
+                        <td>
+                           <MudText Typo="Typo.subtitle2" Color="MudBlazor.Color.Error">@e.GrupKerja</MudText>
+                        </td>
+                     </tr>
+                  }
+               </tbody>
+            </MudSimpleTable>
+         </MudCardContent>
+      </MudCard>
+
+      @* Karyawan Rajin *@
+      <MudCard Elevation="3" Class="mb-2">
+         <MudCardContent>
+            <div class="d-flex flex-grow-1 gap-4 pb-2">
+               <MudBadge Icon="@Icons.Material.Filled.ThumbUp" Color="MudBlazor.Color.Success" Overlap="true" Bordered="true" Class="flex-grow-1 mx-6 my-4">
+                  <MudText Typo="Typo.h6" Style="@($"color:{Colors.Indigo.Darken3};")">Karyawan Rajin</MudText>
+               </MudBadge>
+               <MudText Typo="Typo.h6" Style="@($"color:{Colors.Indigo.Darken3};")">@DateTime.Now.Date.ToString("dd-MMM")</MudText>
+            </div>
+            <MudSimpleTable Dense="true">
+               <thead>
+                  <tr>
+                     <th>Nama</th>
+                     <th>Jadwal</th>
+                     <th>Jam Masuk</th>
+                     <th>Grup</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  @foreach (var k in kehadiranDTOs) {
+                     <tr>
+                        <td>
+                           <MudText Color="MudBlazor.Color.Success" Typo="Typo.subtitle2">@k.Nama</MudText>
+                        </td>
+                        <td>
+                           <MudText Color="MudBlazor.Color.Success" Typo="Typo.subtitle2">@k.JadwalMasuk?.ToString(@"hh\:mm\:ss")</MudText>
+                        </td>
+                        <td>
+                           <MudText Color="MudBlazor.Color.Success" Typo="Typo.subtitle2">
+                              @k.JamMasuk?.ToString(@"hh\:mm\:ss")
+                           </MudText>
+                        </td>
+                        <td>
+                           <MudText Typo="Typo.subtitle2" Color="MudBlazor.Color.Success">@k.GrupKerja</MudText>
+                        </td>
+                     </tr>
+                  }
+               </tbody>
+            </MudSimpleTable>
+         </MudCardContent>
+      </MudCard>
+   </MudItem>
+
+</MudGrid>
+
+
+
+@code {
+   // private double[] data = new double[] { 0, 0 };
+   // private string[] labels = new string[] { "Laki-laki", "Perempuan" };
+
+   private int CountActiveEmployee = 0;
+   private int[] kompKaryawan = new int[] { 0, 0 };
+   // private HttpClient httpClient { get; set; } = new();
+   private List<EmployeeDTO> employeesBD = new();
+   private List<EmployeeDTO> stafsBD = new();
+
+   private List<KehadiranDTO>? kehadiranDTOs = new();
+   private List<KehadiranDTO>? terlambatDTOs = new();
+
+   private List<KomposisiKaryawan> komposisiKaryawans { get; set; } = new();
+   // private ApexChartOptions<KomposisiKaryawan> options { get; set; } = new();
+   private ApexChart<KomposisiKaryawan>? chart;
+
+   private HubConnection? _hubKehadiranConn;
+   private HubConnection? _hubTop5KehadiranConn;
+   private HubConnection? _hubTop5TerlambatConn;
+   private HubConnection? _hubCountEmpGenderConn;
+
+   private readonly List<string> messages1 = new();
+   private readonly List<string> messages2 = new();
+   private readonly List<string> messages3 = new();
+   private readonly List<string> messages4 = new();
+
+   private int tepatWaktu = 0;
+   private int terlambat = 0;
+   private int femaleEmp = 0;
+   private int maleEmp = 0;
+   private int total = 0;
+   private int oldJumlahPerempuan = 0;
+   private int oldJumlahPria = 0;
+   private MudTheme Theme = new();
+
+   private System.Threading.Timer? timer;
+   private ApexChartOptions<KomposisiKaryawan> options;
+
+   protected override async Task OnInitializedAsync()
+   {
+      _hubKehadiranConn = new HubConnectionBuilder().WithUrl($"{BaseHub.ServerHubUrl}/kehadiranHub").Build();
+      _hubKehadiranConn.On<string>("ReceiveNotification", msg =>
+      {
+         messages1.Add(msg);
+         InvokeAsync(StateHasChanged);
+
+         foreach (var m in messages1)
+         {
+            if (!string.IsNullOrEmpty(m))
+            {
+               var pesan = JsonConvert.DeserializeObject(m);
+               int[] arrInt = ((Newtonsoft.Json.Linq.JArray)pesan).Select(item => (int)item).ToArray();
+               tepatWaktu = arrInt[0];
+               terlambat = arrInt[1];
+               // total = tepatWaktu + terlambat;
+            }
+         }
+      });
+      await _hubKehadiranConn.StartAsync();
+
+      _hubTop5KehadiranConn = new HubConnectionBuilder().WithUrl($"{BaseHub.ServerHubUrl}/top5kehadiran").Build();
+      _hubTop5KehadiranConn.On<string>("TerimaNotifikasi", msg =>
+      {
+         messages2.Add(msg);
+         InvokeAsync(StateHasChanged);
+
+         foreach (var m in messages2)
+         {
+            if (!string.IsNullOrEmpty(m))
+            {
+               kehadiranDTOs = JsonConvert.DeserializeObject<List<KehadiranDTO>>(m);
+               // foreach(var k in kehadiranDTOs) {
+               //    Console.WriteLine($"k: {k.Nama}");
+               // }
+            }
+         }
+      });
+      await _hubTop5KehadiranConn.StartAsync();
+
+      _hubTop5TerlambatConn = new HubConnectionBuilder().WithUrl($"{BaseHub.ServerHubUrl}/top5terlambat").Build();
+      _hubTop5TerlambatConn.On<string>("TerimaNotifikasi", msg =>
+      {
+         messages3.Add(msg);
+         InvokeAsync(StateHasChanged);
+
+         foreach (var m in messages3)
+         {
+            if (!string.IsNullOrEmpty(m))
+            {
+               terlambatDTOs = JsonConvert.DeserializeObject<List<KehadiranDTO>>(m);
+               // foreach (var k in terlambatDTOs) {
+               //    Console.WriteLine($"k: {k.Nama}");
+               // }
+            }
+         }
+      });
+      await _hubTop5TerlambatConn.StartAsync();
+
+      // _hubCountEmpGenderConn = new HubConnectionBuilder().WithUrl($"{BaseHub.ServerHubUrl}/countEmpByGender").Build();
+      // _hubCountEmpGenderConn.On<string>("ReceiveNotification", msg =>
+      // {
+      //    // CountActiveEmployee = 0;
+      //    komposisiKaryawans.Clear();
+      //    messages4.Add(msg);
+
+      //    InvokeAsync(StateHasChanged);
+
+      //    foreach (var m in messages4) {
+      //       if (!string.IsNullOrEmpty(m)) {
+      //          var pesan = JsonConvert.DeserializeObject(m);
+      //          int[] arrInt = ((Newtonsoft.Json.Linq.JArray)pesan).Select(item => (int)item).ToArray();
+      //          Console.WriteLine($"arrInt[0]: {arrInt[0]}");
+      //          Console.WriteLine($"arrInt[1]: {arrInt[1]}");
+      //          komposisiKaryawans.Add(new KomposisiKaryawan { Gender = "Wanita", Jumlah = arrInt[0] });
+      //          komposisiKaryawans.Add(new KomposisiKaryawan { Gender = "Pria", Jumlah = arrInt[1]});
+
+      //          // CountActiveEmployee = komposisiKaryawans.Sum(k => k.Jumlah);
+
+      //       }
+      //    }
+      // });
+      // await chart.RenderAsync();
+      // await _hubCountEmpGenderConn.StartAsync();
+
+      options = new ApexChartOptions<KomposisiKaryawan>
+      {
+         Theme = new Theme {
+            Mode = Mode.Light,
+            Palette = PaletteType.Palette9
+         },
+
+      };
+
+      timer = new System.Threading.Timer(async(object? stateInfo) => {
+         komposisiKaryawans.Clear();
+         await GetKomposisiKaryawan();
+
+         Console.WriteLine($"oldJumlahPerempuan != komposisiKaryawans[1].Jumlah: {oldJumlahPerempuan != komposisiKaryawans[1].Jumlah}");
+
+         Console.WriteLine($"oldJumlahPria != komposisiKaryawans[0].Jumlah: {oldJumlahPria != komposisiKaryawans[0].Jumlah}");
+
+         if (oldJumlahPerempuan != komposisiKaryawans[1].Jumlah) {
+            oldJumlahPerempuan = komposisiKaryawans[1].Jumlah;
+            await chart.RenderAsync();
+         }
+         if (oldJumlahPria != komposisiKaryawans[0].Jumlah) {
+            oldJumlahPria = komposisiKaryawans[0].Jumlah;
+            await chart.RenderAsync();
+         }
+
+         Console.WriteLine($"oldJumlahPerempuan: {oldJumlahPerempuan}, komposisiKaryawans[1].Jumlah:{komposisiKaryawans[1].Jumlah}");
+
+         Console.WriteLine($"oldJumlahPria: {oldJumlahPria}, komposisiKaryawans[0].Jumlah: {komposisiKaryawans[0].Jumlah}");
+
+         StateHasChanged();
+      },new System.Threading.AutoResetEvent(false), 3000, 3000);
+
+      // await GetKomposisiKaryawan();
+      await base.OnInitializedAsync();
+      // await chart.RenderAsync();
+
+      // CountActiveEmployee = await GetCountActiveEmployees();
+      // CountActiveEmployee = komposisiKaryawans.Sum(k => k.Jumlah);
+      // StateHasChanged();
+
+      // employeesBD = await GetEmpsBirtday();
+      // stafsBD = await GetStafsBirtday();
+   }
+
+   public async ValueTask DisposeAsync() {
+      if (_hubKehadiranConn is not null && _hubTop5KehadiranConn is not null && _hubTop5TerlambatConn is not null) {
+         await _hubKehadiranConn.DisposeAsync();
+         await _hubTop5KehadiranConn.DisposeAsync();
+         await _hubTop5TerlambatConn.DisposeAsync();
+      }
+   }
+
+
+   private async Task<int> GetCountActiveEmployees() {
+      var response = await httpClient.GetAsync($"{BaseUrl.ServerBaseUrl}/Employees/CountActiveEmployee");
+      if (response.IsSuccessStatusCode) {
+         if (response.StatusCode == System.Net.HttpStatusCode.NotFound) {
+            return default;
+         }
+         return await response.Content.ReadFromJsonAsync<int>();
+      }
+      else {
+         var message = await response.Content.ReadAsStringAsync();
+         throw new Exception($"Http status code: {response.StatusCode} message: {message}");
+      }
+   }
+
+   private async Task GetKomposisiKaryawan() {
+      var response = await httpClient.GetAsync($"{BaseUrl.ServerBaseUrl}/Kehadiran/CountByEmpGender");
+      if (response.IsSuccessStatusCode) {
+         // if (response.StatusCode == System.Net.HttpStatusCode.NotFound) {
+         //    return default;
+         // }
+         // return await response.Content.ReadFromJsonAsync<int[]>();
+         int[]? rest = await response.Content.ReadFromJsonAsync<int[]>();
+         Console.WriteLine($"rest[0]: {rest[0]}, rest[1]: {rest[1]}");
+
+         int[]? arrIntKompKaryawan = new int[2] { rest[0], rest[1] };
+         // arrIntKompKaryawan[0] = rest[0];
+         // arrIntKompKaryawan[1] = rest[1];
+
+         List<KomposisiKaryawan> listKomposisiKaryawan = new();
+         komposisiKaryawans.Add(new KomposisiKaryawan { Gender = "Pria", Jumlah = arrIntKompKaryawan[0] });
+         komposisiKaryawans.Add(new KomposisiKaryawan { Gender = "Wanita", Jumlah = arrIntKompKaryawan[1] });
+         total = rest[0] + rest[1];
+      }
+      else {
+         var message = await response.Content.ReadAsStringAsync();
+         throw new Exception($"Http status code: {response.StatusCode} message: {message}");
+      }
+   }
+
+   private async Task<List<EmployeeDTO>> GetEmpsBirtday() {
+      var response = await httpClient.GetAsync($"{BaseUrl.ServerBaseUrl}/Employees/GetEmployeesBirthday");
+      if (response.IsSuccessStatusCode) {
+         if (response.StatusCode == System.Net.HttpStatusCode.NotFound) {
+            return default;
+         }
+         return await response.Content.ReadFromJsonAsync<List<EmployeeDTO>>();
+      }
+      else {
+         var message = await response.Content.ReadAsStringAsync();
+         throw new Exception($"Http status code: {response.StatusCode} message: {message}");
+      }
+   }
+
+   private async Task<List<EmployeeDTO>> GetStafsBirtday() {
+      var response = await httpClient.GetAsync($"{BaseUrl.ServerBaseUrl}/Employees/GetStafsBirthday");
+      if (response.IsSuccessStatusCode) {
+         if (response.StatusCode == System.Net.HttpStatusCode.NotFound) {
+            return default;
+         }
+         return await response.Content.ReadFromJsonAsync<List<EmployeeDTO>>();
+      }
+      else {
+         var message = await response.Content.ReadAsStringAsync();
+         throw new Exception($"Http status code: {response.StatusCode} message: {message}");
+      }
+   }
+
+   private string GetPointColor(KomposisiKaryawan kom) {
+      switch (kom.Gender) {
+         case "Pria":
+         return "#8BC34A";
+         case "Wanita":
+         return "#CDDC39";
+         default:
+         return "#87775d";
+      }
+   }
+
+   private string? GetColor(KomposisiKaryawan k) {
+      if(k.Gender == "Wanita") {
+         return "#ffd500";
+      }
+      return null;
+   }
+
+   class KomposisiKaryawan {
+      public string Gender { get; set; }
+      public int Jumlah { get; set; }
+   }
+
+}
+

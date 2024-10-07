@@ -1,0 +1,9 @@
+﻿@using SKM.Shared.Dtos
+
+@code {
+	[CascadingParameter(Name = "DaftarGaji")]
+	public IEnumerable<GajiDanTunjanganDTO> gajiDTOs { get; set; }
+
+	[CascadingParameter(Name = "FormGajiSingle")]
+	public GajiDanTunjanganDTO gajiDTO { get; set; }
+}

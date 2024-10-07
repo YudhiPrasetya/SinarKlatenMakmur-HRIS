@@ -1,0 +1,431 @@
+﻿@page "/tidakhadir"
+@using HRIS.Contracts;
+@using HRIS.Pages.SharedModal;
+@using HRIS.Services;
+@using SKM.Shared.Dtos;
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService;
+
+<MudCard Class="mt-5" Elevation="1">
+	<MudCardHeader>
+		<CardHeaderContent>
+			<MudText Typo="Typo.h6">Data Ketidakhadiran</MudText>
+		</CardHeaderContent>
+		<CardHeaderActions>
+			@*<MudIconButton Icon="@Icons.Material.Filled.Add" Title="Tambah Data" Color="Color.Success"></MudIconButton>*@
+@*			<MudFab Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Label="Tambah Data" />*@
+
+@*         <MudButton Color="Color.Tertiary" OnClick="@((e) => addException())" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add">Tambah Data</MudButton>*@
+		</CardHeaderActions>
+	</MudCardHeader>
+	<MudCardContent>
+      <MudExpansionPanels Elevation="3">
+         <MudExpansionPanel @bind-IsExpanded="isOpen" HideIcon="true">
+            <TitleContent>
+               <div class="d-flex">
+                  <MudText Color="@TitlePanelColor"><strong>@formCaption</strong></MudText>
+                  <MudIcon Icon="@(isOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Add)" class="ml-auto"></MudIcon>
+               </div>
+            </TitleContent>
+            <ChildContent>
+               <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                  <MudGrid>
+                     <MudItem xs="2">
+                        <MudTextField @ref="Id" T="int" Label="Id" Required="true" Disabled="true" @bind-Value="@exceptionDTO.Id"></MudTextField>
+                     </MudItem>
+                  </MudGrid>
+                  <MudPaper Class="d-flex justify-space-between flex-grow-1 gap-2" Elevation="0">
+
+                     <MudTextField @bind-Value="@exceptionDTO.GrupKerja" Class="d-inline" T="string" Label="Grup Kerja" @ref="grupKerja" Disabled="true"></MudTextField>
+                     <MudTextField @bind-Value="@exceptionDTO.NIK" @ref="NIK" Class="d-inline" T="string" Label="NIK" Disabled="true" Required="true" />
+                     <MudTextField @bind-Value="@exceptionDTO.Nama" @ref="Nama" Class="d-inline" T="string" Label="Nama" Disabled="true" Required="true" />
+                     <MudIconButton Class="d-inline" Icon="@Icons.Material.Filled.Search" Color="Color.Tertiary" OnClick="CariKaryawan" />
+                  </MudPaper>
+                  <MudGrid>
+                     <MudItem xs="8"> 
+                        <MudAutocomplete @ref="Exp" T="ExceptionTypeDTO" @bind-Value="exceptionTypeDTO"   @bind-Text="exceptionDTO.ExceptionName" Label="Alasan" SearchFunc="@Search" ResetValueOnEmptyText="true" ToStringFunc="@(e => e == null ? null : $"{e.Id}-{e.ExceptionName}")" >
+                           <BeforeItemsTemplate>
+                              <MudText Color="Color.Primary" Class="px-4 py-1">--Pilih Alasan--</MudText>
+                           </BeforeItemsTemplate>
+                        </MudAutocomplete>
+@*                        <MudSelect @ref="IdException" @bind-Value="@exceptionDTO" Required="true" RequiredError="Alasan tidak hadir harus diisi!" Label="Alasan tidak hadir">
+                        @foreach (var exceptionTypeDTO in ExceptionTypeDTOS) {
+                              <MudSelectItem T="int" Value="@exceptionTypeDTO.Id">@exceptionTypeDTO.Id-@exceptionTypeDTO.ExceptionName</MudSelectItem>
+                        }
+                        </MudSelect>*@
+
+@*                        <InputSelect @bind-Value="exceptionDTO.Id" TValue="int" id="ExceptionID" @ref="exception">
+                           @foreach(var exDTO in ExceptionTypeDTOS) {
+                              <option value="@exDTO.Id">@exDTO.ExceptionName</option>
+                           }
+                        </InputSelect>*@
+
+                     </MudItem>
+                  </MudGrid>
+                  <MudGrid>
+                     <MudItem xs="10">
+                        <MudTextField @bind-Value="@exceptionDTO.Detail" @ref="Keterangan" T="string" Label="Keterangan" ></MudTextField>
+                     </MudItem>
+                  </MudGrid>
+                  <MudGrid>
+                     <MudItem xs="6">
+                        <MudDateRangePicker DisableToolbar="true" @ref="Durasi" Placeholder="Date Range" Label="Durasi tidak hadir" PlaceholderStart="Dari" PlaceholderEnd="Sampai" @bind-DateRange="_dateRange"/>
+                     </MudItem>
+                  </MudGrid>
+                  <MudDivider DividerType="DividerType.FullWidth" Class="my-4" />
+                  <MudPaper Class="d-flex flex-row-reverse flex-grow-1 gap-4" Elevation="0">
+                     <MudButton OnClick="SaveException" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Update" Disabled="btnSaveDisabled">
+                        @if(processing == true) {
+                           <MudProgressCircular Indeterminate="true" Color="Color.Success" /><MudText>...Processing</MudText>
+                        }
+                        else {
+                           <MudText>Save</MudText>
+                        }
+                     </MudButton>
+                     <MudButton Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Cancel" OnClick="Cancel">Cancel</MudButton>
+                  </MudPaper>
+               </MudForm>
+            </ChildContent>
+            
+         </MudExpansionPanel>
+      </MudExpansionPanels>
+      
+      <MudTable ServerData="@(new Func<TableState, Task<TableData<ExceptionDTO>>>(ServerReload))" Dense="true"
+                Hover="true" @ref="table" Elevation="4" FixedHeader="true" FixedFooter="true" Bordered="false" Breakpoint="Breakpoint.Sm" Class="cursor-pointer" T="ExceptionDTO">
+         <ToolBarContent>
+            <MudText Typo="Typo.h6">Daftar Ketidakhadiran</MudText>
+            <MudSpacer />
+            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+         </ToolBarContent>
+         <HeaderContent>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="id_field" T="ExceptionDTO">ID</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="nik_field" T="ExceptionDTO">NIK</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="name_field" T="ExceptionDTO">Nama</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="keterangan_field" T="ExceptionDTO">Keterangan</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="detail_field" T="ExceptionDTO">Detail</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="dari_field" T="ExceptionDTO">Dari</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="sampai_field" T="ExceptionDTO">Sampai</MudTableSortLabel></MudTh>
+            @* <MudTh Class="pa-2 mud-theme-info"></MudTh> *@
+
+         </HeaderContent>
+         <RowTemplate>
+            <MudTd Class="pa-2" DataLabel="ID">@context.Id</MudTd>
+            <MudTd Class="pa-1" DataLabel="NIK">@context.NIK</MudTd>
+            <MudTd Class="pa-1" DataLabel="Nama">@context.Nama</MudTd>
+            <MudTd Class="pa-1" DataLabel="Keterangan">@context.ExceptionName</MudTd>
+            <MudTd Class="pa-1" DataLabel="Detail">@context.Detail</MudTd>
+            <MudTd Class="pa-1" DataLabel="Dari">@context.StartDate!.Value.ToString("dd-MM-yyyy")</MudTd>
+            <MudTd Class="pa-1" DataLabel="Sampai">@context.EndDate!.Value.ToString("dd-MM-yyyy")</MudTd>
+@*             <MudTd Class="pa-1">
+               <MudGrid>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Edit Data" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="((e) =>EditException(context))"></MudIconButton>
+                  </MudItem>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Hapus Data" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="((e) => DeleteException(context.Id))"></MudIconButton>
+                  </MudItem>
+               </MudGrid>
+            </MudTd> *@
+            
+         </RowTemplate>
+         <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+         </NoRecordsContent>
+         <LoadingContent>
+            <MudText>Loading...</MudText>
+         </LoadingContent>
+         <PagerContent>
+            <MudTablePager />
+         </PagerContent>
+      </MudTable>
+	</MudCardContent>
+</MudCard>
+
+
+@code {
+   private IEnumerable<ExceptionDTO> Exceptions = new List<ExceptionDTO>();
+   private IEnumerable<ExceptionTypeDTO> ExceptionTypes = new List<ExceptionTypeDTO>();
+   private IEnumerable<ExceptionDTO> pagedData = new List<ExceptionDTO>();
+   private MudTable<ExceptionDTO>? table;
+
+   private int totalItems;
+   private string? searchString;
+   [Inject]IExceptionService? exceptionService { get; set; }
+   [Inject]IExceptionTypeService? exceptionTypeService { get; set; }
+   [Inject]IEmployeeService? employeeService { get; set; }
+   [Inject]IKehadiranService? kehadiranService {get; set;}
+   [Inject]IJadwalKehadiranService? jadwalKehadiranService { get; set; }
+   [Inject]IGajiDanTunjanganService? gajiDanTunjanganService { get; set; }
+   [Inject]IPayrollService? payrollService { get; set; }
+
+   private List<ExceptionTypeDTO> ExceptionTypeDTOS { get; set; } = new List<ExceptionTypeDTO>();
+   private ExceptionTypeDTO exceptionTypeDTO = new();
+   private ExceptionDTO exceptionDTO { get; set; } = new ExceptionDTO();
+   private List<EmployeeDTO> Employees = new List<EmployeeDTO>();
+   private List<GroupDTO> Groups = new List<GroupDTO>();
+   // private List<KehadiranDTO> kehadiranDTOs = new();
+   private List<JadwalKehadiranDTO> jadwalKehadiranDTOs = new();
+   private List<PayrollDTO> payrollDTOs = new();
+
+   private bool resetValueOnEmptyText;
+   private bool coerceValue;
+   private bool coerceText;
+   private int selectedRowNumber = -1;
+   private ExceptionDTO? selectedItem;
+   bool success;
+   bool isOpen;
+   string? value1;
+   string[] errors = { };
+   bool isEdit=false;
+   string formCaption="Tambah Data Ketidakhadiran";
+   string Mode = "Add";
+   private DateRange? _dateRange;
+   MudBlazor.Color TitlePanelColor = Color.Tertiary;
+   bool expanded = false;
+   bool processing = false;
+   bool btnSaveDisabled = false;
+   MudForm? form;
+   MudTextField<int>? Id;
+   MudTextField<int>? IdEmployee;
+   MudTextField<string>? grupKerja;
+   MudTextField<string>? NIK;
+   MudTextField<string>? Nama;
+   MudSelect<ExceptionDTO>? IdException;
+   MudTextField<string>? ExceptionName;
+   MudTextField<string>? Keterangan;
+   MudAutocomplete<ExceptionTypeDTO>? Exp;
+   MudDateRangePicker? Durasi;
+   InputSelect<int>? exception;
+
+   protected async override Task OnInitializedAsync() {
+      //return base.OnInitializedAsync();
+      ExceptionTypeDTOS = await exceptionTypeService!.GetListExceptionsTypeAsync();
+      ExceptionTypes = await exceptionTypeService.GetListExceptionsTypeAsync();
+      Employees = await employeeService!.GetListEmployeesAsync();
+   }
+
+   private async Task<TableData<ExceptionDTO>> ServerReload(TableState state) {
+      IEnumerable<ExceptionDTO> data = await exceptionService!.GetListExceptionsAsync();
+      await Task.Delay(300);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+         if (element.Nama.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if ($"{element.NIK} {element.Nama} {element.ExceptionName} {element.Detail}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "id_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Id);
+         break;
+
+         case "nik_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+         break;
+
+         case "name_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Nama);
+         break;
+
+         case "keterangan_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.ExceptionName);
+         break;
+
+         case "detail_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Detail);
+         break;
+
+         case "dari_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.StartDate);
+         break;
+
+         case "sampai_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.EndDate);
+         break;
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<ExceptionDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      table!.ReloadServerData();
+   }
+
+   async Task CariKaryawan() {
+      var parameters = new DialogParameters<SearchEmployeeModal>();
+      parameters.Add("ModalLabel", "Cari Data Karyawan");
+      parameters.Add("EmployeeDTOS", Employees);
+      //parameters.Add("GroupDTOS", Groups);
+      var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+      var dialog = await DialogService.ShowAsync<SearchEmployeeModal>("Data Karyawan", parameters, options);
+      var result = await dialog.Result;
+      if (!result.Canceled) {
+         Console.WriteLine(result.Data);
+         EmployeeDTO? empDTO = new EmployeeDTO();
+         empDTO = result.Data as EmployeeDTO;
+         exceptionDTO.GrupKerja = empDTO!.GroupName;
+         exceptionDTO.NIK = empDTO.NIK;
+         exceptionDTO.Nama = empDTO.Name;
+         //IdEmployee.Value = empDTO.EmployeeId;
+         //NIK.Value = empDTO.NIK;
+         //Nama.Value = empDTO.Name;
+      }
+   }
+
+   private async Task<IEnumerable<ExceptionTypeDTO>> Search(string val) {
+      await Task.Delay(5);
+      if (string.IsNullOrEmpty(val)) return ExceptionTypeDTOS;
+      return ExceptionTypeDTOS.Where(x => x.ExceptionName.Contains(val, StringComparison.InvariantCultureIgnoreCase));
+      //return await exceptionTypeService.GetListExceptionTypeByValAsync(val);
+   }
+
+   private async void SaveException(){
+      processing = true;
+      btnSaveDisabled = true;
+
+      string[] arrExpType = Exp.Text.Split("-");
+      exceptionDTO.Id = Id!.Value;
+      exceptionDTO.NIK = NIK!.Value;
+      exceptionDTO.Nama = Nama!.Value;
+      // exceptionDTO.IdException = int.Parse(arrExpType[0]);
+      exceptionDTO.ExceptionName = arrExpType[1];
+      exceptionDTO.Detail = Keterangan!.Value;
+      exceptionDTO.StartDate = Durasi!.DateRange.Start!.Value;
+      exceptionDTO.EndDate = Durasi.DateRange.End!.Value;
+      exceptionDTO.CreatedAt = DateTime.Now;
+      exceptionDTO.CreatedBy = 1;
+      exceptionDTO.UpdatedAt = DateTime.Now;
+      exceptionDTO.UpdatedBy = 1;
+      if(Mode == "Add"){
+         await exceptionService!.AddExceptionAsync(exceptionDTO);
+
+         var diffDay = Durasi.DateRange.End.Value.Date - Durasi.DateRange.Start.Value.Date;
+         int days = diffDay.Days;
+
+         for(int x = 0; x <= days; x++) {
+            // KehadiranDTO kehadiranDTO = new();
+            // kehadiranDTO.GrupKerja = exceptionDTO.GrupKerja;
+            // kehadiranDTO.NIK = exceptionDTO.NIK;
+            // kehadiranDTO.Nama = exceptionDTO.Nama;
+            // kehadiranDTO.Tanggal = Durasi.DateRange.Start.Value.Date.AddDays(x);
+            // kehadiranDTO.Keterangan = arrExpType[1];
+            // kehadiranDTOs.Add(kehadiranDTO);
+            // Console.WriteLine($"KehadiranDTO: {kehadiranDTO.NIK}, {kehadiranDTO.GrupKerja}, {kehadiranDTO.Nama}, {kehadiranDTO.Tanggal}, {kehadiranDTO.Keterangan}");
+
+            string tanggal = Durasi.DateRange.Start.Value.Date.AddDays(x).ToString("yyyy-MM-dd");
+            JadwalKehadiranDTO? jadwalKehadiranDTO = await jadwalKehadiranService!.GetByNIKAndDate(exceptionDTO.NIK, tanggal);
+            jadwalKehadiranDTO!.Keterangan = exceptionDTO.ExceptionName;
+            jadwalKehadiranDTO!.LockedMasuk = true;
+            jadwalKehadiranDTO!.Up = true;
+            jadwalKehadiranDTOs.Add(jadwalKehadiranDTO);
+
+            GajiDanTunjanganDTO? gajiDanTunjanganDTO = await gajiDanTunjanganService!.GetByNIK(exceptionDTO.NIK);
+            decimal upahHarian = Math.Round((decimal)gajiDanTunjanganDTO!.Upah / 21, 2);
+            PayrollDTO payrollDTO = new PayrollDTO
+            {
+               NIK = gajiDanTunjanganDTO!.NIK,
+               GroupName = gajiDanTunjanganDTO!.GrupKerja,
+               EmployeeName = gajiDanTunjanganDTO!.NamaKaryawan,
+               IdEmployee = (int)gajiDanTunjanganDTO.EmployeeId!,
+               DepartmentName = gajiDanTunjanganDTO.DepartmentName!,
+               Bulan = Durasi.DateRange.End.Value.Month,
+               Tahun = Durasi.DateRange.End.Value.Year,
+               TotalMasuk = 1,
+               Upah = gajiDanTunjanganDTO.Upah,
+               Gaji = upahHarian,
+               CreatedBy = 1,
+               UpdatedBy = 1,
+               UpdatedAt = DateTime.Today,
+               CreatedAt = DateTime.Today,
+            };
+            payrollDTOs.Add(payrollDTO);
+
+         }
+         // await kehadiranService.TambahIjin(kehadiranDTOs);
+         // await kehadiranService.TambahIjin(jadwalKehadiranDTOs);
+         await jadwalKehadiranService!.UpdateJadwalKehadiranRange(jadwalKehadiranDTOs);
+         await payrollService!.PostPayrollRange(payrollDTOs);
+
+      }else{
+         await exceptionService!.UpdateExceptionAsync(exceptionDTO);
+         isOpen = false;
+         Mode = "Add";
+         formCaption = "Tambah Data Ketidakhadiran";
+      }
+
+      // StateHasChanged();
+      processing = false;
+      btnSaveDisabled = false;
+
+      await table!.ReloadServerData();
+      Snackbar.Add("Data ketidakhadiran berhasil disimpan di database!", Severity.Success, config => { config.HideTransitionDuration = 100; });
+      await form!.ResetAsync();
+
+      //Console.WriteLine(exception.Value);
+   }
+
+   private void Cancel() {
+      form!.ResetAsync();
+      isEdit=false;
+      Mode = "Add";
+      TitlePanelColor = Color.Tertiary;
+      formCaption = "Tambah Data Ketidakhadiran";
+   }
+
+   //private string SelectedRowClassFunc(ExceptionDTO exceptionDTO, int rowNumber) {
+   //   if (selectedRowNumber == rowNumber) {
+   //      selectedRowNumber = -1;
+   //      return string.Empty;
+   //   }
+   //   else if (table.SelectedItem != null && table.SelectedItem.Equals(exceptionDTO)) {
+   //      selectedRowNumber = rowNumber;
+   //      return "selected";
+   //   }
+   //   else {
+   //      return string.Empty;
+   //   }
+   //}
+
+   //private void RowClickEvent(TableRowClickEventArgs<ExceptionDTO> args) {
+   //   //clickedEvents.Add("Row has been clicked");
+   //   selectedItem = args.Item;
+   //}
+
+   async Task EditException(ExceptionDTO selectedException) {
+      //string[] arrExpType = Exp.Text.Split("-");
+      Mode = "Edit";
+      TitlePanelColor = Color.Success;
+      exceptionDTO.Id = selectedException.Id;
+      exceptionDTO.NIK = selectedException.NIK;
+      exceptionDTO.Nama = selectedException.Nama;
+      // exceptionDTO.IdException = selectedException.IdException;
+      exceptionDTO.ExceptionName = selectedException.ExceptionName;
+      exceptionDTO.Detail = selectedException.Detail;
+      _dateRange = new DateRange(selectedException.StartDate, selectedException.EndDate);
+      exceptionDTO.StartDate = selectedException.StartDate;
+      exceptionDTO.EndDate = selectedException.EndDate;
+      isOpen = true;
+      formCaption="Edit Data Ketidakhadiran";
+   }
+
+   async Task DeleteException(int Id) {
+      //var dialog = new DialogService();
+      var rst = await DialogService.ShowMessageBox("Konfirmasi","Yakin akan menghapus?", "Ya","Tidak");
+      if (rst == true) {
+         await exceptionService!.DeleteExceptionAsync(Id);
+         await table!.ReloadServerData();
+         Snackbar.Add("Data ketidakhadiran berhasil dihapus dari database!", Severity.Success, config => { config.HideTransitionDuration = 100; });
+         await form!.ResetAsync();
+      }
+   }
+
+}

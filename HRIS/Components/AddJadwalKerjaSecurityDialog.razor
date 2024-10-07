@@ -1,0 +1,102 @@
+﻿@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+@using System.Globalization;
+@inject ISnackbar Snackbar;
+
+<MudDialog>
+   <DialogContent>
+      <MudForm @ref="frmJadwalKerjaSecurity">
+         <MudSelect @ref="selectEmployee" T="string" Label="Nama Security" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-2" ValueChanged="EmployeeValueChangedHandler">
+            @foreach(var emp in EmployeeDTOs) {
+               <MudSelectItem Value="@emp.NIK">@emp.Name</MudSelectItem>
+            }
+         </MudSelect>
+         <MudSelect @ref="selectTanggal" T="int" MultiSelection="true" Label="Tanggal" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-2">
+            @foreach (var tgl in listTglCompared!) {
+               <MudSelectItem Value="@tgl" T="int">@tgl</MudSelectItem>
+            }
+         </MudSelect>
+         <MudSelect @ref="selectShift" T="string" Label="Shift" Variant="Variant.Outlined" Margin="Margin.Dense" Class="mb-2">
+            @foreach(var shift in jadwalShiftSecurityDTOs) {
+               <MudSelectItem Value="@shift.Initial">@shift.Deskripsi (@shift.Initial)</MudSelectItem>
+            }
+         </MudSelect>
+      </MudForm>
+   </DialogContent>
+   <DialogActions>
+      <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="Submit">Save</MudIconButton>
+      <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="Close">Close</MudIconButton>
+   </DialogActions>
+</MudDialog>
+
+@code {
+   [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+   [Parameter] public List<EmployeeDTO> EmployeeDTOs { get; set; } = new();
+   [Parameter] public List<JadwalShiftSecurityDTO> jadwalShiftSecurityDTOs { get; set; } = new();
+   [Parameter] public int Bulan { get; set; }
+   [Parameter] public int Tahun { get; set; }
+
+   [Inject]IJadwalShiftSecurityServicecs? jadwalShiftSecurityService { get; set; }
+   // [Inject]IJadwalKerjaSecurityService? jadwalKerjaSecurityService { get; set; }
+   [Inject] IJadwalKehadiranService? jadwalKehadiranService { get; set; }
+
+   private MudForm? frmJadwalKerjaSecurity;
+   private MudSelect<string>? selectEmployee;
+   private MudSelect<int>? selectTanggal;
+   private MudSelect<string>? selectShift;
+   // private int[] Tanggal = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 };
+   private IEnumerable<int> Tanggal = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 };
+   private IEnumerable<int>? listTglCompared = new List<int>();
+   // private List<int> listTgl { get; set; } = new List<int>();
+   private IEnumerable<int> options { get; set; } = new HashSet<int>();
+   private EmployeeDTO employeeDTO { get; set; } = new();
+   private JadwalKehadiranDTO jadwalKehadiranDTO { get; set; } = new();
+
+   private async Task EmployeeValueChangedHandler() {
+      var securityEmp = EmployeeDTOs.Where(e => e.NIK == selectEmployee!.Value).SingleOrDefault();
+      List<int>? listTgl = new List<int>();
+      // listTgl = await jadwalKerjaSecurityService.GetByNIKAndMonthYear(securityEmp?.NIK, Tahun, Bulan);
+      listTgl = await jadwalKehadiranService!.GetByNIkAndYearMonth(securityEmp!.NIK, Tahun, Bulan);
+      listTglCompared = Tanggal.Except(listTgl);
+
+   }
+
+   async Task Submit() {
+      var selectedTgl = selectTanggal!.SelectedValues;
+      // foreach(var t in selectedTgl) {
+      //    Console.WriteLine($"Bulan: {Bulan}, Tahun:{Tahun}, Tgl:{t}");
+      // }
+      List<JadwalKehadiranDTO> jadwalKehadiranDTOs = new();
+      EmployeeDTO? securityEmp = EmployeeDTOs.Where(e => e.NIK == selectEmployee!.Value).SingleOrDefault();
+      var jadwalShift = jadwalShiftSecurityDTOs.Where(j => j.Initial == selectShift!.Value).SingleOrDefault();
+      CultureInfo provider = CultureInfo.InvariantCulture;
+      foreach(var tgl in selectedTgl) {
+         var jadwalMasuk = new DateTime(Tahun, Bulan, tgl).ToString("yyyy-MM-dd");
+         var jadwalPulang = new DateTime(Tahun, Bulan, selectShift!.Value.Contains("M",StringComparison.InvariantCultureIgnoreCase) ? tgl + 1 : tgl).ToString("yyyy-MM-dd");
+         // var dateNow = new DateTime(Tahun, Bulan, selectShift!.Value == "M" ? tgl + 1 : tgl).ToString("yyyy-MM-dd");
+
+         jadwalKehadiranDTOs.Add(new JadwalKehadiranDTO {
+            GrupKerja = securityEmp!.GroupName,
+            NIK = selectEmployee!.Value.ToString(),
+            Nama = securityEmp!.Name,
+            Gender = securityEmp.Gender!.Value,
+            Shift = jadwalShift!.Deskripsi,
+            Inisial_Shift = selectShift!.Value,
+               JadwalMasuk = DateTime.ParseExact($"{jadwalMasuk} {jadwalShift.JadwalMasuk}", "yyyy-MM-dd HH:mm:ss", provider),
+               JadwalPulang = DateTime.ParseExact($"{jadwalPulang} {jadwalShift.JadwalPulang}", "yyyy-MM-dd HH:mm:ss", provider),
+         });   
+      }
+      //Add range
+      await jadwalKehadiranService!.AddJadwalKehadiranRange(jadwalKehadiranDTOs);
+      await frmJadwalKerjaSecurity!.ResetAsync();
+      await selectTanggal.Clear();
+      Snackbar.Add("Jadwal kerja security berhasil ditambahkan.", Severity.Success, config =>
+      {
+         config.HideTransitionDuration = 200;
+      });
+   }
+
+   void Close() {
+      MudDialog?.Close(DialogResult.Ok(true));
+   }
+}

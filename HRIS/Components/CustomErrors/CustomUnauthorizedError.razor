@@ -1,0 +1,29 @@
+﻿@page "/unauthorized"
+
+<MudCard>
+   <MudCardHeader>
+      <CardHeaderContent>
+         <MudText Typo="Typo.h6">
+            Unauthorized!
+         </MudText>
+      </CardHeaderContent>
+      <CardHeaderActions>
+         <MudIcon Icon="@Icons.Material.Filled.Error" />
+      </CardHeaderActions>
+   </MudCardHeader>
+
+   <MudCardContent>
+      <MudText Typo="Typo.h6">You are not authorized!!</MudText>
+   </MudCardContent>
+   <MudCardActions>
+      <MudButton Variant="Variant.Text" Color="Color.Warning" OnClick="BackToHome">Back to home</MudButton>
+   </MudCardActions>
+</MudCard>
+@inject NavigationManager navManager;
+
+@code {
+   private void BackToHome() {
+      navManager.NavigateTo("", true);
+   }
+}
+

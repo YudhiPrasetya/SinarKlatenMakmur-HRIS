@@ -1,0 +1,88 @@
+﻿@*<div class="top-row ps-3 navbar navbar-dark">
+   <div class="container-fluid">
+      <a class="navbar-brand" href="">HRIS</a>
+      <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+         <span class="navbar-toggler-icon"></span>
+      </button>
+   </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+   <nav class="flex-column">
+      <div class="nav-item px-3">
+         <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <span class="oi oi-home" aria-hidden="true"></span> Home
+         </NavLink>
+      </div>
+      <div class="nav-item px-3">
+         <NavLink class="nav-link" href="counter">
+            <span class="oi oi-plus" aria-hidden="true"></span> Counter
+         </NavLink>
+      </div>
+      <div class="nav-item px-3">
+         <NavLink class="nav-link" href="fetchdata">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+         </NavLink>
+      </div>
+      <div class="nav-item px-3">
+         <NavLink class="nav-link" href="superheroes">
+            <span class="oi oi-people" aria-hidden="true"></span> Super Heroes
+         </NavLink>
+      </div>
+   </nav>
+</div>
+
+@code {
+   private bool collapseNavMenu = true;
+
+   private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+   private void ToggleNavMenu() {
+      collapseNavMenu = !collapseNavMenu;
+   }
+}
+*@
+
+@*<RadzenPanelMenu Click="OnParentClicked" Multiple="false">
+   <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" Path="/dashboard" />
+   <RadzenPanelMenuItem Text="Data" Icon="list">
+      <RadzenPanelMenuItem Text="Departemen" Path="/department" Icon="event"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="Jabatan" Path="/position" Icon="input"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="Group Kerja" Path="/group" Icon="group_work"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="Karyawan" Path="/employee" Icon="account_circle"></RadzenPanelMenuItem>
+   </RadzenPanelMenuItem>
+   <RadzenPanelMenuItem Text="Data" Icon="save">
+      <RadzenPanelMenuItem Text="DataGrid" Path="datagrid" Icon="grid_on"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="DataList" Path="datalist" Icon="list"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="DropDown" Path="dropdown" Icon="dns"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="DropDownDataGrid" Path="dropdown-datagrid" Icon="receipt"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="ListBox" Path="listbox" Icon="view_list"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="TemplateForm" Path="templateform" Icon="line_style"></RadzenPanelMenuItem>
+   </RadzenPanelMenuItem>
+   <RadzenPanelMenuItem Text="Containers" Icon="account_box">
+      <RadzenPanelMenuItem Text="Tabs" Path="tabs" Icon="tab"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="Panel" Path="panel" Icon="content_paste"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="Fieldset" Path="fieldset" Icon="account_balance_wallet"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="Card" Path="card" Icon="line_style"></RadzenPanelMenuItem>
+   </RadzenPanelMenuItem>
+   <RadzenPanelMenuItem Text="More">
+      <RadzenPanelMenuItem Click="OnChildClicked" Text="Item1"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Click="OnChildClicked" Text="Item2"></RadzenPanelMenuItem>
+      <RadzenPanelMenuItem Text="More items">
+         <RadzenPanelMenuItem Text="More sub items">
+            <RadzenPanelMenuItem Click="OnChildClicked" Text="Item3"></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Click="OnChildClicked" Text="Item4"></RadzenPanelMenuItem>
+         </RadzenPanelMenuItem>
+      </RadzenPanelMenuItem>
+   </RadzenPanelMenuItem>
+</RadzenPanelMenu>*@
+
+@*@code {
+   void OnParentClicked(MenuItemEventArgs args) {
+      Console.WriteLine($"{args.Text} clicked from parent");
+   }
+
+   void OnChildClicked(MenuItemEventArgs args) {
+      Console.WriteLine($"{args.Text} from child clicked");
+   }
+}*@

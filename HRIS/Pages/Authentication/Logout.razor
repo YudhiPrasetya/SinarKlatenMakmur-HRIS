@@ -1,0 +1,19 @@
+﻿@page "/logout"
+@using HRIS.Contracts;
+@using HRIS.Models;
+@using HRIS.Services;
+@inject IAuthenticationHttpClientService authenticationHttpClientService
+@inject NavigationManager navigationManager
+
+<h3>Logging out...</h3>
+
+@code {
+	[Inject]ITokenService? tokenService { get; set; }
+
+	protected override async Task OnInitializedAsync() {
+		TokenDTO? tokenDTO = await tokenService!.GetToken();
+		// return base.OnInitializedAsync();
+		await authenticationHttpClientService.LogoutUser(tokenDTO?.UserName!);
+		navigationManager.NavigateTo("login");
+	}
+}

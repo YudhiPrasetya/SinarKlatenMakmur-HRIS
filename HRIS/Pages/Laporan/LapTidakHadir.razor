@@ -1,0 +1,305 @@
+﻿@page "/lapKaryawanTidakHadir"
+
+@using ClosedXML.Excel;
+@using HRIS.Contracts;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+
+@inject ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
+@inject HttpClient httpClient
+@inject IDialogService DialogService
+
+<MudPaper Class="mb-4">
+   <MudGrid Class="d-flex justify-center">
+      <MudItem xs="3">
+         <MudDateRangePicker @ref="tglPeriode" @bind-DateRange="_dateRange" Margin="Margin.Dense" PlaceholderStart="Dari" PlaceholderEnd="Sampai" Variant="Variant.Outlined" DisableToolbar="true" Label="Periode"></MudDateRangePicker>
+      </MudItem>
+      <MudItem xs="3">
+         <MudSelect T="string" @ref="selectGroup" Variant="Variant.Outlined" Margin="Margin.Dense">
+            <MudSelectItem Value="@("All")">Semua</MudSelectItem>
+            @foreach (var g in groupDTOs) {
+               <MudSelectItem Value="@g.GroupDesc">@g.GroupDesc</MudSelectItem>
+            }
+         </MudSelect>
+      </MudItem>
+      <MudItem xs="4" Class="align-center d-flex justify-center">
+         <MudButtonGroup Variant="Variant.Filled" Color="Color.Success">
+            <MudButton Disabled="@_processing" StartIcon="@Icons.Material.Filled.Preview" OnClick="PrintPreview" Size="Size.Small">
+               @if (_processing) {
+                  <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                  <MudText Class="ms-2">...Processing</MudText>
+               }
+               else {
+                  <MudText>Proses</MudText>
+               }
+            </MudButton>
+
+            <MudButton StartIcon="@Icons.Material.Filled.Print" Size="Size.Small" OnClick="@(async() => await PrintReport())">
+               Print
+            </MudButton>
+
+            <MudButton StartIcon="@Icons.Material.Filled.ImportExport" Size="Size.Small" OnClick="@(async() => await ExportToExcel())">
+               To Excel
+            </MudButton>
+
+         </MudButtonGroup>
+
+      </MudItem>
+   </MudGrid>
+</MudPaper>
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<ExceptionDTO>>>(ServerReload))"
+          Dense="true" Hover="true" @ref="tableTidakHadir">
+   <ToolBarContent>
+      <MudText Typo="Typo.h6">Laporan Karyawan Tidak Hadir</MudText>
+      <MudSpacer />
+
+      <MudSpacer />
+      <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+   </ToolBarContent>
+   <HeaderContent>
+      <MudTh><MudTableSortLabel SortLabel="grupKerja_field" T="ExceptionDTO">Grup Kerja</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="nik_field" T="ExceptionDTO">NIK</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="nama_field" T="ExceptionDTO">Nama</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="keterangan_field" T="ExceptionDTO">Keterangan Tidak Hadir</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="dari_field" T="ExceptionDTO">Dari</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="sampai_field" T="ExceptionDTO">Sampai</MudTableSortLabel></MudTh>
+
+   </HeaderContent>
+   <RowTemplate>
+      <MudTd DataLabel="Grup Kerja">@context.GrupKerja</MudTd>
+      <MudTd DataLabel="NIK">@context.NIK</MudTd>
+      <MudTd DataLabel="Nama">@context.Nama</MudTd>
+      <MudTd DataLabel="Keterangan Tidak Hadir">@context.ExceptionName</MudTd>
+      <MudTd DataLabel="Dari">@context.StartDate.Value.Date.ToString("dd-MM-yyyy")</MudTd>
+      <MudTd DataLabel="Sampai">@context.EndDate.Value.Date.ToString("dd-MM-yyyy")</MudTd>
+   </RowTemplate>
+   <NoRecordsContent>
+      <MudText>No matching records found</MudText>
+   </NoRecordsContent>
+   <LoadingContent>
+      <MudText>Loading...</MudText>
+   </LoadingContent>
+   <PagerContent>
+      <MudTablePager />
+   </PagerContent>
+</MudTable>
+
+<style type="text/css">
+   /* @@media screen, print{ */
+      #hadir {
+         font-family: Arial, Helvetica, sans-serif;
+         border-collapse: collapse;
+         width: 100%;
+      }
+
+      #hadir td, #hadir th {
+         border: 1px solid #ddd;
+         padding: 8px;
+      }
+
+      #hadir tr:nth-child(even) {
+         background-color: #f2f2f2;
+      }
+
+      #hadir tr:hover {
+         background-color: #ddd;
+      }
+
+      #hadir th {
+         padding-top: 12px;
+         padding-bottom: 12px;
+         text-align: left;
+         background-color: #04AA6D;
+         color: white;
+      }
+   /* } */
+
+</style>
+
+@if (printing == true) {
+   <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Close" OnClick="CloseReport" Size="Size.Small" Class="mt-4">Close</MudButton>
+   <div id="printable">
+      <table style="width: 100%;" id="hadir">
+         <thead>
+            <tr>
+               <th>Grup Kerja</th>
+               <th>NIK</th>
+               <th>Nama</th>
+               <th>Keterangan Lupa Absen</th>
+               <th>Dari</th>
+               <th>Sampai</th>
+            </tr>
+         </thead>
+         <tbody>
+            @foreach (var h in listTidakHadir) {
+               <tr>
+                  <td>@h.GrupKerja</td>
+                  <td>@h.NIK</td>
+                  <td>@h.Nama</td>
+                  <td>@h.ExceptionName</td>
+                  <td>@h.StartDate.Value.Date.ToString("dd-MM-yyyy")</td>
+                  <td>@h.EndDate.Value.Date.ToString("dd-MM-yyyy")</td>
+               </tr>
+            }
+         </tbody>
+      </table>
+   </div>
+}
+
+@code {
+   [Inject] IExceptionService tidakHadirService { get; set; }
+   [Inject] IGroupService groupService { get; set; }
+
+   IEnumerable<ExceptionDTO> data { get; set; } = new List<ExceptionDTO>();
+   private IEnumerable<ExceptionDTO> tidakHadirDTOs { get; set; } = new List<ExceptionDTO>();
+   private IEnumerable<ExceptionDTO> pagedData;
+   private List<GroupDTO> groupDTOs { get; set; } = new();
+
+   private MudTable<ExceptionDTO> tableTidakHadir;
+   private MudDateRangePicker tglPeriode;
+   private DateRange _dateRange;
+   private MudSelect<string> selectGroup;
+   private bool _processing = false;
+   private string searchString = null;
+   private int totalItems;
+   string group = "SK-STAFF";
+   string startDate = DateConversions.DateToString(DateTime.Now.Date);
+   string endDate = DateConversions.DateToString(DateTime.Now.Date);
+
+   private RenderFragment html;
+   private bool printing = false;
+   private List<ExceptionDTO> listTidakHadir = new();
+   public TidakHadirData tidakHadirData;
+
+   protected override async Task OnInitializedAsync() {
+      // return base.OnInitializedAsync();
+      groupDTOs = await groupService.GetListGroupsAsync();
+   }
+
+   private async Task<TableData<ExceptionDTO>> ServerReload(TableState state) {
+
+      data = await tidakHadirService.GetByGroupAndDate(group, startDate, endDate);
+      await Task.Delay(50);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+
+         if (element.GrupKerja.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.Nama.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.ExceptionName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.StartDate.Value.Date.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if (element.EndDate.Value.Date.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+         if ($"{element.GrupKerja} {element.NIK} {element.Nama} {element.ExceptionName} {element.StartDate.Value.Date.ToString()} {element.EndDate.Value.Date.ToString()}".Contains(searchString))
+            return true;
+
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "grupKerja_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.GrupKerja);
+         break;
+         case "nik_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.NIK);
+         break;
+         case "nama_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.Nama);
+         break;
+         case "keterangan_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.ExceptionName);
+         break;
+         case "dari_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.StartDate.Value.Date);
+         break;
+         case "sampai_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.EndDate.Value.Date);
+         break;
+
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<ExceptionDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      tableTidakHadir.ReloadServerData();
+      StateHasChanged();
+   }
+
+   async Task PrintPreview() {
+      _processing = true;
+      string strGroup = selectGroup.Value;
+      group = strGroup.Replace("/", "-");
+
+      DateTime date1 = _dateRange.Start.Value.Date;
+      startDate = DateConversions.DateToString(date1.Date);
+
+      DateTime date2 = _dateRange.End.Value.Date;
+      endDate = DateConversions.DateToString(date2.Date);
+
+      await tableTidakHadir.ReloadServerData();
+      await Task.Delay(2000);
+      _processing = false;
+   }
+
+   private void CloseReport() {
+      printing = false;
+      StateHasChanged();
+   }
+
+   protected async Task ExportToExcel() {
+      // await kehadiranService.ExportToExcel(group, startDate, endDate);
+      var response = await httpClient.GetAsync($"{BaseUrl.ServerBaseUrl}/TidakHadir/ExportToExcel/{group}/{startDate}/{endDate}");
+      // response.EnsureSuccessStatusCode();
+      if (response.IsSuccessStatusCode) {
+         var fileBytes = await response.Content.ReadAsByteArrayAsync();
+         var fileName = "KaryawanTidakHadir.xlsx";
+         await JSRuntime.InvokeAsync<object>("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+
+      }
+   }
+
+   async Task PrintReport() {
+      listTidakHadir = await tidakHadirService.GetByGroupAndDate(group, startDate, endDate);
+      printing = true;
+      StateHasChanged();
+      await JSRuntime.InvokeVoidAsync("Print");
+
+      // var parameters = new DialogParameters {
+      //    ["listHadir"] = listHadir
+      // };
+
+      // var options = new DialogOptions() { CloseButton = false, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+
+      // var dialog = await DialogService.ShowAsync<KehadiranData>("-", parameters, options);
+      // var result = await dialog.Result;
+
+      // kehadiranData.listHadir = listHadir;
+      // StateHasChanged();
+      // await JSRuntime.InvokeAsync<object>("open", new object[] { "/KehadiranData", "_blank" });
+
+      // if (!result.Canceled) {
+      //    await tableJadwalKerjaKaryawan.ReloadServerData();
+      // }
+   }
+
+
+}
+

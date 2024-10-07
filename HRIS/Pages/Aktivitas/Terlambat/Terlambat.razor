@@ -1,0 +1,313 @@
+﻿@page "/terlambat"
+
+@inject ISnackbar Snackbar
+
+@using HRIS.Contracts;
+@using Microsoft.AspNetCore.JsonPatch;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+
+<MudExpansionPanels Class="mb-4" Elevation="2">
+	<MudExpansionPanel @bind-IsExpanded="isOpen" HideIcon="true">
+		<TitleContent>
+			<div class="d-flex">
+				<MudText Color="Color.Warning" Typo="Typo.h6">@captionTerlambat</MudText>
+				<MudIcon Icon="@(isOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Add)" Class="ml-auto" />
+			</div>
+		</TitleContent>
+		<ChildContent>
+			<MudForm @ref="terlambatForm" @bind-IsValid="@success" @bind-Errors="@errors">
+				<MudGrid Spacing="4">
+					<div class="my-2 d-flex justify-space-around flex-grow-1 gap-4">
+						<MudTextField Class="d-none" T="int" @bind-Value="kehadiranDTO!.Id" />
+						<MudItem xs="2">
+							<MudTextField Variant="Variant.Outlined" Disabled="true" T="string" Placeholder="Grup Kerja" Margin="Margin.Dense" @bind-Text="kehadiranDTO.GrupKerja"/>
+						</MudItem>
+
+						<MudItem xs="4">
+							<MudDatePicker Variant="Variant.Outlined" Disabled="true" Placeholder="Jadwal Masuk" Margin="Margin.Dense" @bind-Date="dateJadwalMasuk" DateFormat="dd-MM-yyyy" />
+							<MudTimePicker Disabled="true" @bind-Time="timeJadwalMasuk" />
+						</MudItem>
+
+						<MudItem xs="2">
+						<MudTextField Variant="Variant.Outlined" Disabled="true" T="string" Margin="Margin.Dense" Placeholder="NIK" @bind-Text="kehadiranDTO.NIK" />
+						</MudItem>
+
+						<MudItem xs="2">
+							<MudTextField Variant="Variant.Outlined" Disabled="true" T="string" Placeholder="Nama" Margin="Margin.Dense" @bind-Text="kehadiranDTO.Nama" />
+						</MudItem>
+
+						<MudItem xs="4">
+							<MudDatePicker Variant="Variant.Outlined" Disabled="true" Placeholder="Jam Masuk" @bind-Date="dateJamMasuk" Margin="Margin.Dense" DateFormat="dd-MM-yyyy"/>
+							<MudTimePicker @bind-Time="timeJamMasuk" Disabled="true"/>
+
+						</MudItem>
+
+@* 						<MudItem xs="2" Class="d-flex flex-grow-0 align-center justify-center">
+							<MudButton Disabled="@(mode == "Edit")" StartIcon="@Icons.Material.Filled.Search" Variant="Variant.Filled" Color="Color.Info" OnClick="SearchJadwalKaryawan" Size="Size.Small">Cari Jadwal</MudButton>
+						</MudItem> *@
+
+					</div>
+
+					<div class="my-2 d-flex flex-grow-1 gap-4">
+						<MudTimePicker @bind-Time="timeJamMasuk" Placeholder="Jam Masuk" />
+						<MudTextField Required="true" Disabled="@(mode == "Edit")" Variant="Variant.Outlined" Placeholder="Alasan Terlambat" T="string" Class="flex-grow-1" Margin="Margin.Dense" @bind-Text="kehadiranDTO.AlasanTerlambat" />
+
+						<MudButton Class="flex-grow-0" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save" Size="Size.Small" OnClick="SaveKeterlambatan" Disabled="@(!success)">Save</MudButton>
+
+						<MudButton Class="flex-grow-0" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Cancel" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
+					</div>
+				</MudGrid>
+			</MudForm>
+		</ChildContent>
+	</MudExpansionPanel>
+</MudExpansionPanels>
+
+<MudPaper Elevation="4" Outlined="true">
+	<MudGrid Class="d-flex justify-center flex-grow-1 gap-0">
+		<MudItem xs="4" Class="flex-grow-1">
+			<MudDateRangePicker Class="ma-2" Label="Durasi" HelperText="Durasi untuk filter pencarian" DateFormat="dd/MM/yyyy" @bind-DateRange="_dateRange" Margin="Margin.Dense" />
+		</MudItem>
+
+		<MudItem xs="2" Class="d-flex flex-grow-0 align-center justify-center">
+			<MudButton Disabled="@(mode != "Add")" Class="ma-2" StartIcon="@Icons.Material.Filled.Filter" Color="Color.Secondary" Variant="Variant.Filled" Size="Size.Small" OnClick="FilterTerlambat">Search</MudButton>
+		</MudItem>
+
+		<MudItem xs="2" Class="d-flex flex-grow-0 align-center justify-center">
+			<MudButton Class="ma-2" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success" Variant="Variant.Filled" Size="Size.Small" OnClick="showAddTerlambatModal">Tambah Data</MudButton>
+		</MudItem>
+	</MudGrid>
+</MudPaper>
+
+<MudGrid>
+	<MudItem xs="12">
+		<MudTable Elevation="4" Outlined="true" T="JadwalKehadiranDTO" Dense="true" Striped="true" ServerData="@(new Func<TableState, Task<TableData<JadwalKehadiranDTO>>>(TerlambatReload))" @ref="terlambatTable" Hover="true">
+			<ToolBarContent>
+					<MudBadge Color="Color.Error" Content="@(DateTime.Now.Date.ToString("dd-MM-yyyy"))" Overlap="true" Class="mx-6 my-4">
+						<MudText Typo="Typo.h6" Color="Color.Primary"><strong>Daftar Karyawan Terlambat</strong></MudText>
+					</MudBadge>
+
+					<MudSpacer />
+
+					<MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+									  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+			</ToolBarContent>
+			<HeaderContent>
+				<MudTh><MudTableSortLabel SortLabel="GrupKerja_field" T="JadwalKehadiranDTO">Grup Kerja</MudTableSortLabel></MudTh>
+
+				<MudTh><MudTableSortLabel SortLabel="NIK_field" T="JadwalKehadiranDTO">NIK</MudTableSortLabel></MudTh>
+
+				<MudTh><MudTableSortLabel SortLabel="Nama_field" T="JadwalKehadiranDTO">Nama</MudTableSortLabel></MudTh>
+
+				<MudTh><MudTableSortLabel SortLabel="JamMasuk_field" T="JadwalKehadiranDTO">Jam Masuk</MudTableSortLabel></MudTh>
+
+				<MudTh><MudTableSortLabel SortLabel="JadwalMasuk_field" T="JadwalKehadiranDTO">Jadwal Masuk</MudTableSortLabel></MudTh>
+
+				<MudTh><MudTableSortLabel SortLabel="AlasanTerlambat_field" T="JadwalKehadiranDTO">Alasan Terlambat</MudTableSortLabel></MudTh>
+
+				<MudTh></MudTh>
+
+			</HeaderContent>
+			<RowTemplate>
+				<MudTd DataLabel="Grup Kerja">@context.GrupKerja</MudTd>
+				<MudTd DataLabel="NIK">@context.NIK</MudTd>
+				<MudTd DataLabel="Nama">@context.Nama</MudTd>
+				<MudTd DataLabel="Jam Masuk">@context.JamMasuk!.Value.ToString("dd-MM-yyyy HH:mm:ss")</MudTd>
+				<MudTd DataLabel="Jadwal Masuk">@context.JadwalMasuk!.Value.ToString("dd-MM-yyyy HH:mm:ss")</MudTd>
+				<MudTd DataLabel="Alasan Terlambat">@context.AlasanTerlambat</MudTd>
+				<MudTd>
+					<MudIconButton OnClick="() => EditKeterlambatan(context)" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" Size="Size.Small" />
+				</MudTd>
+			</RowTemplate>
+			<NoRecordsContent>
+				<MudText>No matching records found</MudText>
+			</NoRecordsContent>
+			<LoadingContent>
+				<MudText>Loading...</MudText>
+			</LoadingContent>
+			<PagerContent>
+				<MudTablePager />
+			</PagerContent>
+		</MudTable>
+	</MudItem>
+
+</MudGrid>
+
+@inject IDialogService DialogService
+
+@code {
+	#region Injects
+	[Inject] IJadwalKehadiranService? jadwalKehadiranService { get; set; }
+	[Inject] IEmployeeService? employeeService { get; set; }
+	#endregion
+
+	#region refs
+	private MudForm? terlambatForm;
+	private MudTable<JadwalKehadiranDTO>? terlambatTable;
+	#endregion
+
+	#region variables
+	private int totalItems;
+	private string? searchString;
+	private IEnumerable<JadwalKehadiranDTO>? pagedData;
+	private JadwalKehadiranDTO? kehadiranDTO  { get; set; } = new();
+	private bool isOpen;
+	private bool success;
+	private string[] errors = { };
+	private MudTextField<KehadiranDTO>? groupKerja;
+	private MudTextField<KehadiranDTO>? tanggal;
+	private MudTextField<KehadiranDTO>? nik;
+	private MudTextField<KehadiranDTO>? nama;
+	private MudTextField<KehadiranDTO>? jadwalMasuk;
+	private MudTextField<KehadiranDTO>? alasanTerlambat;
+	private DateRange _dateRange = new(DateTime.Now.Date, DateTime.Now.Date);
+	private string? startDate;
+	private string? endDate;
+	// private string captionTerlambat = "Input Data Keterlambatan";
+	private string captionTerlambat = "Edit Data Keterlambatan";
+	private string mode = "Add";
+	private bool disabledBtnSave = true;
+
+	private DateTime? dateJadwalMasuk;
+	private TimeSpan? timeJadwalMasuk;
+
+	private DateTime? dateJamMasuk;
+	private TimeSpan? timeJamMasuk;
+	#endregion
+
+	#region functions
+	private async Task<TableData<JadwalKehadiranDTO>> TerlambatReload(TableState state) {
+		startDate = DateConversions.DateToString(_dateRange.Start!.Value.Date);
+		endDate = DateConversions.DateToString(_dateRange.End!.Value.Date);
+
+		IEnumerable<JadwalKehadiranDTO>? data = await jadwalKehadiranService!.GetTerlambat(startDate, endDate);
+		await Task.Delay(300);
+		data = data?.Where(element => {
+			if (string.IsNullOrWhiteSpace(searchString))
+				return true;
+			if (element.GrupKerja!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.NIK!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if (element.Nama!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+				return true;
+			if ($"{element.GrupKerja} {element.NIK} {element.Nama}".Contains(searchString))
+				return true;
+			return false;
+		}).ToArray();
+		totalItems = data!.Count();
+		switch (state.SortLabel) {
+			case "GrupKerja_field":
+			data = data?.OrderByDirection(state.SortDirection, o => o.GrupKerja);
+			break;
+			case "Tanggal_field":
+			data = data?.OrderByDirection(state.SortDirection, o => o.JadwalMasuk);
+			break;
+			case "NIK_field":
+			data = data?.OrderByDirection(state.SortDirection, o => o.NIK);
+			break;
+			case "Nama_field":
+			data = data?.OrderByDirection(state.SortDirection, o => o.Nama);
+			break;
+			case "JamMasuk_field":
+			data = data?.OrderByDirection(state.SortDirection, o => o.JamMasuk);
+			break;
+			case "JadwalMasuk_field":
+			data = data?.OrderByDirection(state.SortDirection, o => o.JamPulang);
+			break;
+		}
+
+		pagedData = data?.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+		return new TableData<JadwalKehadiranDTO>() { TotalItems = totalItems, Items = pagedData };
+	}
+
+	private void OnSearch(string text) {
+		searchString = text;
+		terlambatTable?.ReloadServerData();
+	}
+
+	private void SearchJadwalKaryawan() {
+
+	}
+
+		private async void showAddTerlambatModal() {
+			var dialogOptions2 = new DialogOptions {
+				Position = DialogPosition.TopCenter,
+				FullWidth = true,
+				ClassBackground = "AddUserDialogClass",
+				MaxWidth = MaxWidth.Medium,
+				CloseButton = true
+			};
+			var dialogResult = await DialogService.ShowAsync<FormAddKeterlambatanModal>("Add New Data", dialogOptions2);
+			
+		}
+
+		private void FilterTerlambat() {
+			terlambatTable?.ReloadServerData();
+		}
+
+		private void SaveKeterlambatan() {
+			switch (mode) {
+				case "Add":
+				AddKeterlambatan();
+				break;
+				case "Edit":
+				UpdateKeterlambatan();
+				break;
+			}
+		}
+
+		private async void AddKeterlambatan() {
+			var t = await jadwalKehadiranService!.AddKeterlambatan(kehadiranDTO!);
+			if (t != null) {
+				Snackbar.Add("Keterlambatan Karyawan berhasil di tambah.", Severity.Success, c => {
+					c.HideTransitionDuration = 50;
+				});
+				await terlambatTable!.ReloadServerData();
+				await terlambatForm!.ResetAsync();
+			}
+		}
+
+		private async void UpdateKeterlambatan() {
+			kehadiranDTO!.JamMasuk = new DateTime(dateJamMasuk!.Value.Year, dateJamMasuk!.Value.Month, dateJamMasuk!.Value.Day, timeJamMasuk!.Value.Hours, timeJamMasuk!.Value.Minutes, timeJamMasuk!.Value.Seconds);
+			kehadiranDTO.LockedMasuk = true;
+
+			// var t = await jadwalKehadiranService!.UpdateKeterlambatan(kehadiranDTO);
+			await jadwalKehadiranService!.PatchTerlambat(kehadiranDTO!.Id, kehadiranDTO);
+		
+			Snackbar.Add("Keterlambatan Karyawan berhasil di Update.", Severity.Info, c => {
+				c.HideTransitionDuration = 50;
+			});
+			await terlambatTable!.ReloadServerData();
+			await terlambatForm!.ResetAsync();
+		}
+
+		private void EditKeterlambatan(JadwalKehadiranDTO hadir) {
+			mode = "Edit";
+			kehadiranDTO!.Id = hadir.Id;
+			kehadiranDTO.GrupKerja = hadir.GrupKerja;
+			kehadiranDTO.NIK = hadir.NIK;
+			kehadiranDTO.Nama = hadir.Nama;
+			// kehadiranDTO.JadwalMasuk = hadir.JadwalMasuk!.Value;
+			dateJadwalMasuk = hadir.JadwalMasuk!.Value.Date;
+			timeJadwalMasuk = hadir.JadwalMasuk!.Value.TimeOfDay;
+
+			// kehadiranDTO.JamMasuk = hadir.JamMasuk!.Value;
+			dateJamMasuk = hadir.JamMasuk!.Value.Date;
+			timeJamMasuk = hadir.JamMasuk!.Value.TimeOfDay;
+			kehadiranDTO.JadwalPulang = hadir.JadwalPulang!.Value;
+			kehadiranDTO.AlasanTerlambat = hadir.AlasanTerlambat;
+			captionTerlambat = "Edit Data Keterlambatan";
+			isOpen = true;
+		}
+
+		private async void Cancel() {
+			await terlambatForm!.ResetAsync();
+			isOpen = false;
+			// captionTerlambat = "Input Data Keterlambatan";
+			captionTerlambat = "Edit Data Keterlambatan";
+			mode = "Add";
+		}
+
+	#endregion
+}

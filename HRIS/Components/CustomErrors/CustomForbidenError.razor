@@ -1,0 +1,28 @@
+﻿@page "/forbiden"
+
+<MudDialog>
+   <TitleContent>
+      <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-2 mb-n1" />
+      <MudChip Color="Color.Secondary" Variant="Variant.Text">Login Forbidden!</MudChip>
+   </TitleContent>
+   <DialogContent>
+      <MudCard>
+         <MudCardContent>
+            <MudText Typo="Typo.h4">Anda tidak berhak mengakses halaman ini!!</MudText>
+         </MudCardContent>
+         <MudCardActions>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="BackToHome">Back To Home</MudButton>
+         </MudCardActions>
+      </MudCard>
+
+   </DialogContent>
+
+</MudDialog>
+@inject NavigationManager navManager;
+
+@code {
+   private void BackToHome() {
+      navManager.NavigateTo("", true);
+   }
+}
+

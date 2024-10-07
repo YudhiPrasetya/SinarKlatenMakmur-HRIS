@@ -1,0 +1,239 @@
+﻿@page "/lapLogMesinAbsen"
+
+@using ClosedXML.Excel;
+@using Contracts;
+@using SKM.Shared.Dtos;
+@using SKM.Shared.Helpers;
+
+@inject HttpClient httpClient
+@inject IJSRuntime JSRuntime
+
+<MudPaper Class="mb-4">
+   <MudGrid Class="d-flex justify-center">
+      <MudItem xs="3">
+         <MudDateRangePicker @ref="tglPeriode" @bind-DateRange="_dateRange" Margin="Margin.Dense" PlaceholderStart="Dari" PlaceholderEnd="Sampai" Variant="Variant.Outlined" DisableToolbar="true" Label="Periode"></MudDateRangePicker>
+      </MudItem>
+
+      <MudItem xs="4" Class="align-center d-flex justify-center">
+         <MudButtonGroup Variant="Variant.Filled" Color="Color.Success">
+            <MudButton Disabled="@_processing" StartIcon="@Icons.Material.Filled.Preview" OnClick="PrintPreview" Size="Size.Small">
+               @if (_processing) {
+                  <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                  <MudText Class="ms-2">...Processing</MudText>
+               }
+               else {
+                  <MudText>Proses</MudText>
+               }
+            </MudButton>
+
+            <MudButton StartIcon="@Icons.Material.Filled.Print" Size="Size.Small" OnClick="@(async() => await PrintReport())">
+               Print
+            </MudButton>
+
+            <MudButton StartIcon="@Icons.Material.Filled.ImportExport" Size="Size.Small" OnClick="@(async() => await ExportToExcel())">
+               To Excel
+            </MudButton>
+
+         </MudButtonGroup>
+      </MudItem>
+   </MudGrid>
+</MudPaper>
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<LogMesinAbsenDTO>>>(ServerReload))"
+          Dense="true" Hover="true" @ref="tableLogMesinAbsen">
+   <ToolBarContent>
+      <MudText Typo="Typo.h6">Log Mesin Absen</MudText>
+      <MudSpacer />
+
+      <MudSpacer />
+      <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+   </ToolBarContent>
+   <HeaderContent>
+      <MudTh><MudTableSortLabel SortLabel="nik_field" T="LogMesinAbsenDTO">NIK</MudTableSortLabel></MudTh>
+      <MudTh><MudTableSortLabel SortLabel="tgl_field" T="LogMesinAbsenDTO">Tanggal</MudTableSortLabel></MudTh>
+   </HeaderContent>
+   <RowTemplate>
+      <MudTd DataLabel="NIK">@context.NIK</MudTd>
+      <MudTd DataLabel="Tgl">@context.Tgl!.Value.ToString("dd-MM-yyyy HH:mm:ss")</MudTd>
+      </RowTemplate>
+      <NoRecordsContent>
+         <MudText>No matching records found</MudText>
+      </NoRecordsContent>
+      <LoadingContent>
+         <MudText>Loading...</MudText>
+      </LoadingContent>
+      <PagerContent>
+         <MudTablePager />
+      </PagerContent>
+   </MudTable>
+
+<style>
+   #hadir {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+   }
+
+      #hadir td, #hadir th {
+         border: 1px solid #ddd;
+         padding: 8px;
+      }
+
+      #hadir tr:nth-child(even) {
+         background-color: #f2f2f2;
+      }
+
+      #hadir tr:hover {
+         background-color: #ddd;
+      }
+
+      #hadir th {
+         padding-top: 12px;
+         padding-bottom: 12px;
+         text-align: left;
+         background-color: #04AA6D;
+         color: white;
+      }
+</style>
+
+@if (printing == true) {
+   <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Close" OnClick="CloseReport" Size="Size.Small" Class="mt-4">Close</MudButton>
+   <div id="printable">
+      <table style="width: 100%;" id="hadir">
+         <thead>
+            <tr>
+               <th>NIK</th>
+               <th>Tanggal</th>
+            </tr>
+         </thead>
+         <tbody>
+            @foreach (var e in listLog) {
+               <tr>
+                  <td>@e.NIK</td>
+                  <td>@e.Tgl!.Value.Date.ToString("dd-MM-yyyy HH:mm:ss")</td>
+
+               </tr>
+            }
+         </tbody>
+      </table>
+   </div>
+}
+
+@code {
+   [Inject] ILogMesinAbsenService logMesinAbsenService { get; set; }
+
+   private IEnumerable<LogMesinAbsenDTO> logMesinAbsenDTOs { get; set; } = new List<LogMesinAbsenDTO>();
+   private IEnumerable<LogMesinAbsenDTO>? pagedData;
+   private DateRange? _dateRange;
+   private MudDateRangePicker? tglPeriode;
+   private bool _processing = false;
+   private bool printing = false;
+   string startDate = DateConversions.DateToString(DateTime.Now.Date);
+   string endDate = DateConversions.DateToString(DateTime.Now.Date);
+   private string? searchString;
+   private int totalItems;
+   private List<LogMesinAbsenDTO> listLog = new();
+
+   protected override void OnInitialized() {
+      _dateRange!.Start = DateTime.Now;
+      _dateRange.End = DateTime.Now;
+   }
+
+   private MudTable<LogMesinAbsenDTO>? tableLogMesinAbsen;
+
+   private async Task<TableData<LogMesinAbsenDTO>> ServerReload(TableState state) {
+
+      logMesinAbsenDTOs = await logMesinAbsenService.GetListLogMesinByDate(startDate, endDate);
+      await Task.Delay(50);
+      logMesinAbsenDTOs = logMesinAbsenDTOs.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+         if (element.Tgl!.Value.Date.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+
+         if ($"{element.NIK}{element.Tgl!.Value.Date.ToString()} ".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = logMesinAbsenDTOs.Count();
+      switch (state.SortLabel) {
+         case "nik_field":
+         logMesinAbsenDTOs = logMesinAbsenDTOs.OrderByDirection(state.SortDirection, o => o.NIK);
+         break;
+
+         case "tgl_field":
+         logMesinAbsenDTOs = logMesinAbsenDTOs.OrderByDirection(state.SortDirection, o => o.Tgl);
+         break;
+
+      }
+
+      pagedData = logMesinAbsenDTOs.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<LogMesinAbsenDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      tableLogMesinAbsen.ReloadServerData();
+   }
+
+   async Task PrintPreview() {
+      _processing = true;
+      DateTime date1 = _dateRange.Start.Value.Date;
+      startDate = DateConversions.DateToString(date1.Date);
+
+      DateTime date2 = _dateRange.End.Value.Date;
+      endDate = DateConversions.DateToString(date2.Date);
+
+      await tableLogMesinAbsen.ReloadServerData();
+      await Task.Delay(2000);
+      _processing = false;
+   }
+
+   private void CloseReport() {
+      printing = false;
+      StateHasChanged();
+   }
+
+   protected async Task ExportToExcel() {
+      // await kehadiranService.ExportToExcel(group, startDate, endDate);
+      var response = await httpClient.GetAsync($"/MesinAbsens/Log/ExportToExcel/{startDate}/{endDate}");
+      // response.EnsureSuccessStatusCode();
+      if (response.IsSuccessStatusCode) {
+         var fileBytes = await response.Content.ReadAsByteArrayAsync();
+         var fileName = "LogMesinAbsen.xlsx";
+         await JSRuntime.InvokeAsync<object>("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+
+      }
+   }
+
+   async Task PrintReport() {
+      listLog = await logMesinAbsenService.GetListLogMesinByDate(startDate, endDate);
+      printing = true;
+      StateHasChanged();
+      await JSRuntime.InvokeVoidAsync("Print");
+
+      // var parameters = new DialogParameters {
+      //    ["listHadir"] = listHadir
+      // };
+
+      // var options = new DialogOptions() { CloseButton = false, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter, DisableBackdropClick = true };
+
+      // var dialog = await DialogService.ShowAsync<KehadiranData>("-", parameters, options);
+      // var result = await dialog.Result;
+
+      // kehadiranData.listHadir = listHadir;
+      // StateHasChanged();
+      // await JSRuntime.InvokeAsync<object>("open", new object[] { "/KehadiranData", "_blank" });
+
+      // if (!result.Canceled) {
+      //    await tableJadwalKerjaKaryawan.ReloadServerData();
+      // }
+   }
+}

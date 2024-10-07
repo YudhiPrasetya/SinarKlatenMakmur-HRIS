@@ -1,0 +1,15 @@
+﻿@page "/lapLemburAll"
+@using HRIS.Contracts;
+
+<MudPaper>
+	<MudButton OnClick="OnLapLemburAll" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Print">Lembur All</MudButton>
+</MudPaper>
+
+@code {
+	[Inject]ISuratPerintahLemburService suratPerintahLemburService { get; set; }
+
+	async void OnLapLemburAll() {
+		await suratPerintahLemburService.LapLemburAll();
+	}
+
+}

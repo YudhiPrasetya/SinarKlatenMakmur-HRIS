@@ -1,0 +1,280 @@
+﻿@page "/positions";
+@using HRIS.Contracts;
+@using HRIS.Services;
+@using SKM.Shared.Dtos;
+@using System.Collections.ObjectModel;
+
+@attribute [Authorize]
+
+@inject ISnackbar Snackbar;
+@inject IDialogService DialogService;
+
+<MudCard Class="mt-5" Elevation="1">
+   <MudCardHeader>
+      <CardHeaderContent>
+         <MudText Typo="Typo.h6">Data Posisi/Jabatan</MudText>
+      </CardHeaderContent>
+      <CardHeaderActions>
+         @*<MudIconButton Icon="@Icons.Material.Filled.Add" Title="Tambah Data" Color="Color.Success"></MudIconButton>*@
+         @*			<MudFab Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Label="Tambah Data" />*@
+
+         @*         <MudButton Color="Color.Tertiary" OnClick="@((e) => addException())" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add">Tambah Data</MudButton>*@
+      </CardHeaderActions>
+   </MudCardHeader>
+   <MudCardContent>
+      <MudExpansionPanels Elevation="3">
+         <MudExpansionPanel @bind-IsExpanded="isOpen" HideIcon="true">
+            <TitleContent>
+               <div class="d-flex">
+                  <MudText Color="@TitlePanelColor"><strong>@formCaption</strong></MudText>
+                  <MudIcon Icon="@(isOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Add)" class="ml-auto"></MudIcon>
+               </div>
+            </TitleContent>
+            <ChildContent>
+               <MudForm @ref="positionForm" @bind-IsValid="@success" @bind-Errors="@errors">
+                  <MudGrid>
+                     <MudItem xs="1">
+                        <MudTextField @ref="Id" T="int" Label="Id" Required="true" Disabled="true" @bind-Value="@positionDTO.PositionId"></MudTextField>
+                     </MudItem>
+                     <MudItem xs=4>
+                        <MudTextField @ref="PositionDescription" Label="Deskripsi" Required="true" @bind-Value="@positionDTO.PositionDesc"></MudTextField>
+                     </MudItem>
+                     <MudItem xs="2">
+                        <MudSwitch @ref="IsActive" @bind-Checked="@positionDTO.IsActive" Color="Color.Success" Label="Aktif" LabelPosition="MudBlazor.LabelPosition.End"></MudSwitch>
+                        @*                         <MudCheckBox  @bind-Checked="@departmentDTO.IsActive" Label="Aktif" Color="Color.Success" LabelPosition="MudBlazor.LabelPosition.Start"></MudCheckBox> *@
+                     </MudItem>
+                  </MudGrid>
+                  <MudDivider DividerType="DividerType.Inset" Class="my-4"></MudDivider>
+                  <MudPaper Class="d-flex flex-row-reverse flex-grow-1 gap-4" Elevation="0">
+                     <MudButton OnClick="SavePosition" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Update">Save</MudButton>
+                     <MudButton Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Cancel" OnClick="Cancel">Cancel</MudButton>
+                  </MudPaper>
+               </MudForm>
+            </ChildContent>
+
+         </MudExpansionPanel>
+      </MudExpansionPanels>
+
+      <MudTable ServerData="@(new Func<TableState, Task<TableData<PositionDTO>>>(ServerReload))" Dense="true" T="PositionDTO" Hover="true" @ref="positionTable" Elevation="4" FixedHeader="true" FixedFooter="true" Bordered="false" Breakpoint="Breakpoint.Sm" Class="cursor-pointer">
+         <ToolBarContent>
+            <MudText Typo="Typo.h6">Daftar Kelompok Kerja</MudText>
+            <MudSpacer />
+            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+         </ToolBarContent>
+         <HeaderContent>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="id_field" T="PositionDTO">ID</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"><MudTableSortLabel SortLabel="desc_field" T="PositionDTO">Deskripsi</MudTableSortLabel></MudTh>
+            <MudTh Class="bg-opacity-25 mud-theme-info"><MudTableSortLabel SortLabel="active_field" T="PositionDTO">Aktif</MudTableSortLabel></MudTh>
+            <MudTh Class="pa-2 mud-theme-info"></MudTh>
+         </HeaderContent>
+         <RowTemplate>
+            <MudTd Class="pa-2" DataLabel="ID">@context.PositionId</MudTd>
+            <MudTd Class="pa-1" DataLabel="Deskripsi">@context.PositionDesc</MudTd>
+            <MudTd Class="pa-1" DataLabel="Aktif"><MudSwitch Label="Aktif" Color="Color.Success" @bind-Checked="context.IsActive" ReadOnly="true" LabelPosition="MudBlazor.LabelPosition.End"></MudSwitch></MudTd>
+            <MudTd Class="pa-1">
+               <MudGrid>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Edit Data" Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="((e) =>EditPosition(context))"></MudIconButton>
+                  </MudItem>
+                  <MudItem xs="6" sm="3">
+                     <MudIconButton Size="Size.Small" Title="Hapus Data" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="((e) => DeletePosition(context.PositionId))"></MudIconButton>
+                  </MudItem>
+               </MudGrid>
+            </MudTd>
+
+         </RowTemplate>
+         <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+         </NoRecordsContent>
+         <LoadingContent>
+            <MudText>Loading...</MudText>
+         </LoadingContent>
+         <PagerContent>
+            <MudTablePager />
+         </PagerContent>
+      </MudTable>
+   </MudCardContent>
+</MudCard>
+
+@code {
+   [Inject] IPositionService positionService { get; set; }
+   private List<PositionDTO> positionDTOs { get; set; } = new List<PositionDTO>();
+   // private static IEnumerable<DepartmentDTO> ListDepartment { get; set; }
+   private IEnumerable<PositionDTO> pagedData;
+   private PositionDTO positionDTO { get; set; } = new PositionDTO();
+   private bool isOpen;
+   private bool success;
+   private bool isEdit = false;
+   private MudBlazor.Color TitlePanelColor = Color.Tertiary;
+   private MudForm positionForm;
+   private MudTable<PositionDTO> positionTable;
+   private string formCaption = "Tambah Data Posisi/Jabatan";
+   private string TitlePanelCaption;
+   private string searchString = null;
+   private string[] errors = { };
+   private string Mode = "Add";
+   private int totalItems;
+   private MudTextField<int> Id;
+   private MudTextField<string> PositionDescription;
+   // private bool IsActive;
+   // private MudCheckBox<bool> IsActive;
+   private MudSwitch<bool> IsActive;
+
+   // protected async override Task OnInitializedAsync() {
+   //    // return base.OnInitializedAsync();
+   //    // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+   //    GetDepartments();
+   //    // await FillDepartments();
+   // }
+
+   // protected override void OnInitialized() {
+   //    // base.OnInitialized();
+   //    GetDepartments().GetAwaiter().GetResult();
+   // }
+
+   // private List<DepartmentDTO> GetDepartments() {
+   //    // var task = departmentService.GetListDepartmentsAsync();
+   //    // task.Wait();
+
+
+   //    // return task.Result;
+   //    // await Task.Delay(100);
+   //    // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+
+   //    // return departmentDTOs;
+   //    departmentDTOs = departmentService.GetListDepartmentsAsync();
+   //    return departmentDTOs;
+
+   // }
+
+   // private async Task FillDepartments() {
+   //    IList<DepartmentDTO> departments = new List<DepartmentDTO>();
+   //    departments = await departmentService.GetListDepartmentsAsync();
+   //    ListDepartment = departments;
+   //    StateHasChanged();
+   //    await Task.Delay(200);
+   // }
+
+   // private async void GetDepartments() {
+   //    departmentDTOs = new List<DepartmentDTO>();
+   //    // departmentDTOs.Clear();
+   //    departmentDTOs = await departmentService.GetListDepartmentsAsync();
+   //    // await Task.Delay(200);
+   //    StateHasChanged();
+   //    // Task.Delay(100);
+
+   // }
+
+   private void OnSearch(string text) {
+      searchString = text;
+      positionTable.ReloadServerData();
+   }
+
+   private async Task<TableData<PositionDTO>> ServerReload(TableState state) {
+      IEnumerable<PositionDTO> data = await positionService.GetListPositions();
+      await Task.Delay(100);
+      data = data.Where(element => {
+         if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+         if (element.PositionDesc.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+         if ($"{element.PositionDesc}".Contains(searchString))
+            return true;
+         return false;
+      }).ToArray();
+      totalItems = data.Count();
+      switch (state.SortLabel) {
+         case "id_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.PositionId);
+         break;
+
+         case "desc_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.PositionDesc);
+         break;
+
+         case "active_field":
+         data = data.OrderByDirection(state.SortDirection, o => o.IsActive);
+         break;
+
+      }
+
+      pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+      return new TableData<PositionDTO>() { TotalItems = totalItems, Items = pagedData };
+   }
+
+   private void Cancel() {
+      positionForm.ResetAsync();
+      isEdit = false;
+      Mode = "Add";
+      TitlePanelColor = Color.Tertiary;
+      formCaption = "Tambah Data Posisi/Jabatan";
+   }
+
+   async Task EditPosition(PositionDTO selectedPosition) {
+      Mode = "Edit";
+      TitlePanelColor = Color.Warning;
+      formCaption = "Edit Data Posisi/Jabatan";
+      positionDTO.PositionId = selectedPosition.PositionId;
+      positionDTO.PositionDesc = selectedPosition.PositionDesc;
+      positionDTO.IsActive = selectedPosition.IsActive;
+      isOpen = true;
+
+   }
+
+   // private void OnIsActiveChange(bool b) {
+   //    IsActive = b;
+   // }
+
+   private async void SavePosition() {
+
+      positionDTO.PositionId= Id.Value;
+      positionDTO.PositionDesc = PositionDescription.Value;
+      positionDTO.IsActive = IsActive.Checked;
+      positionDTO.CreatedAt = DateTime.Now;
+      positionDTO.CreatedBy = 1;
+      if (Mode == "Add") {
+         await positionService.AddPosition(positionDTO);
+      }
+      else {
+         var depDTO = await positionService.UpdatePosition(positionDTO);
+         // bool departmentOfferSend = await departmentService.SendDepartmentOffer(depDTO);
+         // Console.WriteLine(departmentOfferSend);
+         isOpen = false;
+         Mode = "Add";
+         formCaption = "Tambah Data Posisi/Jabatan";
+      }
+
+      // departmentDTOs.Clear();
+      // departmentTable.Items = null;
+      // departmentDTOs = await departmentService.GetListDepartmentsAsync();
+      // departmentTable.Items = departmentDTOs;
+      // StateHasChanged();
+      // await FillDepartments();
+      Snackbar.Add("Data posisi/jabatan berhasil disimpan di database!", Severity.Success, config => {
+         config.HideTransitionDuration = 100;
+      });
+
+      // Task.Delay(100);
+      await positionTable.ReloadServerData();
+      await positionForm.ResetAsync();
+      // GetDepartments();
+   }
+
+   async Task DeletePosition(int Id) {
+      bool? deleteConfirmation = await DialogService.ShowMessageBox("Konfirmasi", "Yakin akan menghapus?", "Ya", "Tidak");
+      if (deleteConfirmation == true) {
+         var response = await positionService.DeletePosition(Id);
+         if (response != null) {
+            await positionTable.ReloadServerData();
+            Snackbar.Add("Data posisi/jabatab berhasil dihapus.", Severity.Info, config => {
+               config.HideTransitionDuration = 100;
+            });
+         }
+
+      }
+   }
+
+}

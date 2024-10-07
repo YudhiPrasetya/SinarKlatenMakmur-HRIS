@@ -1,0 +1,262 @@
+﻿@using HRIS.Pages.SharedModal;
+@using SKM.Shared.Dtos
+@using HRIS.Components
+@using HRIS.Contracts
+@using HRIS.Services
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar;
+
+<MudDialog>
+	<DialogContent>
+      <MudCard Class="mx-1 pa-1" Elevation="1">
+         <MudCardHeader>
+            <CardHeaderAvatar>
+               <MudAvatar Color="Color.Primary">F</MudAvatar>
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+               <MudText Typo="Typo.body1"><strong>Form Gaji dan Tunjangan</strong></MudText>
+               <MudText Typo="Typo.body2">Untuk mengisi data gaji dan tunjangan</MudText>
+            </CardHeaderContent>
+         </MudCardHeader>
+         <MudCardContent>
+            
+            <MudForm @ref="gajiMultiForm">
+               <MudGrid>
+                  <MudItem Class="pa-2" xs="3">
+                     <MudTextField @bind-Value="@gajiDTO.Id" @ref="Id" Label="Id" Disabled="true" Margin="Margin.Dense" Variant="Variant.Outlined"></MudTextField>
+                  </MudItem>
+               </MudGrid>
+
+               <MudGrid Class="py-4">
+                  <MudItem xs="12">
+                     <MudGrid Class="d-flex justify-center">
+                        <MudTable Dense="true" T="EmployeeDTO" Items="empDTOs" MultiSelection="true" Hover="true" Striped="true" Class="cursor-pointer" @bind-SelectedItems="selectedEmps" Filter="new Func<EmployeeDTO,bool>(FilterFunc1)">
+                           <ToolBarContent>
+                              <MudText Typo="Typo.h6">Data Karyawan</MudText>
+                              <MudSpacer />
+                              <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                           </ToolBarContent>
+                           <HeaderContent>
+                              <MudTh>Group Id</MudTh>
+                              <MudTh>Group Name</MudTh>
+                              <MudTh>Department Id</MudTh>
+                              <MudTh>Department Name</MudTh>
+                              <MudTh>NIK</MudTh>
+                              <MudTh>Name</MudTh>
+                           </HeaderContent>
+                           <RowTemplate>
+                              <MudTd DataLabel="Group Id">@context.GroupID</MudTd>
+                              <MudTd DataLabel="Group Name">@context.GroupName</MudTd>
+                              <MudTd DataLabel="Department Id">@context.DepartmentId</MudTd>
+                              <MudTd DataLabel="Department Name">@context.DepartmentName</MudTd>
+                              <MudTd DataLabel="NIK">@context.NIK</MudTd>
+                              <MudTd DataLabel="Name">@context.Name</MudTd>
+                           </RowTemplate>
+                           <PagerContent>
+                              <MudTablePager PageSizeOptions="new int[]{5, 10, 15, 25, 50, 75, 100}" />
+                           </PagerContent>
+                           <FooterContent>
+                              <MudTd colspan="6">Select All</MudTd>
+                           </FooterContent>
+                        </MudTable>
+                     </MudGrid>
+                  </MudItem>
+               </MudGrid>
+
+               <MudGrid>
+                  <MudItem xs="4" Class="pa-2">
+                     <MudSelect ValueChanged="OnUMPValueChanged" @ref="UMP" T="int" Label="UMP..." Margin="Margin.Dense" Variant="Variant.Outlined">
+                        <MudSelectItem Value="0">Input Manual</MudSelectItem>
+                        @foreach (var umpDTO in umpDTOs) {
+                           <MudSelectItem Value="@umpDTO.Jumlah">@umpDTO.Keterangan</MudSelectItem>
+                        }
+                     </MudSelect>
+                  </MudItem>
+                  <MudItem sm="4" Class="pa-2">
+                     <MudNumericField T="decimal" @bind-Value="gajiDTO.Upah" @ref="Upah" Margin="Margin.Dense" Variant="Variant.Outlined" ></MudNumericField>
+                  </MudItem>
+                  <MudItem xs="4" Class="pa-2">
+                     <MudSelect Placeholder="PTKP" T="string" @ref="PTKP" Label="PTKP..." @bind-Text="@gajiDTO.PTKP"  Margin="Margin.Dense" Variant="Variant.Outlined">
+                        @foreach (var ptkpDTO in ptkpDTOs) {
+                           <MudSelectItem Value="@ptkpDTO.ToString()">@ptkpDTO.Keterangan</MudSelectItem>
+                        }
+                     </MudSelect>
+                  </MudItem>
+               </MudGrid>
+
+               <MudGrid>
+                  <MudItem sm="6" Class="pa-2">
+                     <MudField Label="Tunjangan" Variant="Variant.Outlined">
+                        <MudNumericField @ref="TunjJabatan" @bind-Value="gajiDTO.TunjJabatan" Label="Jabatan" T="int?"></MudNumericField>
+                        <MudNumericField @ref="TunjKeterampilan" @bind-Value="gajiDTO.TunjKeterampilan" Label="Keterampilan" T="int?"></MudNumericField>
+                        <MudNumericField @ref="TunjLain" @bind-Value="gajiDTO.TunjLain" Label="DLL" T="int?"></MudNumericField>
+                     </MudField>
+                  </MudItem>
+                  <MudItem sm="6" Class="pa-2">
+                     <MudField Label="Potongan" Variant="Variant.Outlined">
+                        <MudNumericField @ref="PotonganKoperasi" @bind-Value="gajiDTO.PotonganKoperasi" Label="Koperasi" T="int?"></MudNumericField>
+                        <MudNumericField @ref="PotonganLain" @bind-Value="gajiDTO.PotonganLain" Label="DLL" T="int?"></MudNumericField>
+                     </MudField>
+                  </MudItem>
+               </MudGrid>
+
+               <MudGrid>
+                  <MudItem sm="6" Class="pa-2">
+                     <MudField Label="BPJS Tenaga Kerja" Variant="Variant.Outlined" InnerPadding="false">
+                        <MudRadioGroup @bind-SelectedOption="gajiDTO.Potong_BPJSTK" @ref="BPJSTK" Class="pa-1">
+                           <MudRadio Option="@("Potong")">Potong</MudRadio>
+                           <MudRadio Option="@("Tidak")">Tidak</MudRadio>
+                        </MudRadioGroup>
+                     </MudField>
+                  </MudItem>
+                  <MudItem sm="6" Class="pa-2">
+                     <MudField Label="BPJS Kesehatan" Variant="Variant.Outlined" InnerPadding="false">
+                        <MudRadioGroup @bind-SelectedOption="gajiDTO.Potong_BPJSKes" @ref="BPJSKes" Class="pa-1">
+                           <MudRadio Option="@("Potong")">Potong</MudRadio>
+                           <MudRadio Option="@("Tidak")">Tidak</MudRadio>
+                        </MudRadioGroup>
+                     </MudField>
+                  </MudItem>
+               </MudGrid>
+
+               <MudGrid>
+                  <MudItem sm="12" Class="pa-2">
+                     <MudField Variant="Variant.Outlined" Label="BPJS Kesehatan Orang Tua">
+                        <MudGrid>
+                           <MudItem sm="6" Class="pa-2">
+                              <MudNumericField Label="Orang Tua 1(%)" T="decimal?" @bind-Value="gajiDTO.BPJS_Ortu1" @ref="BPJSOrtu1" Format="F2"></MudNumericField>
+                              <MudNumericField Label="Orang Tua 2(%)" T="decimal?" @bind-Value="gajiDTO.BPJS_Ortu2" @ref="BPJSOrtu2" Format="F2"></MudNumericField>
+                           </MudItem>
+                           <MudItem sm="6" Class="pa-2">
+                              <MudNumericField Label="Orang Tua 3(%)" @ref="BPJSOrtu3" T="decimal?" @bind-Value=gajiDTO.BPJS_Ortu3 Format="F2"></MudNumericField>
+                              <MudNumericField Label="Orang Tua 4(%)" @ref="BPJSOrtu4" T="decimal?" @bind-Value="gajiDTO.BPJS_Ortu4" Format="F2"></MudNumericField>
+                           </MudItem>
+                        </MudGrid>
+                     </MudField>
+                  </MudItem>
+               </MudGrid>
+            </MudForm>
+         </MudCardContent>
+         <MudCardActions>
+            <MudStack Row="true" Spacing="5">
+               <MudButton StartIcon="@Icons.Material.Filled.Save" Variant="Variant.Filled" Color="Color.Success" OnClick="Save">Save</MudButton>
+               <MudButton StartIcon="@Icons.Material.Filled.Cancel" Variant="Variant.Filled" Color="Color.Warning" OnClick="Cancel">Cancel</MudButton>
+            </MudStack>
+         </MudCardActions>
+      </MudCard>
+      
+	</DialogContent>
+</MudDialog>
+
+@code {
+   [Inject]IGajiDanTunjanganService gajiService { get; set; }
+   private IEnumerable<GajiDanTunjanganDTO> gajiDTOS = new List<GajiDanTunjanganDTO>();
+   private MudForm gajiMultiForm;
+   [Parameter]public GajiDanTunjanganDTO gajiDTO { get; set; } = new GajiDanTunjanganDTO();
+   private MudTextField<int> Id;
+   private MudTextField<string> NIK;
+   private MudTextField<string> grupKerja;
+   private MudTextField<string> namaKaryawan;
+   private MudSelect<int> UMP;
+   private MudNumericField<decimal> Upah { get; set; }
+   private MudSelect<string> PTKP;
+   private string selectedBPJSKes { get; set; }
+   private string selectedBPJSTK { get; set; }
+   private MudNumericField<decimal?> BPJSOrtu1 { get; set; }
+   private MudNumericField<decimal?> BPJSOrtu2 { get; set; }
+   private MudNumericField<decimal?> BPJSOrtu3 { get; set; }
+   private MudNumericField<decimal?> BPJSOrtu4 { get; set; }
+   private MudNumericField<int?> TunjJabatan { get; set; }
+   private MudNumericField<int?> TunjKeterampilan { get; set; }
+   private MudNumericField<int?> TunjLain { get; set; }
+   private MudNumericField<int?> PotonganKoperasi { get; set; }
+   private MudNumericField<int?> PotonganLain { get; set; }
+   private MudRadioGroup<string?> BPJSTK { get; set; }
+   private MudRadioGroup<string?> BPJSKes { get; set; }
+   private string searchString1 = "";
+   private HashSet<EmployeeDTO> selectedEmps = new HashSet<EmployeeDTO>();
+
+   [Parameter]
+   public IEnumerable<EmployeeDTO> empDTOs { get; set; }
+
+   [Parameter]
+   public IEnumerable<UpahMinimumProvinsiDTO> umpDTOs { get; set; }
+
+   [Parameter]
+   public IEnumerable<PenghasilanTidakKenaPajakDTO> ptkpDTOs { get; set; }
+   [Parameter] public string? ModalLabel { get; set; }
+   [Parameter]public string Mode { get; set; }
+   [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+   private void Save() {
+      string[] arrPTKP = PTKP.Value.Split("-");
+      List<GajiDanTunjanganDTO> dataGajiDTOs = new List<GajiDanTunjanganDTO>();
+      foreach(var emp in selectedEmps) {
+         dataGajiDTOs.Add(new GajiDanTunjanganDTO
+         {
+            Id = Id.Value,
+            GroupId = emp.GroupID.Value,
+            GrupKerja = emp.GroupName,
+            EmployeeId = emp.EmployeeId,
+            NIK = emp.NIK,
+            NamaKaryawan = emp.Name,
+            DepartmentId = emp.DepartmentId.Value,
+            DepartmentName = emp.DepartmentName,
+            Upah = Upah.Value,
+            PTKP = arrPTKP[0],
+            PTKP_Jumlah = int.Parse(arrPTKP[1]),
+            TunjJabatan = TunjJabatan.Value,
+            TunjKeterampilan = TunjKeterampilan.Value,
+            TunjMasaKerja = 0,
+            TunjLain = TunjLain.Value,
+            PotonganKoperasi = PotonganKoperasi.Value,
+            PotonganLain = PotonganLain.Value,
+            Potong_BPJSKes = BPJSKes.SelectedOption,
+            Potong_BPJSTK = BPJSTK.SelectedOption,
+            BPJS_Ortu1 = BPJSOrtu1.Value,
+            BPJS_Ortu2 = BPJSOrtu2.Value,
+            BPJS_Ortu3 = BPJSOrtu3.Value,
+            BPJS_Ortu4 = BPJSOrtu4.Value,
+            CreatedBy = 1,
+            CreatedAt = DateTime.Now,
+            UpdatedBy = 1,
+            UpdatedAt = DateTime.Now
+         });
+      }
+
+      if(Mode == "Tambah") {
+         // var gaji = await gajiService.AddGajiAsync(dataGaji);
+         // await OnGajiAddedRange.InvokeAsync(dataGajiDTOs);
+         // await gajiMultiForm.ResetAsync();
+         MudDialog?.Close(dataGajiDTOs);
+      }
+   }
+
+   private void Cancel() {
+      MudDialog?.Close();
+   }
+
+   private bool FilterFunc1(EmployeeDTO element) => FilterFunc(element, searchString1);
+
+   private bool FilterFunc(EmployeeDTO element, string searchString) {
+      if (string.IsNullOrWhiteSpace(searchString))
+         return true;
+      if (element.GroupName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+         return true;
+      if (element.NIK.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+         return true;
+      if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+         return true;
+      if (element.DepartmentName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+         return true;
+      if ($"{element.GroupName} {element.NIK} {element.Name} {element.DepartmentName}".Contains(searchString))
+         return true;
+      return false;
+   }
+
+   private async void OnUMPValueChanged(int selectedUMP) {
+      gajiDTO.Upah = selectedUMP;
+      await Upah.FocusAsync();
+   }
+}

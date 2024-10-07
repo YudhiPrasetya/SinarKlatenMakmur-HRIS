@@ -1,0 +1,56 @@
+﻿@layout BlankLayout
+
+@page "/rekapLemburData"
+@using SKM.Shared.Dtos;
+
+
+<body onload="window.print()">
+	<div id="printable">
+		<table style="border: solid 2px black">
+			<thead>
+				<tr>
+					<th rowspan="2">Grup Kerja</th>
+					<th rowspan="2">NIK</th>
+					<th rowspan="2">Nama</th>
+					<th rowspan="2">Tanggal</th>
+					<th rowspan="2">Jenis</th>
+					<th colspan="9">Hitungan Lembur</th>
+				</tr>
+				<tr>
+					<th>Ke-1</th>
+					<th>Ke-2</th>
+					<th>Ke-3</th>
+					<th>Ke-4</th>
+					<th>Ke-5</th>
+					<th>Ke-6</th>
+					<th>Ke-7</th>
+					<th>Ke-8</th>
+					<th>Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var lpv in listLemburPivot) {
+					<tr>
+						<td>@lpv.GrupKerja</td>
+						<td>@lpv.NIK</td>
+						<td>@lpv.Nama</td>
+						<td>@lpv.Tanggal</td>
+						<td>@lpv.JenisLembur</td>
+						<td>@lpv.Ke1</td>
+						<td>@lpv.Ke2</td>
+						<td>@lpv.Ke3</td>
+						<td>@lpv.Ke4</td>
+						<td>@lpv.Ke5</td>
+						<td>@lpv.Ke6</td>
+						<td>@lpv.Ke7</td>
+						<td>@lpv.Total</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</body>
+
+@code {
+	[Parameter] public List<LemburPivotDTO>? listLemburPivot { get; set; } = new();
+}
