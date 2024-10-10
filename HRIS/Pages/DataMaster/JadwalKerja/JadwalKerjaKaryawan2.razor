@@ -74,7 +74,13 @@
 				<MudText>Proses</MudText>
 			}
 		</MudButton>
-		<MudButton OnClick="AddJadwal" Variant="Variant.Filled" Color="Color.Success">Tambah Jadwal</MudButton>
+		@* <MudButton OnClick="AddJadwal" Variant="Variant.Filled" Color="Color.Success">Tambah Jadwal</MudButton> *@
+		<MudButtonGroup Color="Color.Primary">
+			<MudButton>Tambah Jadwal</MudButton>
+			<MudMenuItem OnClick="AddJadwal">Per Karyawan</MudMenuItem>
+			<MudMenuItem OnClick="AddJadwal">Per Grup Kerja</MudMenuItem>
+			<MudMenuItem OnClick="AddJadwal">Campuran</MudMenuItem>
+		</MudButtonGroup>
 	</MudItem>
 </MudGrid>
 

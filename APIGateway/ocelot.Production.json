@@ -1537,13 +1537,13 @@
                //"Port": 7028
                "Port": 9028
             }
-         ],
-         "AuthenticationOptions": {
-            "AuthenticationProviderKey": "Bearer"
-         },
-         "RouteClaimsRequirement": {
-            "Role": "Admin , User , Security"
-         }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //},
+         //"RouteClaimsRequirement": {
+         //   "Role": "Admin , User , Security"
+         //}
          //"FileCacheOptions": { "TtlSeconds": 120 }
       },
       //Get, Delete
@@ -2372,7 +2372,26 @@
             "AuthenticationProviderKey": "Bearer"
          }
       },
-
+      {
+         "UpstreamHttpMethod": [ "Post" ],
+         "UpstreamPathTemplate": "/Payroll/PostPayrollRange",
+         "DownstreamPathTemplate": "/api/payroll/PostPayrollRange",
+         //"DownstreamScheme": "https",
+         "DownstreamScheme": "http",
+         "DownstreamHostAndPorts": [
+            {
+               "Host": "localhost",
+               //"Port": 7215
+               "Port": 9215
+            }
+         ],
+         "AuthenticationOptions": {
+            "AuthenticationProviderKey": "Bearer"
+         },
+         "RouteClaimsRequirement": {
+            "Role": "Admin , User"
+         }
+      },
       //Lupa absen routes
       {
          "UpstreamHttpMethod": [ "Post" ],

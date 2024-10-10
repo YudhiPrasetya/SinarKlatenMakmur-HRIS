@@ -1586,13 +1586,13 @@
                "Port": 7028
                //"Port": 9028
             }
-         ],
-         "AuthenticationOptions": {
-            "AuthenticationProviderKey": "Bearer"
-         },
-         "RouteClaimsRequirement": {
-            "Role": "Admin , User , Security"
-         }
+         ]
+         //"AuthenticationOptions": {
+         //   "AuthenticationProviderKey": "Bearer"
+         //},
+         //"RouteClaimsRequirement": {
+         //   "Role": "Admin , User , Security"
+         //}
          //"FileCacheOptions": { "TtlSeconds": 120 }
       },
       //Get, Delete

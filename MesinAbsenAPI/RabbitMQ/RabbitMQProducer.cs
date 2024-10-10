@@ -7,7 +7,7 @@ namespace MesinAbsenAPI.RabbitMQ {
 
       public void SendAbsenRealTimeMessage<T>(T message) {
          var factory = new ConnectionFactory {
-            HostName = "localhost:5672"
+            HostName = "localhost"
          };
          var connection = factory.CreateConnection();
          using var channel = connection.CreateModel();
@@ -19,7 +19,7 @@ namespace MesinAbsenAPI.RabbitMQ {
 
       public void SendRealtimeMessageToPayroll<T>(T message) {
          var factory = new ConnectionFactory {
-            HostName = "localhost:5672"
+            HostName = "localhost"
          };
          var connection = factory.CreateConnection();
          using var channel = connection.CreateModel();
@@ -31,7 +31,7 @@ namespace MesinAbsenAPI.RabbitMQ {
 
       public void SendLogMesinAbsenMessage<T>(T message) {
 			var factory = new ConnectionFactory {
-				HostName = "localhost:5672"
+				HostName = "localhost"
 			};
 			var connection = factory.CreateConnection();
 			using var channel = connection.CreateModel();
