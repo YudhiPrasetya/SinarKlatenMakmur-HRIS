@@ -1,0 +1,23 @@
+{
+  "Version": 1,
+  "Hash": "txbnpwM2i97ixM8u8W4UyWEED5JuswDY1t19xlS2lYY=",
+  "Source": "AuthAPI",
+  "BasePath": "_content/AuthAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "D:\\SKM\\SinarKlatenMakmur\\UserAPI\\UserAPI.csproj",
+      "Version": 2,
+      "Source": "UserAPI",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

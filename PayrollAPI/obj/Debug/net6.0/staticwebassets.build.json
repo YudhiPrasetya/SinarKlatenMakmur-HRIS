@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "Hash": "5MFWXaoVenuNHPRaCggsKEjQdxj2v+v3isWPirECTAY=",
+  "Source": "PayrollAPI",
+  "BasePath": "_content/PayrollAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "PayrollAPI\\wwwroot",
+      "Source": "PayrollAPI",
+      "ContentRoot": "D:\\SKM\\SinarKlatenMakmur\\PayrollAPI\\wwwroot\\",
+      "BasePath": "_content/PayrollAPI",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "D:\\SKM\\SinarKlatenMakmur\\PayrollAPI\\wwwroot\\Reports\\Coba.cs",
+      "SourceId": "PayrollAPI",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\SKM\\SinarKlatenMakmur\\PayrollAPI\\wwwroot\\",
+      "BasePath": "_content/PayrollAPI",
+      "RelativePath": "Reports/Coba.cs",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\Reports\\Coba.cs"
+    },
+    {
+      "Identity": "D:\\SKM\\SinarKlatenMakmur\\PayrollAPI\\wwwroot\\Reports\\Coba.frx",
+      "SourceId": "PayrollAPI",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\SKM\\SinarKlatenMakmur\\PayrollAPI\\wwwroot\\",
+      "BasePath": "_content/PayrollAPI",
+      "RelativePath": "Reports/Coba.frx",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\Reports\\Coba.frx"
+    },
+    {
+      "Identity": "D:\\SKM\\SinarKlatenMakmur\\PayrollAPI\\wwwroot\\Reports\\SlipGaji.rdlc",
+      "SourceId": "PayrollAPI",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\SKM\\SinarKlatenMakmur\\PayrollAPI\\wwwroot\\",
+      "BasePath": "_content/PayrollAPI",
+      "RelativePath": "Reports/SlipGaji.rdlc",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Always",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\Reports\\SlipGaji.rdlc"
+    }
+  ]
+}

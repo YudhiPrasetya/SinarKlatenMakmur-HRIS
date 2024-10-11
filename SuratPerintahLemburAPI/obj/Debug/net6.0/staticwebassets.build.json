@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "Hash": "mX/K/8gIogP0rkWkC165adaRWnTSZ2gknNqwRX7tp0o=",
+  "Source": "SuratPerintahLemburAPI",
+  "BasePath": "_content/SuratPerintahLemburAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "SuratPerintahLemburAPI\\wwwroot",
+      "Source": "SuratPerintahLemburAPI",
+      "ContentRoot": "D:\\SKM\\SinarKlatenMakmur\\SuratPerintahLemburAPI\\wwwroot\\",
+      "BasePath": "_content/SuratPerintahLemburAPI",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "D:\\SKM\\SinarKlatenMakmur\\SuratPerintahLemburAPI\\wwwroot\\Reports\\RekapLembur.rdlc",
+      "SourceId": "SuratPerintahLemburAPI",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\SKM\\SinarKlatenMakmur\\SuratPerintahLemburAPI\\wwwroot\\",
+      "BasePath": "_content/SuratPerintahLemburAPI",
+      "RelativePath": "Reports/RekapLembur.rdlc",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Always",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\Reports\\RekapLembur.rdlc"
+    }
+  ]
+}

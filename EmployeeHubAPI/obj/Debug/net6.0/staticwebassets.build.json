@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "r12+VYVjiILIRltNlrpq2rJPC1rLmTRJtJrHaBlLrMg=",
+  "Source": "EmployeeHubAPI",
+  "BasePath": "_content/EmployeeHubAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

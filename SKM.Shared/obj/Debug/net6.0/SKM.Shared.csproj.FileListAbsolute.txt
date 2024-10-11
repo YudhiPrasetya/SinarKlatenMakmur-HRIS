@@ -1,0 +1,12 @@
+D:\SKM\SinarKlatenMakmur\SKM.Shared\bin\Debug\net6.0\SKM.Shared.deps.json
+D:\SKM\SinarKlatenMakmur\SKM.Shared\bin\Debug\net6.0\SKM.Shared.dll
+D:\SKM\SinarKlatenMakmur\SKM.Shared\bin\Debug\net6.0\SKM.Shared.pdb
+D:\SKM\SinarKlatenMakmur\SKM.Shared\obj\Debug\net6.0\SKM.Shared.csproj.AssemblyReference.cache
+D:\SKM\SinarKlatenMakmur\SKM.Shared\obj\Debug\net6.0\SKM.Shared.GeneratedMSBuildEditorConfig.editorconfig
+D:\SKM\SinarKlatenMakmur\SKM.Shared\obj\Debug\net6.0\SKM.Shared.AssemblyInfoInputs.cache
+D:\SKM\SinarKlatenMakmur\SKM.Shared\obj\Debug\net6.0\SKM.Shared.AssemblyInfo.cs
+D:\SKM\SinarKlatenMakmur\SKM.Shared\obj\Debug\net6.0\SKM.Shared.csproj.CoreCompileInputs.cache
+D:\SKM\SinarKlatenMakmur\SKM.Shared\obj\Debug\net6.0\SKM.Shared.dll
+D:\SKM\SinarKlatenMakmur\SKM.Shared\obj\Debug\net6.0\refint\SKM.Shared.dll
+D:\SKM\SinarKlatenMakmur\SKM.Shared\obj\Debug\net6.0\SKM.Shared.pdb
+D:\SKM\SinarKlatenMakmur\SKM.Shared\obj\Debug\net6.0\ref\SKM.Shared.dll

@@ -1,0 +1,12 @@
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\bin\Debug\net6.0\JwtTokenAuthentication.deps.json
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\bin\Debug\net6.0\JwtTokenAuthentication.dll
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\bin\Debug\net6.0\JwtTokenAuthentication.pdb
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\obj\Debug\net6.0\JwtTokenAuthentication.csproj.AssemblyReference.cache
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\obj\Debug\net6.0\JwtTokenAuthentication.GeneratedMSBuildEditorConfig.editorconfig
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\obj\Debug\net6.0\JwtTokenAuthentication.AssemblyInfoInputs.cache
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\obj\Debug\net6.0\JwtTokenAuthentication.AssemblyInfo.cs
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\obj\Debug\net6.0\JwtTokenAuthentication.csproj.CoreCompileInputs.cache
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\obj\Debug\net6.0\JwtTokenAuthentication.dll
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\obj\Debug\net6.0\refint\JwtTokenAuthentication.dll
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\obj\Debug\net6.0\JwtTokenAuthentication.pdb
+D:\SKM\SinarKlatenMakmur\JwtTokenAuthentication\obj\Debug\net6.0\ref\JwtTokenAuthentication.dll

@@ -1,0 +1,263 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\SKM\\SinarKlatenMakmur\\HRIS\\HRIS.csproj": {}
+  },
+  "projects": {
+    "D:\\SKM\\SinarKlatenMakmur\\HRIS\\HRIS.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\SKM\\SinarKlatenMakmur\\HRIS\\HRIS.csproj",
+        "projectName": "HRIS",
+        "projectPath": "D:\\SKM\\SinarKlatenMakmur\\HRIS\\HRIS.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "D:\\SKM\\SinarKlatenMakmur\\HRIS\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "D:\\SKM\\SinarKlatenMakmur\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "D:\\SKM\\SinarKlatenMakmur\\SKM.Shared\\SKM.Shared.csproj": {
+                "projectPath": "D:\\SKM\\SinarKlatenMakmur\\SKM.Shared\\SKM.Shared.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "AspNetCore.Reporting": {
+              "target": "Package",
+              "version": "[2.1.0, )"
+            },
+            "Blazor-ApexCharts": {
+              "target": "Package",
+              "version": "[3.1.0, )"
+            },
+            "Blazored.LocalStorage": {
+              "target": "Package",
+              "version": "[4.1.5, )"
+            },
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.102.1, )"
+            },
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[11.5.1, )"
+            },
+            "HarfBuzzSharp.NativeAssets.WebAssembly": {
+              "target": "Package",
+              "version": "[7.3.0.1, )"
+            },
+            "Microsoft.AspNetCore.Components.Authorization": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
+            "Microsoft.AspNetCore.Components.WebAssembly": {
+              "target": "Package",
+              "version": "[6.0.24, )"
+            },
+            "Microsoft.AspNetCore.Components.WebAssembly.Authentication": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
+            "Microsoft.AspNetCore.Components.WebAssembly.DevServer": {
+              "target": "Package",
+              "version": "[6.0.24, )"
+            },
+            "Microsoft.AspNetCore.JsonPatch": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
+            "Microsoft.AspNetCore.SignalR": {
+              "target": "Package",
+              "version": "[1.0.4, )"
+            },
+            "Microsoft.AspNetCore.SignalR.Client": {
+              "target": "Package",
+              "version": "[6.0.25, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.7, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.7, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "MudBlazor": {
+              "target": "Package",
+              "version": "[6.9.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            },
+            "SkiaSharp.NativeAssets.WebAssembly": {
+              "target": "Package",
+              "version": "[2.88.7, )"
+            },
+            "System.CodeDom": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[6.33.0, )"
+            },
+            "Toolbelt.Blazor.HttpClientInterceptor": {
+              "target": "Package",
+              "version": "[9.2.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "browser-wasm": {
+          "#import": []
+        }
+      }
+    },
+    "D:\\SKM\\SinarKlatenMakmur\\SKM.Shared\\SKM.Shared.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\SKM\\SinarKlatenMakmur\\SKM.Shared\\SKM.Shared.csproj",
+        "projectName": "SKM.Shared",
+        "projectPath": "D:\\SKM\\SinarKlatenMakmur\\SKM.Shared\\SKM.Shared.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "D:\\SKM\\SinarKlatenMakmur\\SKM.Shared\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "D:\\SKM\\SinarKlatenMakmur\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Mvc.Abstractions": {
+              "target": "Package",
+              "version": "[2.1.0, )"
+            },
+            "Microsoft.AspNetCore.Mvc.Core": {
+              "target": "Package",
+              "version": "[2.1.0, )"
+            },
+            "System.Collections": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "System.Diagnostics.Debug": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "System.IO": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "System.IO.FileSystem.Primitives": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[6.33.0, )"
+            },
+            "System.Runtime.Extensions": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "System.Runtime.Handles": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "System.Runtime.InteropServices": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

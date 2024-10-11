@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\SKM\\SinarKlatenMakmur\\SuratPerintahLemburAPI\\wwwroot\\Reports\\RekapLembur.rdlc",
+      "PackagePath": "staticwebassets\\Reports\\RekapLembur.rdlc"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\win10-x64\\staticwebassets\\msbuild.SuratPerintahLemburAPI.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\win10-x64\\staticwebassets\\msbuild.build.SuratPerintahLemburAPI.props",
+      "PackagePath": "build\\SuratPerintahLemburAPI.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\win10-x64\\staticwebassets\\msbuild.buildMultiTargeting.SuratPerintahLemburAPI.props",
+      "PackagePath": "buildMultiTargeting\\SuratPerintahLemburAPI.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\win10-x64\\staticwebassets\\msbuild.buildTransitive.SuratPerintahLemburAPI.props",
+      "PackagePath": "buildTransitive\\SuratPerintahLemburAPI.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

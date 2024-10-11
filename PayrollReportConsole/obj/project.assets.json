@@ -1,0 +1,214 @@
+{
+  "version": 3,
+  "targets": {
+    "net7.0": {
+      "LijsDev.CrystalReportsRunner.13.0.34.x64/1.2.2": {
+        "type": "package",
+        "dependencies": {
+          "LijsDev.CrystalReportsRunner.Core": "1.2.2"
+        },
+        "build": {
+          "build/LijsDev.CrystalReportsRunner.13.0.34.x64.props": {}
+        }
+      },
+      "LijsDev.CrystalReportsRunner.Core/1.2.2": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.1",
+          "PipeMethodCalls": "3.2.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/LijsDev.CrystalReportsRunner.Core.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LijsDev.CrystalReportsRunner.Core.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Newtonsoft.Json/13.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "PipeMethodCalls/3.2.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/PipeMethodCalls.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/PipeMethodCalls.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "LijsDev.CrystalReportsRunner.13.0.34.x64/1.2.2": {
+      "sha512": "Xo9WmR+fo0BOITYMBxuqTh5xpqznXm9XjRCaU35r7PT5Io9uOw0Hq+BxbrcaDC2STjKOEckONbCGcvkXI0Shtw==",
+      "type": "package",
+      "path": "lijsdev.crystalreportsrunner.13.0.34.x64/1.2.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "build/LijsDev.CrystalReportsRunner.13.0.34.x64.props",
+        "lijsdev.crystalreportsrunner.13.0.34.x64.1.2.2.nupkg.sha512",
+        "lijsdev.crystalreportsrunner.13.0.34.x64.nuspec",
+        "runtimes/CommandLine.dll",
+        "runtimes/CrystalDecisions.CrystalReports.Engine.dll",
+        "runtimes/CrystalDecisions.ReportSource.dll",
+        "runtimes/CrystalDecisions.Shared.dll",
+        "runtimes/CrystalDecisions.Windows.Forms.dll",
+        "runtimes/LijsDev.CrystalReportsRunner.Core.dll",
+        "runtimes/LijsDev.CrystalReportsRunner.Core.pdb",
+        "runtimes/LijsDev.CrystalReportsRunner.Core.xml",
+        "runtimes/LijsDev.CrystalReportsRunner.Shell.dll",
+        "runtimes/LijsDev.CrystalReportsRunner.Shell.pdb",
+        "runtimes/LijsDev.CrystalReportsRunner.Shell.xml",
+        "runtimes/LijsDev.CrystalReportsRunner.exe",
+        "runtimes/LijsDev.CrystalReportsRunner.exe.config",
+        "runtimes/LijsDev.CrystalReportsRunner.pdb",
+        "runtimes/LijsDev.CrystalReportsRunner.xml",
+        "runtimes/NLog.config",
+        "runtimes/NLog.dll",
+        "runtimes/Newtonsoft.Json.dll",
+        "runtimes/PipeMethodCalls.dll",
+        "runtimes/log4net.dll"
+      ]
+    },
+    "LijsDev.CrystalReportsRunner.Core/1.2.2": {
+      "sha512": "3xV9jGbd5N4P/SINc8vLvN3tJeahKEBrKKVEJ0oz4T3bs2Coo4beRwZ1P0352WFR5Mp8CcHvEd9ii5QjIagDNQ==",
+      "type": "package",
+      "path": "lijsdev.crystalreportsrunner.core/1.2.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/LijsDev.CrystalReportsRunner.Core.dll",
+        "lib/netstandard2.0/LijsDev.CrystalReportsRunner.Core.xml",
+        "lijsdev.crystalreportsrunner.core.1.2.2.nupkg.sha512",
+        "lijsdev.crystalreportsrunner.core.nuspec"
+      ]
+    },
+    "Newtonsoft.Json/13.0.1": {
+      "sha512": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A==",
+      "type": "package",
+      "path": "newtonsoft.json/13.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "lib/net20/Newtonsoft.Json.dll",
+        "lib/net20/Newtonsoft.Json.xml",
+        "lib/net35/Newtonsoft.Json.dll",
+        "lib/net35/Newtonsoft.Json.xml",
+        "lib/net40/Newtonsoft.Json.dll",
+        "lib/net40/Newtonsoft.Json.xml",
+        "lib/net45/Newtonsoft.Json.dll",
+        "lib/net45/Newtonsoft.Json.xml",
+        "lib/netstandard1.0/Newtonsoft.Json.dll",
+        "lib/netstandard1.0/Newtonsoft.Json.xml",
+        "lib/netstandard1.3/Newtonsoft.Json.dll",
+        "lib/netstandard1.3/Newtonsoft.Json.xml",
+        "lib/netstandard2.0/Newtonsoft.Json.dll",
+        "lib/netstandard2.0/Newtonsoft.Json.xml",
+        "newtonsoft.json.13.0.1.nupkg.sha512",
+        "newtonsoft.json.nuspec",
+        "packageIcon.png"
+      ]
+    },
+    "PipeMethodCalls/3.2.0": {
+      "sha512": "PBtZKDaw1o5/YE3BpiYQq1EAB2xQngqNnOrvyFRKfOiAknryo3sAKz9xxhpsIJGHb4oDjMZEA94YfUL7T6gJgA==",
+      "type": "package",
+      "path": "pipemethodcalls/3.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon_64x64.png",
+        "LICENSE",
+        "lib/netstandard2.0/PipeMethodCalls.dll",
+        "pipemethodcalls.3.2.0.nupkg.sha512",
+        "pipemethodcalls.nuspec"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net7.0": [
+      "LijsDev.CrystalReportsRunner.13.0.34.x64 >= 1.2.2"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\User\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "D:\\SKM\\SinarKlatenMakmur\\PayrollReportConsole\\PayrollReportConsole.csproj",
+      "projectName": "PayrollReportConsole",
+      "projectPath": "D:\\SKM\\SinarKlatenMakmur\\PayrollReportConsole\\PayrollReportConsole.csproj",
+      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+      "outputPath": "D:\\SKM\\SinarKlatenMakmur\\PayrollReportConsole\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "D:\\SKM\\SinarKlatenMakmur\\NuGet.Config",
+        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net7.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net7.0": {
+        "targetAlias": "net7.0",
+        "dependencies": {
+          "LijsDev.CrystalReportsRunner.13.0.34.x64": {
+            "target": "Package",
+            "version": "[1.2.2, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\bin\Debug\net6.0\AuthenticationManager.deps.json
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\bin\Debug\net6.0\AuthenticationManager.dll
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\bin\Debug\net6.0\AuthenticationManager.pdb
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\obj\Debug\net6.0\AuthenticationManager.csproj.AssemblyReference.cache
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\obj\Debug\net6.0\AuthenticationManager.GeneratedMSBuildEditorConfig.editorconfig
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\obj\Debug\net6.0\AuthenticationManager.AssemblyInfoInputs.cache
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\obj\Debug\net6.0\AuthenticationManager.AssemblyInfo.cs
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\obj\Debug\net6.0\AuthenticationManager.csproj.CoreCompileInputs.cache
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\obj\Debug\net6.0\AuthenticationManager.dll
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\obj\Debug\net6.0\refint\AuthenticationManager.dll
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\obj\Debug\net6.0\AuthenticationManager.pdb
+D:\SKM\SukoharjoKlatenMakmur\AuthenticationManager\obj\Debug\net6.0\ref\AuthenticationManager.dll

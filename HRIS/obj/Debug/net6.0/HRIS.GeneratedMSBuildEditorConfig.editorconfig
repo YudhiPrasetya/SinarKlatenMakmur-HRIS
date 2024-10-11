@@ -1,0 +1,373 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = HRIS
+build_property.RootNamespace = HRIS
+build_property.ProjectDir = D:\SKM\SinarKlatenMakmur\HRIS\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\SKM\SinarKlatenMakmur\HRIS
+build_property._RazorSourceGeneratorDebug = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/AddJadwalKehadiranKaryawanDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBZGRKYWR3YWxLZWhhZGlyYW5LYXJ5YXdhbkRpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/AddJadwalKerjaSecurityDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBZGRKYWR3YWxLZXJqYVNlY3VyaXR5RGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/AddJadwalShiftDepartemenDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBZGRKYWR3YWxTaGlmdERlcGFydGVtZW5EaWFsb2cucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/AddJadwalShiftKaryawanDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBZGRKYWR3YWxTaGlmdEthcnlhd2FuRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/AddJadwalShiftSecurityDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBZGRKYWR3YWxTaGlmdFNlY3VyaXR5RGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/AddUserDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBZGRVc2VyRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/CustomErrors/CustomError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xDdXN0b21FcnJvcnNcQ3VzdG9tRXJyb3IucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/CustomErrors/CustomForbidenError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xDdXN0b21FcnJvcnNcQ3VzdG9tRm9yYmlkZW5FcnJvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/CustomErrors/CustomInternalServerError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xDdXN0b21FcnJvcnNcQ3VzdG9tSW50ZXJuYWxTZXJ2ZXJFcnJvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/CustomErrors/CustomNotFoundError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xDdXN0b21FcnJvcnNcQ3VzdG9tTm90Rm91bmRFcnJvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/CustomErrors/CustomUnauthorizedError.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xDdXN0b21FcnJvcnNcQ3VzdG9tVW5hdXRob3JpemVkRXJyb3IucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/DaftarGajiDanTunjangan.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xEYWZ0YXJHYWppRGFuVHVuamFuZ2FuLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/DaftarKaryawan.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xEYWZ0YXJLYXJ5YXdhbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/DaftarKaryawanKecil.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xEYWZ0YXJLYXJ5YXdhbktlY2lsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/EditJadwalKehadiranKaryawanDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xFZGl0SmFkd2FsS2VoYWRpcmFuS2FyeWF3YW5EaWFsb2cucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/FormGajiDanTunjangan.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3JtR2FqaURhblR1bmphbmdhbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/FormGajiDanTunjanganSekaligus.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3JtR2FqaURhblR1bmphbmdhblNla2FsaWd1cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/FormSPLDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xGb3JtU1BMRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xIb21lLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/LoginFormDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMb2dpbkZvcm1EaWFsb2cucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Components/PrintDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQcmludERpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Aktivitas/Hadir/Hadir.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWt0aXZpdGFzXEhhZGlyXEhhZGlyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Aktivitas/LupaAbsen/FormLupaAbsen.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWt0aXZpdGFzXEx1cGFBYnNlblxGb3JtTHVwYUFic2VuLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Aktivitas/LupaAbsen/LupaAbsen.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWt0aXZpdGFzXEx1cGFBYnNlblxMdXBhQWJzZW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Aktivitas/SPL/SuratPerintahLembur.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWt0aXZpdGFzXFNQTFxTdXJhdFBlcmludGFoTGVtYnVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Aktivitas/Terlambat/FormAddKeterlambatanModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWt0aXZpdGFzXFRlcmxhbWJhdFxGb3JtQWRkS2V0ZXJsYW1iYXRhbk1vZGFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Aktivitas/Terlambat/Terlambat.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWt0aXZpdGFzXFRlcmxhbWJhdFxUZXJsYW1iYXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Aktivitas/TidakHadir/TidakHadir.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWt0aXZpdGFzXFRpZGFrSGFkaXJcVGlkYWtIYWRpci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Aktivitas/TidakHadir/TidakHadirModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWt0aXZpdGFzXFRpZGFrSGFkaXJcVGlkYWtIYWRpck1vZGFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Authentication/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aGVudGljYXRpb25cTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Authentication/Logout.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aGVudGljYXRpb25cTG9nb3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Counter.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291bnRlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/CustomNotFound.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3VzdG9tTm90Rm91bmQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/AbsentMachines.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxBYnNlbnRNYWNoaW5lcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/Departments.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxEZXBhcnRtZW50cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/Employee/AddEmployee.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxFbXBsb3llZVxBZGRFbXBsb3llZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/Employee/Employee.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxFbXBsb3llZVxFbXBsb3llZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/Gaji-old.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxHYWppLW9sZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/Gaji/DaftarGaji.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxHYWppXERhZnRhckdhamkucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/Gaji/FormGajiMultiModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxHYWppXEZvcm1HYWppTXVsdGlNb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/Gaji/FormGajiSingle.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxHYWppXEZvcm1HYWppU2luZ2xlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/Gaji/FormGajiSingleModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxHYWppXEZvcm1HYWppU2luZ2xlTW9kYWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/Gaji/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxHYWppXEluZGV4LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/JadwalKerja/DeleteJadwalKaryawanConfirmation.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxKYWR3YWxLZXJqYVxEZWxldGVKYWR3YWxLYXJ5YXdhbkNvbmZpcm1hdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/JadwalKerja/FormEditJadwalKerjaKaryawanModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxKYWR3YWxLZXJqYVxGb3JtRWRpdEphZHdhbEtlcmphS2FyeWF3YW5Nb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/JadwalKerja/FormGantiHariJadwalKaryawanModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxKYWR3YWxLZXJqYVxGb3JtR2FudGlIYXJpSmFkd2FsS2FyeWF3YW5Nb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/JadwalKerja/FormJadwalKerjaKaryawanModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxKYWR3YWxLZXJqYVxGb3JtSmFkd2FsS2VyamFLYXJ5YXdhbk1vZGFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/JadwalKerja/JadwalKerjaKaryawan.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxKYWR3YWxLZXJqYVxKYWR3YWxLZXJqYUthcnlhd2FuLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/JadwalKerja/JadwalKerjaKaryawan2.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxKYWR3YWxLZXJqYVxKYWR3YWxLZXJqYUthcnlhd2FuMi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/JadwalKerja/JadwalKerjaSecurity.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxKYWR3YWxLZXJqYVxKYWR3YWxLZXJqYVNlY3VyaXR5LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/JadwalKerja/JadwalKerjaSecurity2.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxKYWR3YWxLZXJqYVxKYWR3YWxLZXJqYVNlY3VyaXR5Mi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/Positions.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxQb3NpdGlvbnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/DataMaster/WorkGroups.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YU1hc3RlclxXb3JrR3JvdXBzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/FetchData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmV0Y2hEYXRhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/AkhirKontrakData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxBa2hpcktvbnRyYWtEYXRhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/BlankLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxCbGFua0xheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/KehadiranData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxLZWhhZGlyYW5EYXRhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/KehadiranStaf.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxLZWhhZGlyYW5TdGFmLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/LapAkhirKontrak.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxMYXBBa2hpcktvbnRyYWsucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/LapLemburAll.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxMYXBMZW1idXJBbGwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/LapLogMesinAbsen.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxMYXBMb2dNZXNpbkFic2VuLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/LapLupaAbsen.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxMYXBMdXBhQWJzZW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/LapRekapLembur.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxMYXBSZWthcExlbWJ1ci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/LapTidakHadir.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxMYXBUaWRha0hhZGlyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/LupaAbsenData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxMdXBhQWJzZW5EYXRhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/Payroll.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxQYXlyb2xsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/RekapLemburData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxSZWthcExlbWJ1ckRhdGEucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Laporan/TidakHadirData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGFwb3JhblxUaWRha0hhZGlyRGF0YS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Screens/EmployeeScreen.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2NyZWVuc1xFbXBsb3llZVNjcmVlbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Settings/DaftarUser.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGluZ3NcRGFmdGFyVXNlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/Settings/ShiftDanJamKerja.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGluZ3NcU2hpZnREYW5KYW1LZXJqYS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/SharedModal/ForbidenModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkTW9kYWxcRm9yYmlkZW5Nb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/SharedModal/SearchDepartmentModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkTW9kYWxcU2VhcmNoRGVwYXJ0bWVudE1vZGFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/SharedModal/SearchEmployeeModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkTW9kYWxcU2VhcmNoRW1wbG95ZWVNb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/SharedModal/SearchGajiDanTunjanganModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkTW9kYWxcU2VhcmNoR2FqaURhblR1bmphbmdhbk1vZGFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/SharedModal/SearchGroupModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkTW9kYWxcU2VhcmNoR3JvdXBNb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Pages/SharedModal/SearchPositionModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkTW9kYWxcU2VhcmNoUG9zaXRpb25Nb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Shared/AppBar.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEFwcEJhci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Shared/AuthLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEF1dGhMYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Shared/EmptyLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEVtcHR5TGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Shared/HRISNavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEhSSVNOYXZNZW51LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Shared/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExvZ2luLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Shared/RedirectToLogin.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFJlZGlyZWN0VG9Mb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Shared/SurveyPrompt.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFN1cnZleVByb21wdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-13vzrqeydi
+
+[D:/SKM/SinarKlatenMakmur/HRIS/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-pdas9jx4wm
