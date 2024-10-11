@@ -23,4 +23,8 @@
     <ProjectReference Include="..\SKM.Shared\SKM.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="backupdb_dev\" />
+  </ItemGroup>
+
 </Project>

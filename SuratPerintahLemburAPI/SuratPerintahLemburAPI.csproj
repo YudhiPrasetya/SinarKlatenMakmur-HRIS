@@ -61,4 +61,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="backupdb_dev\" />
+  </ItemGroup>
+
 </Project>

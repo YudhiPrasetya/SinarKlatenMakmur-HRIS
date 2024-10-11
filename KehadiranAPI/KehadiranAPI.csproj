@@ -30,6 +30,10 @@
     <ProjectReference Include="..\AuthAPI\AuthAPI.csproj" />
     <ProjectReference Include="..\SKM.Shared\SKM.Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="backupdb_dev\" />
+  </ItemGroup>
 	
 	<PropertyGroup>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>

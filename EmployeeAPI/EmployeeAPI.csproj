@@ -35,6 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="backupdb_dev\" />
     <Folder Include="RabbitMqConsumer\" />
   </ItemGroup>
 
